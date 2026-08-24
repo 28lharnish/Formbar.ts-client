@@ -4,12 +4,13 @@ import { textColorForBackground } from "@utils/GlobalFunctions";
 import { type Student } from "@/types";
 import { IonIcon } from "@ionic/react";
 import * as IonIcons from "ionicons/icons";
-import { useClassData, useUserData } from "@/main";
+import { useClassData, useTheme, useUserData } from "@/main";
 
 import { awardDigipogs as awardDigipogAPICall }  from "@api/digipogApi";
 import { approveStudentBreak, banClassStudent, deleteHelpRequest, denyStudentBreak, endStudentBreak, kickClassStudent } from "@api/classApi";
 import { addRoleToStudent, removeRoleFromStudent } from "@api/rolesApi";
 import { currentUserHasScope } from "@utils/scopeUtils";
+import { themeColors } from "@/themes/ThemeConfig";
 
 type AccordionCategory = {
 	name: string;
@@ -18,8 +19,6 @@ type AccordionCategory = {
 	enabled: boolean;
 };
 
-
-
 export default function AccordionCollapse({
 	categories,
 	isOpen = false,
@@ -27,7 +26,6 @@ export default function AccordionCollapse({
 	categories: AccordionCategory[];
 	isOpen?: boolean;
 }) {
-    
 	const [currentIndex, setCurrentIndex] = useState<number | null>(null);
 	const [expanded, setExpanded] = useState<boolean>(false);
 	const wasOpenRef = useRef(false);
@@ -278,6 +276,7 @@ export default function AccordionCollapse({
 export function StudentAccordion({ studentData, isOpen = false }: { studentData: Student; isOpen?: boolean }) {
 	const { classData } = useClassData();
 	const { userData } = useUserData();
+	const { isDark } = useTheme();
 
 	const [awardDigipogs, setAwardDigipogs] = useState<number>(0);
 	const [studentRoleIds, setStudentRoleIds] = useState<number[]>([]);
@@ -557,9 +556,9 @@ export function StudentAccordion({ studentData, isOpen = false }: { studentData:
 									);
 									const roleColor = role?.color || "#666666";
 									return (
-										<Tag
+										<Tag 
 											color={roleColor}
-											style={{ marginInlineEnd: 4, color: roleColor, borderColor: "transparent" }}
+											style={{ marginInlineEnd: 4, color: roleColor, borderColor: "transparent", background: themeColors[isDark ? "dark" : "light"].roleTag.background }}
 											closable={props.closable}
 											onClose={props.onClose}
 											onMouseDown={(event) => {

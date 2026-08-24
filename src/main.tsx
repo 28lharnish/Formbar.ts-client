@@ -561,7 +561,9 @@ const AppContent = () => {
 				title="Email Verification Required"
 				open={isVerificationRequired}
 				closable={false}
-				maskClosable={false}
+				mask={{
+					closable: false
+				}}
 				keyboard={false}
 				footer={null}
 			>
