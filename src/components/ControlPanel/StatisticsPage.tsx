@@ -127,15 +127,6 @@ export default function Statistics() {
                 },
             ],
         },
-        {
-            title: "Other Stats",
-            stats: [
-                {
-                    title: "N/A",
-                    value: "N/A",
-                },
-            ],
-        },
     ]);
 
 	return (
