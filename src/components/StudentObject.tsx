@@ -151,7 +151,9 @@ export default function StudentObject({
 					footer={null}
 					width={1000}
 				>
-					<StudentManagementGrid student={student}/>
+					{userData && (
+						<StudentManagementGrid student={student} classData={classData} userData={userData} />
+					)}
 				</Modal>
 			</div>
 		</div>
