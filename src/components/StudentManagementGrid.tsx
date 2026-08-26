@@ -3,6 +3,7 @@ import { Row, Col, Flex, Card, Typography } from "antd";
 const { Text } = Typography;
 import { IonIcon } from "@ionic/react";
 import * as IonIcons from "ionicons/icons";
+import { StudentAccordion } from "./AccordionCollapse";
 
 export default function StudentManagementGrid({
 	student
@@ -24,7 +25,42 @@ export default function StudentManagementGrid({
 			icon: IonIcons.handRightOutline,
 			color: "#ff6860",
 			title: 'Help Ticket',
-			description: "Help Ticket",
+			description: "View and delete this user's help ticket.",
+			children: 'hi!'
+		},
+		{
+			icon: IonIcons.umbrellaOutline,
+			color: "#ff8f40",
+			title: 'Break Request',
+			description: "Breaks",
+			children: 'hi!'
+		},
+		{
+			icon: IonIcons.textOutline,
+			color: "#ffdf40",
+			title: 'Response',
+			description: "The user's current poll response.",
+			children: 'hi!'
+		},
+		{
+			icon: IonIcons.cashOutline,
+			color: "#81ff81",
+			title: 'Digipogs',
+			description: "Award Digipogs to this user.",
+			children: 'hi!'
+		},
+		{
+			icon: IonIcons.lockClosedOutline,
+			color: "#bfcfff",
+			title: 'Roles',
+			description: "Manage roles for this user.",
+			children: 'hi!'
+		},
+		{
+			icon: IonIcons.banOutline,
+			color: "#df80ff",
+			title: 'Management',
+			description: "Manage this user.",
 			children: 'hi!'
 		}
 	]
@@ -44,7 +80,7 @@ export default function StudentManagementGrid({
 				}} title={
 					<Flex vertical style={{padding: 8}}>
 						<Flex align="center">
-							<IonIcon icon={IonIcons.handRightOutline} style={{
+							<IonIcon icon={category.icon} style={{
 								fontSize: "30px",
 								color: category.color,
 								margin: "8px",
@@ -59,6 +95,7 @@ export default function StudentManagementGrid({
 					</Flex>
 				}>
 					{category.children}
+					<StudentAccordion studentData={student}/>
 				</Card>
 			</Col>
 		)
