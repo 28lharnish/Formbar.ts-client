@@ -153,32 +153,59 @@ export default function StudentManagementGrid({
 									: ""}
 							</Text>
 						</Card>
-						<Flex style={{width: '100%'}}>
-							<Flex align="center" style={{marginRight: 'auto'}}>
-								<IonIcon icon={IonIcons.timeOutline} />
-								<Text type="secondary" style={{width: '100%', fontWeight: 300, fontSize: "16px", marginLeft: 4}}>Created at: {new Date(student.break.time).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) + " at "  + new Date(student.break.time).toLocaleTimeString("en-US", {hour: 'numeric', minute: '2-digit'})}</Text>
-							</Flex>
-							<Button
-								variant="outlined"
-								color="red"
-								// onClick={async () => {
-								// 	if (!canManageHelp) return;
-								// 	await deleteHelpRequest(classData?.id!, student.id)
-								// 	.then((data) => {
-								// 		if(data.success) {
-								// 			showSuccessNotification("Deleted help ticket.", "Deleted Help Ticket");
-								// 			return;
-								// 		}
-								// 		showErrorNotification("Failed to delete help ticket.");
-								// 	});
-								// }}
-							>
-								Delete
-							</Button>
-						</Flex>
+						{
+							typeof student.break === "string" ? (
+								<>
+									<Flex gap={10}>
+										<Button
+											variant="outlined"
+											color="green"
+											style={{ width: "120px" }}
+											onClick={() => {
+												if (!canManageBreak) return;
+												approveStudentBreak(classData?.id!, student.id);
+											}}
+										>
+											Approve
+										</Button>
+										<Button
+											variant="outlined"
+											color="red"
+											style={{ width: "120px" }}
+											onClick={() => {
+												if (!canManageBreak) return;
+												denyStudentBreak(classData?.id!, student.id);
+											}}
+										>
+											Deny
+										</Button>
+									</Flex>
+								</>
+							) : (
+								<>
+									<Flex style={{width: '100%'}}>
+										{/* <Flex align="center" style={{marginRight: 'auto'}}>
+											<IonIcon icon={IonIcons.timeOutline} />
+											<Text type="secondary" style={{width: '100%', fontWeight: 300, fontSize: "16px", marginLeft: 4}}>Created at: {new Date(student.break.time).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) + " at "  + new Date(student.break.time).toLocaleTimeString("en-US", {hour: 'numeric', minute: '2-digit'})}</Text>
+										</Flex> */}
+										<Button
+											variant="outlined"
+											color="red"
+											onClick={() => {
+												if (!canEndBreaks) return;
+												endStudentBreak(classData?.id!, student.id);
+											}}
+										>
+											End Break
+										</Button>
+									</Flex>
+								</>
+							)
+						}
+						
 					</>) : (<>
 						<Text type="secondary" style={{fontWeight: 300, fontSize: "16px"}}>
-							No Help Ticket
+							No Break
 						</Text>
 					</>)}
 					
