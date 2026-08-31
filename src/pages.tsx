@@ -5,6 +5,7 @@ import Student from "@pages/Student.tsx";
 import NewsPage from "@pages/NewsPage.tsx";
 import ClassesPage from "@pages/Classes.tsx";
 import PogPools from "@pages/PogPools.tsx";
+import InventoryPage from "@pages/InventoryPage.tsx";
 import Transactions from "@pages/Transactions.tsx";
 import ManagerPanel from "@pages/ManagerPanel.tsx";
 import NotFound from "@pages/404.tsx";
@@ -81,6 +82,11 @@ const pages: Page[] = [
 		pageName: "Transactions",
 		routePath: "/profile/:id?/transactions",
 		page: Transactions,
+	},
+	{
+		pageName: "Inventory",
+		routePath: "/profile/:id?/inventory",
+		page: InventoryPage,
 	},
 	{
 		// Legacy OAuth redirect flow — third-party apps (e.g. Jukebar) send the user

@@ -64,7 +64,7 @@ export default function Profile() {
 	const showGuestActions = !isGuestProfile;
 	const showSensitiveSection = isOwnProfile && !isGuestProfile;
 
-	const canTransferDigipogs = isOwnProfile && !isGuestProfile && currentUserHasScope(userData, "global.digipogs.transfer");
+	const canTransferDigipogs = !isGuestProfile && currentUserHasScope(userData, "global.digipogs.transfer");
 
 	const getErrorMessage = (response: unknown, fallback: string) => {
 		const errorResponse = response as {
@@ -364,11 +364,21 @@ export default function Profile() {
 						{!error && (
 							<h2
 								style={{
-									display: "flex",
-									flexDirection: "row",
-									alignItems: "center",
-									justifyContent: "space-between",
-									gap: "10px",
+									textAlign: 'center',
+									width: "100%",
+								}}
+							>
+								{
+									<span style={{textAlign:'center', ...(isMobile && {width: '100%'})}}>{isOwnProfile && !isMobile ? "Your Profile" : "Profile"}</span>
+								}
+							</h2>
+						)}
+						{!error && (
+							<Flex
+								align="center"
+								justify="space-between"
+								gap={10}
+								style={{
 									width: "100%",
 								}}
 							>
@@ -384,14 +394,29 @@ export default function Profile() {
                                                         : "/profile/transactions",
                                                 );
                                             }}
-                                            style={{ width: "130px" }}
+                                            style={{ width: "100%" }}
                                         >
                                             Transactions
                                         </Button>
                                     )
                                 }
 								{
-									<span style={{textAlign:'center', ...(isMobile && {width: '100%'})}}>{isOwnProfile && !isMobile ? "Your Profile" : "Profile"}</span>
+									!isMobile && showGuestActions && isOwnProfile &&(
+										<Button
+											variant="solid"
+											color="blue"
+											onClick={() => {
+												navigate(
+													id
+														? `/profile/${id}/inventory`
+														: "/profile/inventory",
+												);
+											}}
+											style={{ width: "100%" }}
+										>
+											Inventory
+										</Button>
+									)
 								}
                                 {
                                     !isMobile && showGuestActions && (
@@ -399,14 +424,14 @@ export default function Profile() {
                                             variant="solid"
                                             color="blue"
                                             onClick={() => navigate("/pools")}
-                                            style={{ width: "130px" }}
+                                            style={{ width: "100%" }}
                                         >
                                             Pog Pools
                                         </Button>
                                     )   
                                 }
 								
-							</h2>
+							</Flex>
 						)}
 
                         {

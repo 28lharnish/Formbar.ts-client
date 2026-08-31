@@ -117,15 +117,18 @@ export default function FormbarHeader() {
 					Formbar
 					<Badge count={"v3"} style={badgeStyle} />
 				</h1>
-                {/* <Badge count={1} size="small">
-                    <Button style={{marginLeft: 10}} type="primary" shape="square" variant="solid" color="default" size="large"
-                        onClick={() => navigate("/profile")}
-                    >
-                        <IonIcon icon={IonIcons.notifications} size="large" />
-                    </Button>
-                </Badge> */}
                 </>
+
 			)}
+{/* 			
+			<Badge count={1} size="small" styles={{root: { marginRight: 'auto'}}}>
+				<Button style={{marginLeft: 10}} type="primary" shape="square" variant="solid" color="default" size="large"
+					onClick={() => navigate("/profile")}
+				>
+					<IonIcon icon={IonIcons.notifications} size="large" />
+				</Button>
+			</Badge> */}
+
 			<Flex align="center" justify="center" gap={10}>
 
 				{userData &&
