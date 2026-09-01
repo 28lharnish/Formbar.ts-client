@@ -4,21 +4,42 @@ import { useState } from "react";
 const { Title, Text } = Typography;
 
 export default function InventoryItemElement({
-	item	
-}: {item: InventoryItem}) {
+	isMe,
+	item,
+	deleteFunction
+}: {
+	isMe: boolean,
+	item: InventoryItem,
+	deleteFunction: Function
+}) {
 	const [isModalOpen, openModal] = useState(false);
-	const [itemDeleteQuantity, setDeleteQuantity] = useState(0);
-
+	const [itemDeleteQuantity, setDeleteQuantity] = useState(1);
+	
 	return (
 		<Col>
-			<Modal open={isModalOpen} okText="Delete" okType="danger" onCancel={() => openModal(false)} title={`Delete "${item.name}"?`}>
+			<Modal open={isModalOpen} okText="Delete" okType="danger" onCancel={() => openModal(false)} title={
+				<Flex align="start" gap={16} style={{marginBottom:8}}>
+					<Image style={{ width: '100px', height: '100px', borderRadius: 6 }} src={
+						item.image_url ? item.image_url : "https://placehold.co/600x600?text=No+Image"
+					} preview={false}/>
+					<Flex vertical style={{ marginTop: 8 }}>
+						<Title style={{fontSize: 36, marginBottom: 0}}>{item.name}</Title>
+						<Text style={{fontSize: 16}}>{item.description}</Text>
+					</Flex>
+				</Flex>
+			} onOk={() => deleteFunction(item.id, itemDeleteQuantity)}>
+				<Text>
+					How many of this item would you like to remove from {isMe ? "your" : "this user's"} inventory?
+				</Text>
+				
 				<InputNumber
-					style={{width:'100%'}}
+					style={{width:'100%', marginTop: 12}}
 					placeholder="Quantity"
 					value={itemDeleteQuantity}
 					onChange={(value) => setDeleteQuantity(value || 0)}
-					min={0}
-				
+					min={1}
+					max={item.quantity}
+					suffix={`/ ${item.quantity}`}
 				/>
 			</Modal>
 			<Flex

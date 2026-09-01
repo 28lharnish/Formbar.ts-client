@@ -9,6 +9,7 @@ import { useMobileDetect, useUserData } from "@/main";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getUserTransactions } from "@api/userApi";
+import ProfileViewingCard from "@/components/ProfileViewingCard";
 
 const DEFAULT_PAGE_SIZE = 20;
 
@@ -22,6 +23,7 @@ export default function Transactions() {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 	const [totalTransactions, setTotalTransactions] = useState(0);
+	const [targetId, setTargetId] = useState<string>('')
     const isMobile = useMobileDetect();
 
 	useEffect(() => {
@@ -30,6 +32,7 @@ export default function Transactions() {
 
 		const offset = (currentPage - 1) * pageSize;
 		const targetUserId = id ? id : String(userData.id);
+		setTargetId(targetUserId);
 		const abortController = new AbortController();
 
 		getUserTransactions(targetUserId, pageSize, offset)
@@ -90,6 +93,8 @@ export default function Transactions() {
 				<Title style={{ textAlign: "center", margin: "20px" }}>
 					Transactions
 				</Title>
+
+				<ProfileViewingCard userId={targetId} />
 
 				<Flex
 					vertical

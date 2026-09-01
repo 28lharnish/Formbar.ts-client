@@ -301,6 +301,14 @@ export default function Profile() {
 			});
 	}, [userData, id, isGuestProfile]);
 
+	const mobileButtonStyle = {
+		border: "none",
+		padding: "0 0",
+        aspectRatio: 1,
+		boxShadow: "0 2px 0px rgba(0,0,0,0.2)",
+        borderRadius: "12px"
+	}
+
 	return (
 		<>
 			{contextHolder}
@@ -383,7 +391,7 @@ export default function Profile() {
 								}}
 							>
                                 {
-                                    !isMobile && showGuestActions && (
+                                    showGuestActions && (
                                         <Button
                                             variant="solid"
                                             color="blue"
@@ -394,14 +402,14 @@ export default function Profile() {
                                                         : "/profile/transactions",
                                                 );
                                             }}
-                                            style={{ width: "100%" }}
+                                            style={isMobile ? mobileButtonStyle : { width: "100%" }}
                                         >
-                                            Transactions
+                                            {isMobile ? <IonIcon icon={IonIcons.cashOutline}/> : "Transactions"}
                                         </Button>
                                     )
                                 }
 								{
-									!isMobile && showGuestActions && isOwnProfile &&(
+									showGuestActions &&(
 										<Button
 											variant="solid"
 											color="blue"
@@ -412,57 +420,27 @@ export default function Profile() {
 														: "/profile/inventory",
 												);
 											}}
-											style={{ width: "100%" }}
+                                            style={isMobile ? mobileButtonStyle : { width: "100%" }}
 										>
-											Inventory
+											{isMobile ? <IonIcon icon={IonIcons.bagOutline}/> : "Inventory"}
 										</Button>
 									)
 								}
                                 {
-                                    !isMobile && showGuestActions && (
+                                    showGuestActions && (
                                         <Button
                                             variant="solid"
                                             color="blue"
                                             onClick={() => navigate("/pools")}
-                                            style={{ width: "100%" }}
+                                            style={isMobile ? mobileButtonStyle : { width: "100%" }}
                                         >
-                                            Pog Pools
+                                            {isMobile ? "pp" : "Pog Pools"}
                                         </Button>
                                     )   
                                 }
 								
 							</Flex>
 						)}
-
-                        {
-                            isMobile && showGuestActions && (
-                                <Flex gap={10} style={{width:'100%'}} justify="center">
-                                    <Button
-                                        variant="solid"
-                                        color="blue"
-                                        onClick={() => {
-                                            navigate(
-                                                id
-                                                    ? `/profile/${id}/transactions`
-                                                    : "/profile/transactions",
-                                            );
-                                        }}
-                                        style={{ width: "130px" }}
-                                    >
-                                        Transactions
-                                    </Button>
-                            
-                                    <Button
-                                        variant="solid"
-                                        color="blue"
-                                        onClick={() => navigate("/pools")}
-                                        style={{ width: "130px" }}
-                                    >
-                                        Pog Pools
-                                    </Button>
-                                </Flex>
-                            )
-                        }
 
 						{!error && isGuestProfile && (
 							<Text type="secondary" style={{ textAlign: "center" }}>
