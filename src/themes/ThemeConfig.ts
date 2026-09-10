@@ -17,6 +17,9 @@ export const themeColors = {
 		information: {
 			background: "#fff3",
 		},
+		roleTag: {
+			background: "#0003"
+		}
 	},
 	light: {
 		body: {
@@ -35,6 +38,9 @@ export const themeColors = {
 		information: {
 			background: "#0002",
 		},
+		roleTag: {
+			background: "#0002"
+		}
 	},
 };
 
@@ -85,6 +91,9 @@ export const darkMode = {
 		SelectProps: {
 			colorBorder: "#ff0000",
 		},
+		Tag: {
+			defaultBg: "#0003"
+		}
 	},
 };
 

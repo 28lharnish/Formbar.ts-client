@@ -1,7 +1,6 @@
 import { FloatButton, Input, Modal, Radio } from "antd";
 import { IonIcon } from "@ionic/react";
 import * as IonIcons from "ionicons/icons";
-import { socket } from "@utils/socket";
 import { useState } from "react";
 import { useUserData } from "@/main";
 import { currentUserHasScope } from "@utils/scopeUtils";
@@ -18,6 +17,8 @@ export default function StudentMenu() {
 
 	const canRequestHelp = currentUserHasScope(userData, "class.help.request");
 	const canRequestBreak = currentUserHasScope(userData, "class.break.request");
+
+	if(!canRequestBreak && !canRequestHelp) return (<></>)
 
 	return (
 		<>

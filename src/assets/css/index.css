@@ -9,6 +9,8 @@
 	transition:
 		background-color var(--ant-motion-duration-slow) ease-in-out,
 		color var(--ant-motion-duration-slow) ease-in-out;
+
+	scrollbar-color: #66b5ff transparent;
 }
 
 *::-webkit-scrollbar {

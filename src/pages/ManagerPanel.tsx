@@ -25,7 +25,7 @@ import * as IonIcons from "ionicons/icons";
 import { Activity, useEffect, useState } from "react";
 import { accessToken } from "@utils/socket";
 import { useSettings, getAppearAnimation, useMobileDetect, useUserData } from "@/main";
-import { banUser, deleteUser, unbanUser, verifyUser } from "@api/userApi";
+import { banUser, deleteUser, unbanUser, verifyUser, updateUserPermissions } from "@api/userApi";
 import { addIpToList, deleteIpFromList, getAllIpAccessList, getManagerData, toggleIpList, updateIpFromList } from "@api/managerApi";
 import { deleteClass } from "@api/classApi";
 import { SCOPES } from "@/types";
@@ -110,7 +110,6 @@ export default function ManagerPanel() {
 
 				const userItems = [
 					...(Array.isArray(data?.users) ? data.users : []),
-					...(currentPage === 1 && Array.isArray(data?.pendingUsers) ? data.pendingUsers : []),
 				];
 
                 const unbannedUsers = userItems.filter((user: ManagerPanelUser) => !isBannedUser(user));
@@ -347,7 +346,7 @@ export default function ManagerPanel() {
 				</Flex>
                 {
                     !isMobile && (
-                        <Select style={{ width: "100%" }} defaultValue={user.permissions} disabled={isUnverifiedUser(user) || isBannedUser(user)} >
+                        <Select style={{ width: "100%" }} onChange={(e) => updateUserPermissions(String(user.id), {perm: e})} defaultValue={user.permissions} disabled={isUnverifiedUser(user) || isBannedUser(user)} >
                             <Select.Option value={5}>Manager</Select.Option>
                             <Select.Option value={4}>Teacher</Select.Option>
                             <Select.Option value={3}>Mod</Select.Option>

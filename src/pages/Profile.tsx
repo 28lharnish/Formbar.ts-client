@@ -11,6 +11,7 @@ import {
 	Modal,
     Space,
 	InputNumber,
+	Tooltip,
 } from "antd";
 const { Title, Text, Link } = Typography;
 import { IonIcon } from "@ionic/react";
@@ -64,7 +65,7 @@ export default function Profile() {
 	const showGuestActions = !isGuestProfile;
 	const showSensitiveSection = isOwnProfile && !isGuestProfile;
 
-	const canTransferDigipogs = isOwnProfile && !isGuestProfile && currentUserHasScope(userData, "global.digipogs.transfer");
+	const canTransferDigipogs = !isGuestProfile && currentUserHasScope(userData, "global.digipogs.transfer");
 
 	const getErrorMessage = (response: unknown, fallback: string) => {
 		const errorResponse = response as {
@@ -301,6 +302,16 @@ export default function Profile() {
 			});
 	}, [userData, id, isGuestProfile]);
 
+	const mobileButtonStyle = {
+		border: "none",
+		padding: "0 0",
+		height: 48,
+        aspectRatio: 1,
+		fontSize: 24,
+		boxShadow: "0 2px 0px rgba(0,0,0,0.2)",
+        borderRadius: "8px"
+	}
+
 	return (
 		<>
 			{contextHolder}
@@ -337,7 +348,7 @@ export default function Profile() {
 				style={{ padding: "20px", height: "100%", width: "100%" }}
 			>
 				<Card
-					style={{ margin: "20px", width: "600px" }}
+					style={{ margin: "20px", ...(isMobile ? {width:600} : {minWidth:600}) }}
 					loading={error === null && !profileProps["Display Name"]}
 				>
 					<Flex
@@ -364,80 +375,95 @@ export default function Profile() {
 						{!error && (
 							<h2
 								style={{
-									display: "flex",
-									flexDirection: "row",
-									alignItems: "center",
-									justifyContent: "space-between",
-									gap: "10px",
+									textAlign: 'center',
+									width: "100%",
+								}}
+							>
+								{
+									<span style={{textAlign:'center', ...(isMobile && {width: '100%'})}}>{isOwnProfile && !isMobile ? "Your Profile" : "Profile"}</span>
+								}
+							</h2>
+						)}
+						{!error && (
+							<Flex
+								align="center"
+								justify={isMobile ? "center" : "space-between"}
+								gap={10}
+								style={{
 									width: "100%",
 								}}
 							>
                                 {
-                                    !isMobile && showGuestActions && (
-                                        <Button
-                                            variant="solid"
-                                            color="blue"
-                                            onClick={() => {
-                                                navigate(
-                                                    id
-                                                        ? `/profile/${id}/transactions`
-                                                        : "/profile/transactions",
-                                                );
-                                            }}
-                                            style={{ width: "130px" }}
-                                        >
-                                            Transactions
-                                        </Button>
+                                    showGuestActions && (
+										<Tooltip title={isMobile ? "Transactions" : ""}>
+											<Button
+												variant="solid"
+												color="blue"
+												onClick={() => {
+													navigate(
+														id
+															? `/profile/${id}/transactions`
+															: "/profile/transactions",
+													);
+												}}
+												style={isMobile ? mobileButtonStyle : { width: "100%" }}
+											>
+												{isMobile ? <IonIcon icon={IonIcons.cashOutline}/> : "Transactions"}
+											</Button>
+										</Tooltip>
                                     )
                                 }
 								{
-									<span style={{textAlign:'center', ...(isMobile && {width: '100%'})}}>{isOwnProfile && !isMobile ? "Your Profile" : "Profile"}</span>
+									showGuestActions &&(
+										<Tooltip title={isMobile ? "Inventory" : ""}>
+											<Button
+												variant="solid"
+												color="blue"
+												onClick={() => {
+													navigate(
+														id
+															? `/profile/${id}/inventory`
+															: "/profile/inventory",
+													);
+												}}
+												style={isMobile ? mobileButtonStyle : { width: "100%" }}
+											>
+												{isMobile ? <IonIcon icon={IonIcons.bagOutline}/> : "Inventory"}
+											</Button>
+										</Tooltip>
+									)
 								}
                                 {
-                                    !isMobile && showGuestActions && (
-                                        <Button
-                                            variant="solid"
-                                            color="blue"
-                                            onClick={() => navigate("/pools")}
-                                            style={{ width: "130px" }}
-                                        >
-                                            Pog Pools
-                                        </Button>
+                                    isOwnProfile && showGuestActions && (
+										<Tooltip title={isMobile ? "Pog Pools" : ""}>
+											<Button
+												variant="solid"
+												color="blue"
+												onClick={() => navigate("/pools")}
+												style={isMobile ? mobileButtonStyle : { width: "100%" }}
+											>
+												{isMobile ? <IonIcon icon={IonIcons.peopleCircleOutline}/> : "Pog Pools"}
+											</Button>
+										</Tooltip>
+                                    )   
+                                }
+                                {
+                                    !isOwnProfile && canTransferDigipogs && showGuestActions && (
+										<Tooltip title={isMobile ? "Transfer Digipogs" : ""}>
+											<Button
+												variant="solid"
+												color="green"
+												onClick={()=>setTransferDigipogModalOpen(true)}
+												style={isMobile ? mobileButtonStyle : { width: "100%" }}
+											>
+												{isMobile ? <IonIcon icon={IonIcons.cardOutline}/> : "Transfer Digipogs"}
+											</Button>
+										</Tooltip>
                                     )   
                                 }
 								
-							</h2>
+							</Flex>
 						)}
-
-                        {
-                            isMobile && showGuestActions && (
-                                <Flex gap={10} style={{width:'100%'}} justify="center">
-                                    <Button
-                                        variant="solid"
-                                        color="blue"
-                                        onClick={() => {
-                                            navigate(
-                                                id
-                                                    ? `/profile/${id}/transactions`
-                                                    : "/profile/transactions",
-                                            );
-                                        }}
-                                        style={{ width: "130px" }}
-                                    >
-                                        Transactions
-                                    </Button>
-                            
-                                    <Button
-                                        variant="solid"
-                                        color="blue"
-                                        onClick={() => navigate("/pools")}
-                                        style={{ width: "130px" }}
-                                    >
-                                        Pog Pools
-                                    </Button>
-                                </Flex>
-                            )
-                        }
 
 						{!error && isGuestProfile && (
 							<Text type="secondary" style={{ textAlign: "center" }}>
@@ -470,71 +496,64 @@ export default function Profile() {
                                         </p>
                                     ),
                             )}
-							{
-								!isOwnProfile && canTransferDigipogs && (
-									<>
-										<Flex justify="center" align="center">
-											<Button type="primary" variant="solid" color="blue" onClick={()=>setTransferDigipogModalOpen(true)}>
-												Transfer Digipogs
-											</Button>
-										</Flex>
-
-										<Modal
-											title="Transfer Digipogs"
-											okText="Transfer"
-											cancelText="Cancel"
-											open={transferDigipogModalOpen}
-											onCancel={() => {
-												setTransferDigipogModalOpen(false);
-												setTransferDigipog(0);
-												setTransferDigipogPin("");
-												setTransferDigipogReason("");
-											}}
-											onOk={() => {
-												if (!transferDigipog || transferDigipog <= 0 || !canTransferDigipogs || !userData) {
-													return;
-												}
-												transferDigipogs({from: userData.id, to: Number(profileProps.ID), amount: transferDigipog, pin: transferDigipogPin, reason: transferDigipogReason}).then(() => {
-													setTransferDigipogModalOpen(false);
-													setTransferDigipog(0);
-													setTransferDigipogPin("");
-													setTransferDigipogReason("");
-												})
-											}}
-											closeIcon={<IonIcon icon={IonIcons.close} />}
-										>
-											<Flex
-												vertical
-												gap={10}
-												justify="start"
-												align="start"
-											>
-												<Text>Transfers digipogs from your account to {profileProps['Display Name']}</Text>
-												<InputNumber
-													style={{width:'100%'}}
-													placeholder="Amount"
-													value={transferDigipog}
-													onChange={(value) => setTransferDigipog(value || 0)}
-													min={0}
-													
-
-												/>
-												<Input
-													placeholder="Reason"
-													value={transferDigipogReason}
-													onChange={(e) => setTransferDigipogReason(e.target.value)}
-												/>
-												<Input.Password
-													placeholder="PIN"
-													value={transferDigipogPin}
-													onChange={(e) => setTransferDigipogPin(e.target.value)}
-												/>
-											</Flex>
-										</Modal>
-									</>
-								)
-							}
                         </Flex>
+
+						{!error && !isOwnProfile && (
+							<>
+								<Modal
+									title="Transfer Digipogs"
+									okText="Transfer"
+									cancelText="Cancel"
+									open={transferDigipogModalOpen}
+									onCancel={() => {
+										setTransferDigipogModalOpen(false);
+										setTransferDigipog(0);
+										setTransferDigipogPin("");
+										setTransferDigipogReason("");
+									}}
+									onOk={() => {
+										if (!transferDigipog || transferDigipog <= 0 || !canTransferDigipogs || !userData) {
+											return;
+										}
+										transferDigipogs({from: userData.id, to: Number(profileProps.ID), amount: transferDigipog, pin: transferDigipogPin, reason: transferDigipogReason}).then(() => {
+											setTransferDigipogModalOpen(false);
+											setTransferDigipog(0);
+											setTransferDigipogPin("");
+											setTransferDigipogReason("");
+										})
+									}}
+									closeIcon={<IonIcon icon={IonIcons.close} />}
+								>
+									<Flex
+										vertical
+										gap={10}
+										justify="start"
+										align="start"
+									>
+										<Text>Transfers digipogs from your account to {profileProps['Display Name']}</Text>
+										<InputNumber
+											style={{width:'100%'}}
+											placeholder="Amount"
+											value={transferDigipog}
+											onChange={(value) => setTransferDigipog(value || 0)}
+											min={0}
+											
+
+										/>
+										<Input
+											placeholder="Reason"
+											value={transferDigipogReason}
+											onChange={(e) => setTransferDigipogReason(e.target.value)}
+										/>
+										<Input.Password
+											placeholder="PIN"
+											value={transferDigipogPin}
+											onChange={(e) => setTransferDigipogPin(e.target.value)}
+										/>
+									</Flex>
+								</Modal>
+							</>
+						)}
 
 						{!error && showSensitiveSection && (
 							<div

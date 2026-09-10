@@ -354,3 +354,12 @@ export type SavedPollTemplate = SavedPollTemplateBody & {
     owner: number | null,
     public: boolean,
 };
+
+export type InventoryItem = {
+	description: string
+	id: number
+	image_url: string | null
+	name: string
+	quantity: number
+	stack_size: number
+}
