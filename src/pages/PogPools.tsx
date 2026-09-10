@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { getUserPools } from "@api/userApi";
 import { addPoolMember, createPool, deletePool, payoutPool, removePoolMember } from "@api/pogPoolsApi";
 import { currentUserHasScope } from "@/utils/scopeUtils";
+import { SCOPES } from "@/types";
 
 type Pool = {
 	id: number;
@@ -49,6 +50,7 @@ function parsePools(responseData: unknown): Pool[] {
 
 export default function PogPools() {
 	const { userData } = useUserData();
+	const [pin, setPin] = useState<string>();
 	const [pools, setPools] = useState<Pool[]>([]);
 	const [error, setError] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
@@ -196,7 +198,7 @@ export default function PogPools() {
 		}
 
 		Log({ message: `Creating pool: ${poolName}` });
-		createPool({ name: poolName, description: poolDesc })
+		createPool({ name: poolName, description: poolDesc, pin: pin })
 			.then(() => {
 				Log({ message: `Pool ${poolName} created successfully` });
 				setPoolName("");
@@ -525,6 +527,16 @@ export default function PogPools() {
                         onChange={(e) => setPoolDesc(e.target.value)}
                         rows={4}
                     />
+					{
+						userData && !currentUserHasScope(userData, "global.system.admin") && (
+							<Input.Password
+								placeholder="PIN"
+								value={pin}
+								onChange={(e) => setPin(e.target.value)}
+								maxLength={6}
+							/>
+						)
+					}
 				</Flex>
 			</Modal>
 		</>
