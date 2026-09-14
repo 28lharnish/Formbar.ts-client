@@ -129,6 +129,16 @@ export type Transaction = {
 	pool?: number | null;
 };
 
+export type PogPool = {
+	id: number,
+	name: string,
+	description: string,
+	amount: number,
+	share_item: number,
+	members: any[],
+	owners: any[]
+}
+
 export type Class = {
 	id: string;
 	name: string;
