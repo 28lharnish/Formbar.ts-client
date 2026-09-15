@@ -7,6 +7,7 @@ export function deletePool(poolId: number) {
 export function createPool(body: {
     name: string,
     description: string,
+	pin?: string
 }) {
     return http("/pools/create", "POST", {}, body);
 }
