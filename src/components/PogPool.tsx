@@ -11,7 +11,10 @@ import {
 	Statistic,
 	Modal,
 	notification,
+	Switch,
 	Typography,
+	InputNumber,
+	Segmented,
 } from "antd";
 import {
 	payoutPool,
@@ -39,38 +42,31 @@ export default function PogPoolElement({
 	const [modal, contextHolder] = Modal.useModal();
 	const [api, contextHolderNotification] = notification.useNotification();
 	const [newPoolUserId, setNewPoolUserId] = useState("");
+	const [payoutModalOpen, setPayoutModalOpen] = useState<boolean>(false);
+	const [percentOrSet, setPercentOrSet] = useState<"Percent" | "Digipogs">("Percent");
+	const [payoutPercent, setPayoutPercent] = useState<number>(100);
+	const [payoutDigipogs, setPayoutDigipogs] = useState<number>(pool.amount);
 
 	const handlePayout = (poolId: number) => {
 		Log({ message: `Payout initiated for pool ${poolId}` });
 
-		modal.confirm({
-			title: "Payout Pool",
-			content:
-				"How much would you like to pay out?",
-			okText: "Payout",
-			okType: "primary",
-			cancelText: "Cancel",
-			okCancel: true,
-			onOk: () => {
-				payoutPool(poolId)
-					.then(() => {
-						Log({ message: `Payout successful for pool ${poolId}` });
-						refreshPools();
-					})
-					.catch((err) => {
-						Log({
-							message: `Error during payout for pool ${poolId}`,
-							data: err,
-							level: "error",
-						});
-						api["error"]({
-							title: "Error During Payout",
-							description: `Failed to payout the pool. Please try again.`,
-							placement: "bottom",
-						});
-					});
-			},
-		});
+		payoutPool(poolId, (percentOrSet === "Percent" ? payoutPercent : payoutDigipogs), percentOrSet)
+			.then(() => {
+				Log({ message: `Payout successful for pool ${poolId}` });
+				refreshPools();
+			})
+			.catch((err) => {
+				Log({
+					message: `Error during payout for pool ${poolId}`,
+					data: err,
+					level: "error",
+				});
+				api["error"]({
+					title: "Error During Payout",
+					description: `Failed to payout the pool. Please try again.`,
+					placement: "bottom",
+				});
+			});
 	};
 
 	const handleAddMember = (poolId: number) => {
@@ -168,6 +164,25 @@ export default function PogPoolElement({
 		<>
 			{contextHolder}
 			{contextHolderNotification}
+			<Modal open={payoutModalOpen} onCancel={() => setPayoutModalOpen(false)} closable={false} title="Payout Pool" okType="primary" okText="Payout" onOk={() => handlePayout(pool.id)} cancelText="Cancel">
+				<Text type="secondary" style={{fontSize: 14}}>You can payout a set amount of digipogs, or a percentage of the full amount.</Text>
+				<Flex align="center" justify="space-between" gap={10} style={{marginTop: 20}}>
+					<Segmented options={[
+						"Percent",
+						"Digipogs"
+					]} onChange={setPercentOrSet} />
+					{
+						percentOrSet === 'Digipogs'
+							? <>
+								<InputNumber suffix="digipogs" style={{ width: 200 }} max={pool.amount} min={0} value={payoutDigipogs}  onChange={(e) => setPayoutDigipogs(e || 0)}/>
+							</>
+							: <>
+								<InputNumber suffix="%" style={{ width: 200 }} max={100} min={0} value={payoutPercent} onChange={(e) => setPayoutPercent(e || 0)} />
+							</>
+					}
+				</Flex>
+			</Modal>
+
 			<Card
 				title={pool.name}
 				styles={{
@@ -201,7 +216,7 @@ export default function PogPoolElement({
 								<IonIcon
 									icon={IonIcons.cashOutline}
 									style={{ fontSize: "32px" }}
-									onClick={() => handlePayout(pool.id)}
+									onClick={() => setPayoutModalOpen(true)}
 									key="payout"
 								/>
 							</Tooltip>,

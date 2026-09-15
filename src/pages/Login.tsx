@@ -28,7 +28,7 @@ export default function LoginPage() {
 	const location = useLocation();
 	const { userData } = useUserData();
 
-	const [mode, setMode] = useState("Login");
+	const [mode, setMode] = useState<"Login" | "Sign Up" | "Guest">("Login");
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const isMobileView = useMobileDetect();
 	const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;

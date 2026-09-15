@@ -17,8 +17,11 @@ export function addPoolMember(poolId: number, body: {
     return http(`/pools/${poolId}/add-member`, "POST", {}, body);
 }
 
-export function payoutPool(poolId: number) {
-    return http(`/pools/${poolId}/payout`, "POST");
+export function payoutPool(poolId: number, amount: number, payoutType: "Percent" | "Digipogs") {
+    return http(`/pools/${poolId}/payout`, "POST", {}, {
+		amount,
+		payoutType: payoutType.toLowerCase()
+	});
 }
 
 export function removePoolMember(poolId: number, body: {
