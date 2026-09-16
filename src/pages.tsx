@@ -14,6 +14,7 @@ import PinResetPage from "@pages/PinReset.tsx";
 import EmailVerifyPage from "@pages/EmailVerify.tsx";
 import AuthorizeApp from "@pages/oauth/AuthorizeApp.tsx";
 import Links from "@pages/Links.tsx";
+import MarkdownTest from "./pages/MarkdownTest";
 
 type Page = {
 	pageName: string;
@@ -114,6 +115,11 @@ const pages: Page[] = [
 		pageName: "Links",
 		routePath: "/links",
 		page: Links,
+	},
+	{
+		pageName: "MDTest",
+		routePath: '/mdt',
+		page: MarkdownTest
 	}
 ];
 
