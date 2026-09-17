@@ -1,6 +1,34 @@
 import { Card, Flex, Tooltip, Button } from "antd";
+import { useEffect, useRef, type CSSProperties } from "react";
+import commandArray from "@/utils/markdownUtils";
+import {
+	handleKeyDown,
+	shortcuts,
+	TextAreaCommandOrchestrator,
+	getCommands,
+} from "@uiw/react-md-editor";
 
-export default function MarkdownEditor() {
+export default function MarkdownEditor({
+	value,
+	setValue,
+	textAreaStyles
+}:{
+	value: string,
+	setValue: any,
+	textAreaStyles?: CSSProperties
+}) {
+	const textareaRef = useRef<HTMLTextAreaElement>(null);
+	const orchestratorRef = useRef<TextAreaCommandOrchestrator | null>(
+		null,
+	);
+
+	useEffect(() => {
+		if (textareaRef.current) {
+			orchestratorRef.current = new TextAreaCommandOrchestrator(
+				textareaRef.current,
+			);
+		}
+	}, []);
 
 	function ToolbarButton({
 		command,
@@ -23,12 +51,33 @@ export default function MarkdownEditor() {
 
 		return (
 			<Tooltip title={commandTooltips[command]}>
-				<Button type="primary" onClick={() => runCommand(command)}>
+				<Button style={{aspectRatio: 1.1, padding: 0}} type="primary" onClick={() => runCommand(command)}>
 					{children}
 				</Button>
 			</Tooltip>
 		);
 	}
+	
+	const allCommands = [...getCommands(), ...commandArray];
+
+	const runCommand = (commandName: string) => {
+		const command = allCommands.find(
+			(command) => command.name === commandName,
+		);
+
+		if (!command || command === undefined || !orchestratorRef.current)
+			return;
+
+		orchestratorRef?.current?.executeCommand(command);
+		textareaRef.current?.focus();
+	};
+
+	const onKeyDown = (e: any) => {
+		handleKeyDown(e, 2, false);
+		if (orchestratorRef.current) {
+			shortcuts(e, allCommands, orchestratorRef.current);
+		}
+	};
 
 	return (
 		<>
@@ -170,13 +219,14 @@ export default function MarkdownEditor() {
 					placeholder="Prompt"
 					style={{
 						width: "100%",
-						height: 200,
 						padding: 10,
 						background: "#0002",
 						border: "none",
 						color: "white",
 						outline: "none",
 						borderRadius: 4,
+						maxWidth: '100%',
+						...textAreaStyles
 					}}
 				/>
 			</Card>

@@ -36,7 +36,7 @@ export default function PollEditorResponse({
                     },
                     icon: {
                         height: '100%',
-                        aspectRatio: 1
+                        width: '100%',
                     }
                 }} checked={answer.isCorrect} onChange={(e) => setAnswer({ ...answer, isCorrect: e.target.checked })} />
             </Tooltip>
