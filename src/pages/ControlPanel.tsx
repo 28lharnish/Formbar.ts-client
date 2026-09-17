@@ -733,6 +733,7 @@ export default function ControlPanel() {
 					style={{
 						height: "100%",
 						width: isMobileDevice ? "calc(100% - 80px)" : "calc(100% - 250px)",
+						overflowY: 'scroll'
 					}}
 				>
 					<Activity mode={currentMenu == "1" ? "visible" : "hidden"}>

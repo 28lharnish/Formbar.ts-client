@@ -1,4 +1,4 @@
-import { Button, Card, Collapse, Flex, Input, Switch, Tooltip, Typography, notification, InputNumber, Modal } from "antd";
+import { Button, Card, Collapse, Flex, Input, Switch, Tooltip, Typography, notification, InputNumber, Modal, Segmented } from "antd";
 const { Title, Text } = Typography;
 import { useClassData, useMobileDetect, useUserData } from "@/main";
 import { useEffect, useState } from "react";
@@ -33,8 +33,7 @@ type PollProperties = {
 import { socket } from "@utils/socket";
 import { createPoll, savePollTemplateToClass } from "@api/classApi";
 import { savePollTemplateToUser } from "@api/userApi";
-import MarkdownEditor from "../MarkdownEditor";
-import SanitizedMDView from "../SanitizedMDView";
+import MarkdownEditor, { type MDEditorModes } from "../MarkdownEditor";
 
 type EditorSeedPoll = {
     prompt: string;
@@ -254,24 +253,46 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
         width: 118,
     } as const;
 
+	const [promptMode, setPromptMode] = useState<MDEditorModes>("Basic");
+
     return (
         <>{contextHolder}
 			<Flex vertical align="center" justify="start" style={{ height: "100%", flex: 1, padding: 20, paddingBottom: 0 }}>
 				<Title level={isMobile ? 3 : 2}>Poll Editor</Title>
-
-				<SanitizedMDView source={pollProperties.prompt || "*No prompt.*"} />
 				
 				<Flex gap={20} vertical={isMobile} style={isMobile ? {width: '100%'} : {}}>
-					<Card title="Poll Properties" style={{ width: isMobile ? "100%" : "475px" }}>
+					<Card title={
+						<Flex justify="space-between">
+							<Text>Poll Properties</Text>
+
+							<Segmented options={[
+								"Basic",
+								"Advanced",
+								"Preview"
+							]} 
+								style={{
+									fontSize: 12,
+								}}
+								styles={{
+									label: {
+										minHeight: 0,
+										lineHeight: 2
+									}
+								}}
+								value={promptMode}
+								onChange={setPromptMode}
+							/>
+						</Flex>
+					} style={{ width: isMobile ? "100%" : "475px" }}>
 						<Flex vertical gap={15} style={{height: isMobile ? 'min-content' : 'auto'}}>
 							<MarkdownEditor value={pollProperties.prompt} setValue={(newVal: string) => setPollProperties({ ...pollProperties, prompt: newVal })} textAreaStyles={{	
 								lineHeight: 1.2,
 								height: 80,
 								maxHeight: 80,
 								resize: 'none'
-							}} />
+							}} mode={promptMode} chararacterLimit={300} />
 
-							<Collapse
+							{ promptMode !== 'Preview' && (<Collapse
 								style={{ width: "100%" }}
 								defaultActiveKey={["behavior"]}
 								accordion
@@ -356,7 +377,7 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
 										),
 									}
 								]}
-							/>
+							/>)}
 							<Flex vertical gap={12} style={{marginTop: isMobile ? 0 : 'auto'}}>
 								<Flex align="center" justify="space-between" gap={10}>
 									<Tooltip title="Reset answers to 'Answer X'." mouseEnterDelay={0.5}>
@@ -474,7 +495,7 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
 							</Button>
 						</Flex>
 					} style={{ width: isMobile ? '100%' : "500px", ...(isMobile ? {flex: '1 1 auto', height: 'unset'} : {})  }}>
-						<Flex vertical gap={10} style={{ maxHeight: "400px", overflowY: "auto", ...{height: isMobile ? '200px' : 'auto'} }}>
+						<Flex vertical gap={10} style={{ maxHeight: "500px", overflowY: "auto", ...{height: isMobile ? '200px' : 'auto'} }}>
 							{
 								pollProperties.answers.map((answer, index) => (
 									<PollEditorResponse 
