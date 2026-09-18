@@ -13,6 +13,7 @@ import { toEpochMs } from "@utils/GlobalFunctions";
 import { getMe } from "@api/userApi";
 import { endBreak, submitPollResponse } from "@api/classApi";
 import { currentUserHasScope } from "@utils/scopeUtils";
+import SanitizedMDView from "@/components/SanitizedMDView";
 const { Title, Text } = Typography;
 
 export default function Student() {
@@ -223,18 +224,19 @@ export default function Student() {
 		<>
 			<FormbarHeader />
 
-			<Title
+			<SanitizedMDView
 				style={{
 					position: "absolute",
 					transform: "translate(-50%)",
 					left: "50%",
-					top: "90px",
+					top: "64px",
 					width: "100%",
+					background: 'transparent',
+					fontSize: 36,
 					textAlign: "center",
 				}}
-			>
-				{canReadPoll && userData?.break !== true ? classData?.poll.prompt : null}
-			</Title>
+				source={canReadPoll && userData?.break !== true ? classData?.poll.prompt : null}
+			></SanitizedMDView>
 
 			{userData?.break !== true && canReadPoll ? (
 				<>

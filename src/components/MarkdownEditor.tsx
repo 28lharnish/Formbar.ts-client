@@ -221,7 +221,7 @@ export default function MarkdownEditor({
 						minHeight: 0,
 					},
 					body: {
-						padding: 4,
+						padding: 0,
 						overflow: "hidden",
 					},
 				}}
@@ -236,7 +236,7 @@ export default function MarkdownEditor({
 					maxLength={chararacterLimit}
 					style={{
 						width: "100%",
-						padding: 10,
+						padding: 8,
 						background: isDark ? '#0002' : "#fff2",
 						border: "none",
 						color: isDark ? 'white' : "black",
