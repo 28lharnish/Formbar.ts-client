@@ -93,10 +93,7 @@ export default function MarkdownEditor({
 	return (
 		<>
 			<Card
-				title={
-					<>
-						
-						{ mode === "Advanced" && (
+				title={ mode === "Advanced" && (
 							<Flex gap={10} justify="space-between">
 								<Flex gap={4}>
 									<ToolbarButton command="bold">
@@ -213,8 +210,7 @@ export default function MarkdownEditor({
 									</ToolbarButton>
 								</Flex>
 							</Flex>
-						)}
-					</>
+					)
 				}
 				style={{
 					position: 'relative'

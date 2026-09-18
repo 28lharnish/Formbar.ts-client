@@ -292,7 +292,7 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
 								resize: 'none'
 							}} mode={promptMode} chararacterLimit={300} />
 
-							{ promptMode !== 'Preview' && (<Collapse
+							{ promptMode === 'Advanced' && (<Collapse
 								style={{ width: "100%" }}
 								defaultActiveKey={["behavior"]}
 								accordion
@@ -378,12 +378,32 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
 									}
 								]}
 							/>)}
+							{
+								promptMode === "Basic" && (
+									<Flex vertical gap={12}>
+										<Flex align="center" justify="space-between" style={settingRowStyle}>
+											Allow Text Responses
+											<Switch defaultChecked={pollProperties.allowTextResponses} onChange={(e) => setPollProperties({...pollProperties, allowTextResponses: e})} />
+										</Flex>
+
+										<Flex align="center" justify="space-between" style={settingRowStyle}>
+											Multiple Answer Poll
+											<Switch defaultChecked={pollProperties.allowMultipleResponses} onChange={(e) => setPollProperties({...pollProperties, allowMultipleResponses: e})} />
+										</Flex>
+										
+										<Flex align="center" justify="space-between" style={settingRowStyle}>
+											Blind Poll
+											<Switch checked={pollProperties.blind} onChange={(e) => setPollProperties({...pollProperties, blind: e})} />
+										</Flex>
+									</Flex>
+								)
+							}
 							<Flex vertical gap={12} style={{marginTop: isMobile ? 0 : 'auto'}}>
 								<Flex align="center" justify="space-between" gap={10}>
 									<Tooltip title="Reset answers to 'Answer X'." mouseEnterDelay={0.5}>
 										<Button
 											type="primary"
-											style={isMobile ? {width: '100%'} : {}}
+											style={{width: '100%'}}
 											onClick={() => {
 												setPollProperties({
 													...pollProperties,
@@ -407,7 +427,7 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
 									<Tooltip title="Assign each answer a unique color." mouseEnterDelay={0.5}>
 										<Button
 											type="primary"
-											style={isMobile ? {width: '100%'} : {}}
+											style={{width: '100%'}}
 											onClick={() => {
 												let colors = generateColors(pollProperties.answers.length);
 
@@ -439,7 +459,7 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
 												<Button
 													variant="solid"
 													color="green"
-													style={isMobile ? { width: "100%" } : {}}
+													style={{width: '100%'}}
 													onClick={() => openSaveModal("my")}
 												>
 													{
@@ -458,7 +478,7 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
 												<Button
 													variant="solid"
 													color="green"
-													style={isMobile ? { width: "100%" } : {}}
+													style={{width: '100%'}}
 													onClick={() => openSaveModal("class")}
 												>
 													{
