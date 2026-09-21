@@ -16,7 +16,9 @@ type PollAnswer = {
 };
 
 type PollProperties = {
-    prompt: string;
+    prompt?: string;
+	promptMD?: string;
+	promptHTML?: string;
     answers: PollAnswer[];
     weight: number;
     blind: boolean;
@@ -125,7 +127,7 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
 
     function openSaveModal(mode: PollSaveMode) {
         setSaveMode(mode);
-        setPollSaveName(pollProperties.prompt);
+        setPollSaveName(pollProperties.prompt || pollProperties.promptMD || pollProperties.promptHTML || '');
         setSaveModalOpen(true);
     }
 
@@ -146,7 +148,7 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
         try {
             const payload = {
                 name: trimmedName,
-                prompt: pollProperties.prompt,
+                prompt: pollProperties.prompt || pollProperties.promptMD || pollProperties.promptHTML || '',
                 answers: pollProperties.answers,
                 allowTextResponses: pollProperties.allowTextResponses,
                 blind: pollProperties.blind,
@@ -220,7 +222,7 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
         setUseAutoEndThreshold(initialPoll.autoEndThreshold != null);
     }, [initialPoll]);
 
-    function startCustomPoll() {
+    function startCustomPoll(promptMode: MDEditorModes) {
 		if (!classData?.isActive) {
 			showErrorNotification(
                 "Class is not active.",
@@ -228,7 +230,14 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
 			return;
 		}
 
-        //? Use fetch WHEN IT ACTUALLY WORKS.
+		if(promptMode === "Basic") {
+			delete pollProperties.promptMD;
+			delete pollProperties.promptHTML;
+		} else {
+			pollProperties.promptMD = pollProperties.prompt;
+			delete pollProperties.prompt;
+		}
+
         createPoll(classData.id, {
             ...pollProperties,
             blindUntilEnded: pollProperties.blind ? pollProperties.blindUntilEnded : false,
@@ -241,8 +250,6 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
             .catch((err) => {
                 console.error("Error starting custom poll:", err);
             });
-
-        // socket && socket.emit("startPoll", pollProperties);
     }
 
     const settingRowStyle = {
@@ -285,7 +292,7 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
 						</Flex>
 					} style={{ width: isMobile ? "100%" : "475px" }}>
 						<Flex vertical gap={15} style={{height: isMobile ? 'min-content' : 'auto'}}>
-							<MarkdownEditor value={pollProperties.prompt} setValue={(newVal: string) => setPollProperties({ ...pollProperties, prompt: newVal })} textAreaStyles={{	
+							<MarkdownEditor value={pollProperties.prompt || ""} setValue={(newVal: string) => setPollProperties({ ...pollProperties, prompt: newVal })} textAreaStyles={{	
 								lineHeight: 1.2,
 								height: 80,
 								maxHeight: 80,
@@ -499,7 +506,7 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
 									type="primary"
 									danger
 									onClick={() => {
-										startCustomPoll();
+										startCustomPoll(promptMode);
 									}}
 								>
 									Start Without Saving

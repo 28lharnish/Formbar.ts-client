@@ -220,23 +220,50 @@ export default function Student() {
 	const canReadPoll = currentUserHasScope(userData, 'class.poll.read');
 	const canVote = currentUserHasScope(userData, 'class.poll.vote');
 
+	function checkPollPrompt(): "Basic" | "MD" | "HTML" | undefined {
+		if(!classData) return;
+
+		if(classData?.poll.promptMD) return "MD";
+		if(classData?.poll.promptHTML) return "HTML";
+		return "Basic"
+
+	}
+
 	return (
 		<>
 			<FormbarHeader />
 
-			<SanitizedMDView
-				style={{
-					position: "absolute",
-					transform: "translate(-50%)",
-					left: "50%",
-					top: "64px",
-					width: "100%",
-					background: 'transparent',
-					fontSize: 36,
-					textAlign: "center",
-				}}
-				source={canReadPoll && userData?.break !== true ? classData?.poll.prompt : null}
-			></SanitizedMDView>
+			{
+				checkPollPrompt() == "Basic" ? (
+					<Text
+						style={{
+							position: "absolute",
+							transform: "translate(-50%)",
+							left: "50%",
+							top: "64px",
+							width: "100%",
+							background: 'transparent',
+							fontSize: 36,
+							textAlign: "center",
+						}}>
+						{canReadPoll && userData?.break !== true ? classData?.poll.prompt : null}
+					</Text>
+				) : (
+					<SanitizedMDView
+						style={{
+							position: "absolute",
+							transform: "translate(-50%)",
+							left: "50%",
+							top: "64px",
+							width: "100%",
+							background: 'transparent',
+							fontSize: 36,
+							textAlign: "center",
+						}}
+						source={canReadPoll && userData?.break !== true ? classData?.poll.promptMD : null}
+					></SanitizedMDView>
+				)
+			}
 
 			{userData?.break !== true && canReadPoll ? (
 				<>

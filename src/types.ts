@@ -173,7 +173,9 @@ export type Student = {
 
 export type Poll = {
 	id?: number;
-	prompt: string;
+	prompt?: string;
+	promptMD?: string;
+	promptHTML?: string;
 	responses: any[];
 	blind: boolean;
 	allowTextResponses: boolean;
