@@ -129,6 +129,16 @@ export type Transaction = {
 	pool?: number | null;
 };
 
+export type PogPool = {
+	id: number,
+	name: string,
+	description: string,
+	amount: number,
+	share_item: number,
+	members: any[],
+	owners: any[]
+}
+
 export type Class = {
 	id: string;
 	name: string;
@@ -163,7 +173,9 @@ export type Student = {
 
 export type Poll = {
 	id?: number;
-	prompt: string;
+	prompt?: string;
+	promptMD?: string;
+	promptHTML?: string;
 	responses: any[];
 	blind: boolean;
 	allowTextResponses: boolean;
@@ -354,3 +366,12 @@ export type SavedPollTemplate = SavedPollTemplateBody & {
     owner: number | null,
     public: boolean,
 };
+
+export type InventoryItem = {
+	description: string
+	id: number
+	image_url: string | null
+	name: string
+	quantity: number
+	stack_size: number
+}
