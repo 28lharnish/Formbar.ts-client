@@ -7,6 +7,7 @@ import { StudentAccordion } from "./AccordionCollapse";
 import { currentUserHasScope } from "@utils/scopeUtils";
 import { approveStudentBreak, banClassStudent, deleteHelpRequest, denyStudentBreak, endStudentBreak, kickClassStudent } from "@api/classApi";
 import { addRoleToStudent, removeRoleFromStudent } from "@api/rolesApi";
+import PollButton from "./PollButton";
 
 export default function StudentManagementGrid({
 	student,
@@ -217,7 +218,14 @@ export default function StudentManagementGrid({
 			color: "#ffdf40",
 			title: 'Response',
 			description: "The user's current poll response.",
-			children: 'hi!'
+			children: <>
+				{
+					Array.isArray(student.pollRes?.buttonRes) ? student.pollRes?.buttonRes.map((res: string) => (
+						<p key={res}>{res}</p>
+					)) : null
+				}
+
+			</>
 		},
 		{
 			icon: IonIcons.cashOutline,
