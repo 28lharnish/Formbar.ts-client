@@ -17,6 +17,7 @@
 		"@dnd-kit/utilities": "^3.2.2",
 		"@ionic/react": "^8.7.10",
 		"@types/crypto-js": "^4.2.2",
+		"@uiw/react-md-editor": "^4.1.2",
 		"antd": "^6.6.1",
 		"crypto-js": "^4.2.0",
 		"ionicons": "^8.0.13",
@@ -24,6 +25,7 @@
 		"react-countup": "^6.5.3",
 		"react-dom": "^19.2.0",
 		"react-router-dom": "^7.9.6",
+		"rehype-sanitize": "^6.0.0",
 		"socket.io-client": "^4.8.1",
 		"use-sound": "^5.0.0"
 	},

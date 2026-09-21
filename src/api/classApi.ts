@@ -61,7 +61,9 @@ export function clearCurrentPoll(classId: number) {
 }
 
 export function createPoll(classId: number, body: {
-    prompt: string,
+    prompt?: string,
+	promptMD?: string;
+	promptHTML?: string;
     answers: any[],
     blind: boolean,
     weight: number,

@@ -3,6 +3,7 @@ const { Text } = Typography;
 import { textColorForBackground } from "@utils/GlobalFunctions";
 import { IonIcon } from "@ionic/react";
 import * as IonIcons from "ionicons/icons";
+import SanitizedMDView from "./SanitizedMDView";
 
 export interface Answer {
 	answer: string;
@@ -88,13 +89,7 @@ export default function PollModal({
 		<Modal
 			centered
 			title={
-				<Input
-					value={prompt}
-					placeholder="Prompt"
-					disabled={readOnly}
-					onChange={(e) => onPromptChange?.(e.target.value)}
-					style={{ width: "calc(100% - 35px)" }}
-				/>
+				<SanitizedMDView source={prompt} />
 			}
 			open={open}
 			onCancel={onCancel}
