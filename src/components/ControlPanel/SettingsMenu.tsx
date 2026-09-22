@@ -138,18 +138,12 @@ export default function SettingsMenu() {
             return;
         }
 
-        // Basic URL validation
-        try {
-            new URL("https://" + newLinkInput.url.replace(/^https?:\/\//, ''));
-        } catch (e) {
-            showErrorNotification("Please enter a valid URL.");
-            return;
-        }
+		let fixedLink = { name: newLinkInput.name, url: "https://" + newLinkInput.url.replace(/^https?:\/\//, '') };
 
-        createClassLink(classData!.id, newLinkInput)
+        createClassLink(classData!.id, fixedLink)
         .then((data) => {
             if (data.success) {
-                setClassLinks([...classLinks, newLinkInput]);
+                setClassLinks([...classLinks, fixedLink]);
                 setNewLinkInput({ name: "", url: "" });
             } else {
                 showErrorNotification("Failed to add link.");
