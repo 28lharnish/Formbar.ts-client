@@ -23,7 +23,7 @@ import { authLogin, guestLogin, registerUser, setRefreshToken } from "@api/authA
 import { getServerConfig } from "@api/systemApi";
 
 export default function LoginPage() {
-	const { isDark } = useTheme();
+	const { isDark, isHighContrast } = useTheme();
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { userData } = useUserData();
@@ -299,7 +299,7 @@ export default function LoginPage() {
 												marginBottom: "10px",
 												color:
 													displayName.length > 4
-														? isDark
+														? isHighContrast || isDark
 															? "white"
 															: "black"
 														: "red",
@@ -321,7 +321,7 @@ export default function LoginPage() {
 														emailRegex.test(
 															email,
 														) || email.length === 0
-															? isDark
+															? isHighContrast || isDark
 																? "white"
 																: "black"
 															: "red",
@@ -337,7 +337,7 @@ export default function LoginPage() {
 													marginBottom: "10px",
 													color:
 														password.length >= 5
-															? isDark
+															? isHighContrast || isDark
 																? "white"
 																: "black"
 															: "red",
@@ -362,7 +362,7 @@ export default function LoginPage() {
 															confirmPassword &&
 														confirmPassword.length >=
 															5
-															? isDark
+															? isHighContrast || isDark
 																? "white"
 																: "black"
 															: "red",

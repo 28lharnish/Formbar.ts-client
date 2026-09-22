@@ -1,9 +1,11 @@
 import { Flex, Tooltip } from "antd";
 import { useClassData } from "@/main";
+import { useSettings } from "@/main";
 import {
 	textColorForBackground,
 	calculateFontSize,
 } from "@utils/GlobalFunctions";
+import { accessiblePollColor } from "@utils/accessibilityColors";
 
 export default function ControlPanelPoll({
 	classData,
@@ -13,6 +15,7 @@ export default function ControlPanelPoll({
 	height?: string;
 }) {
 	const contextClassData = useClassData();
+	const { settings } = useSettings();
 	const data = classData || contextClassData?.classData;
 
 	return (
@@ -39,10 +42,12 @@ export default function ControlPanelPoll({
 					></Flex>
 				) : null}
 				{data && data.poll &&
-					data?.poll.responses.map((resp: any, index: number) => (
+					data?.poll.responses.map((resp: any, index: number) => {
+						const responseColor = accessiblePollColor(resp.color, settings.accessibility.colorVisionMode, index) || resp.color;
+						return (
 						<Tooltip
                             mouseEnterDelay={0.5}
-							color={resp.color}
+							color={responseColor}
 							key={index}
 							title={`${resp.answer}: ${resp.responses} vote${resp.responses !== 1 ? "s" : ""}`}
 							placement="bottom"
@@ -55,7 +60,7 @@ export default function ControlPanelPoll({
 											? `${(resp.responses / data.poll.totalResponders) * 100}%`
 											: "0%",
 									height: "100%",
-									background: resp.color,
+									background: responseColor,
 									transition: "width 0.3s ease",
 									borderLeft:
 										index === 0
@@ -69,7 +74,7 @@ export default function ControlPanelPoll({
 											100,
 										resp.answer,
 									),
-									color: textColorForBackground(resp.color),
+									color: textColorForBackground(responseColor),
 								}}
 								justify="center"
 								align="center"
@@ -77,7 +82,8 @@ export default function ControlPanelPoll({
 								{resp.responses > 0 ? resp.answer : " "}
 							</Flex>
 						</Tooltip>
-					))}
+						);
+					})}
 				{
 					data && data.poll && (// Show unanswered portion if there are unanswered responses
 						data?.poll.totalResponses < data?.poll.totalResponders &&

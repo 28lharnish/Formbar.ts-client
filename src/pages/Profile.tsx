@@ -18,7 +18,7 @@ import { IonIcon } from "@ionic/react";
 import * as IonIcons from "ionicons/icons";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useUserData, useSettings, useMobileDetect } from "@/main";
+import { useUserData, useSettings, useMobileDetect, useTheme } from "@/main";
 import CountUp from 'react-countup';
 import { getMe, getUser, regenerateUserApiKey, requestUserPinReset, updateUserPin, verifyUserPin } from "@api/userApi";
 import { transferDigipogs } from "@/api/digipogApi";
@@ -26,6 +26,7 @@ import { currentUserHasScope } from "@/utils/scopeUtils";
 
 export default function Profile() {
     const { settings } = useSettings();
+	const { isHighContrast } = useTheme();
 	const { userData } = useUserData();
 	const [messageApi, contextHolder] = message.useMessage();
 	const navigate = useNavigate();
@@ -333,7 +334,7 @@ export default function Profile() {
 						justifyContent: 'end',
 					}}>
 						<Title
-							style={{marginLeft: '20px', fontStyle: 'italic', opacity: 0.5, color: settings.appearance.theme == 'dark' ? 'black' : 'white', zIndex: 2}}
+							style={{marginLeft: '20px', fontStyle: 'italic', opacity: 0.5, color: isHighContrast ? 'white' : settings.appearance.theme == 'dark' ? 'black' : 'white', zIndex: 2}}
 						>Pog Meter</Title>
 						<div className="pogMeterWave"
 							style={{height:'50px'}}
@@ -398,7 +399,7 @@ export default function Profile() {
 										<Tooltip title={isMobile ? "Transactions" : ""}>
 											<Button
 												variant="solid"
-												color="blue"
+														type="primary"
 												onClick={() => {
 													navigate(
 														id
@@ -418,7 +419,7 @@ export default function Profile() {
 										<Tooltip title={isMobile ? "Inventory" : ""}>
 											<Button
 												variant="solid"
-												color="blue"
+														type="primary"
 												onClick={() => {
 													navigate(
 														id
@@ -438,7 +439,7 @@ export default function Profile() {
 										<Tooltip title={isMobile ? "Pog Pools" : ""}>
 											<Button
 												variant="solid"
-												color="blue"
+														type="primary"
 												onClick={() => navigate("/pools")}
 												style={isMobile ? mobileButtonStyle : { width: "100%" }}
 											>

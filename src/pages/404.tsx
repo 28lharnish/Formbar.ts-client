@@ -15,10 +15,10 @@ export default function NotFound() {
     const navigate = useNavigate();
     const isMobile = useMobileDetect();
 
-    const { isDark } = useTheme();
+    const { isDark, isHighContrast } = useTheme();
 
-    const backgroundColor = isDark ? themeColors.dark.body.background : themeColors.light.body.background;
-    const textColor = isDark ? themeColors.dark.text.primary : themeColors.light.text.primary;
+    const backgroundColor = isHighContrast ? "#000000" : isDark ? themeColors.dark.body.background : themeColors.light.body.background;
+    const textColor = isHighContrast ? "#ffffff" : isDark ? themeColors.dark.text.primary : themeColors.light.text.primary;
 
     return (
         <Flex vertical justify='center' align='center' style={{ height: '100vh', backgroundColor }}>

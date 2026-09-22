@@ -173,8 +173,8 @@ export default function AccordionCollapse({
 
 	return (
 		<>
-			<Flex vertical style={{ width: "min-content" }}>
-				<Flex gap={5}>
+			<Flex vertical style={{ width: "100%" }}>
+				<Flex justify="space-between" gap={5}>
 					{categories &&
 						categories.map((category, index) => (
 							<Tooltip

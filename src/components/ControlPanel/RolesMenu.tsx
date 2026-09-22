@@ -1,4 +1,4 @@
-import { useClassData, useMobileDetect, useSettings, useUserData } from "@/main";
+import { useClassData, useMobileDetect, useSettings, useTheme, useUserData } from "@/main";
 import { Button, Card, ColorPicker, Divider, Flex, Input, Listy, Switch, Typography } from "antd";
 const { Title, Text } = Typography;
 import { IonIcon } from "@ionic/react";
@@ -304,14 +304,15 @@ export default function RolesMenu() {
 	}
 
 	const canEditRoles = currentUserHasScope(userData, "class.roles.manage");
+	const { isHighContrast } = useTheme();
 
 	return (
 		<>
 			<Flex style={{width: '100%', height: '100%', padding: 20, overflow:'scroll'}} gap={10} vertical={isMobile}>
-				<Flex vertical style={{width:isMobile ? '100%' : '300px', borderRadius: 6, background: settings.appearance.theme === 'dark' ? darkMode.components.Card.colorBgContainer : lightMode.components.Card.colorBgContainer, padding: '15px 0'}} gap={10}>
+				<Flex vertical style={{width:isMobile ? '100%' : '300px', borderRadius: isHighContrast ? 0 : 6, background: isHighContrast ? '#000000' : settings.appearance.theme === 'dark' ? darkMode.components.Card.colorBgContainer : lightMode.components.Card.colorBgContainer, border: isHighContrast ? '2px solid #ffffff' : undefined, padding: '15px 0'}} gap={10}>
 					<Flex align="center" justify="space-between" style={{padding: '0 15px'}}>
 						<Title level={4} style={{margin: 0}}>Roles</Title>
-						<Button type="primary" variant="solid" color="blue" onClick={handleCreateRole} style={{display:'flex',justifyContent:'center',alignItems:'center'}}><IonIcon icon={IonIcons.addCircle}/></Button>
+						<Button type="primary" variant="solid" onClick={handleCreateRole} style={{display:'flex',justifyContent:'center',alignItems:'center'}}><IonIcon icon={IonIcons.addCircle}/></Button>
 					</Flex>
 					<DndContext
 						sensors={canEditRoles ? sensors : []}

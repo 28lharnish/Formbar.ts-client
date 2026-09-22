@@ -1,10 +1,11 @@
 import { Badge, Button, Flex, Row, Modal, Typography } from "antd";
-import { useClassData, useUserData } from "@/main";
+import { useClassData, useMobileDetect, useUserData } from "@/main";
 import { useEffect, useRef } from "react";
 const { Text } = Typography;
 import { currentUserHasScope } from "@/utils/scopeUtils";
 import type { Student } from "@/types";
 import StudentManagementGrid from "@components/StudentManagementGrid";
+import { StudentAccordion } from "./AccordionCollapse";
 
 export default function StudentObject({
 	student,
@@ -22,7 +23,7 @@ export default function StudentObject({
     style?: React.CSSProperties;
 }) {
 	const clickTimeoutRef = useRef<number | null>(null);
-
+	const isMobileView = useMobileDetect();
 	const { userData } = useUserData();
 
 	const getStatusText = () => {
@@ -151,8 +152,12 @@ export default function StudentObject({
 					footer={null}
 					width={1000}
 				>
-					{userData && (
+					{userData && !isMobileView &&(
 						<StudentManagementGrid student={student} classData={classData} userData={userData} />
+					)}
+
+					{userData && isMobileView &&(
+						<StudentAccordion studentData={student} />
 					)}
 				</Modal>
 			</div>

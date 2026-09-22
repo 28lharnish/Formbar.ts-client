@@ -3,7 +3,7 @@ import { socket } from "@utils/socket";
 import FormbarHeader from "@components/FormbarHeader";
 import FullCircularPoll from "@components/CircularPoll";
 import { useEffect, useState, useRef } from "react";
-import { useMobileDetect, useUserData } from "@/main";
+import { useMobileDetect, useSettings, useUserData } from "@/main";
 import { Typography, Flex, Input, Button } from "antd";
 import PollButton from "@components/PollButton";
 import Log from "@utils/debugLogger";
@@ -14,10 +14,12 @@ import { getMe } from "@api/userApi";
 import { endBreak, submitPollResponse } from "@api/classApi";
 import { currentUserHasScope } from "@utils/scopeUtils";
 import SanitizedMDView from "@/components/SanitizedMDView";
+import { accessiblePollColor } from "@utils/accessibilityColors";
 const { Title, Text } = Typography;
 
 export default function Student() {
 	const navigate = useNavigate();
+	const { settings } = useSettings();
 	const { userData: initialUserData } = useUserData();
     const [lastAnswer, setLastAnswer] = useState<string | string[] | null>(null);
 	const [userData, setUserData] = useState<any>(null);
@@ -223,8 +225,8 @@ export default function Student() {
 	function checkPollPrompt(): "Basic" | "MD" | "HTML" | undefined {
 		if(!classData) return;
 
-		if(classData?.poll.promptMD) return "MD";
-		if(classData?.poll.promptHTML) return "HTML";
+		if(classData?.poll?.promptMD) return "MD";
+		if(classData?.poll?.promptHTML) return "HTML";
 		return "Basic"
 
 	}
@@ -353,7 +355,7 @@ export default function Student() {
 												key={index}
 												answerData={{
 													answer: resp.answer,
-													color: resp.color,
+													color: accessiblePollColor(resp.color, settings.accessibility.colorVisionMode, index) || resp.color,
 												}}
 												Respond={Respond}
 												allowMultipleResponses={classData?.poll?.allowMultipleResponses}

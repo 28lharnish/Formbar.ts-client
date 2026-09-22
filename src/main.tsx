@@ -28,6 +28,7 @@ import { clearAuthTokens, getGuestAccessToken } from "@api/authApi";
 
 import {
 	darkMode,
+	highContrastMode,
 	lightMode,
 	showMobileIfVertical,
 	themeColors,
@@ -40,11 +41,13 @@ import type { ClassData, CurrentUserData } from "@/types";
 import Log from "@utils/debugLogger";
 import { getMe, getUser, requestUserVerificationEmail } from "@api/userApi";
 import { getPublicKey, getServerConfig } from "@api/systemApi";
+import type { ColorVisionMode } from "@utils/accessibilityColors";
 
 export const isDev: boolean = !import.meta.env.PROD;
 
 type ThemeContextType = {
 	isDark: boolean;
+	isHighContrast: boolean;
 	toggleTheme: () => void;
 };
 
@@ -61,12 +64,17 @@ type ClassDataContextType = {
 export type AppSettings = {
 	general: {
         sfxVolume: number;
+		muteSfx: boolean;
     };
 	appearance: {
         theme: "light" | "dark";
+		accentColor: string;
     };
 	accessibility: {
 		disableAnimations: boolean;
+		largeText: number;
+		colorVisionMode: ColorVisionMode;
+		highContrast: boolean;
 	};
 };
 
@@ -78,12 +86,17 @@ type SettingsContextType = {
 const defaultSettings: AppSettings = {
 	general: {
         sfxVolume: 50,
+		muteSfx: false,
     },
 	appearance: {
         theme: "light",
+		accentColor: "#1677ff",
     },
 	accessibility: {
 		disableAnimations: false,
+		largeText: 100,
+		colorVisionMode: "default",
+		highContrast: false,
 	},
 };
 
@@ -186,17 +199,26 @@ export const getAppearAnimation = (
 const ThemeProvider = ({ children }: { children: ReactNode }) => {
 	const { settings, updateSettings } = useSettings();
 	const isDark = settings.appearance.theme === "dark";
+	const isHighContrast = settings.accessibility.highContrast;
+	const activeTheme = isHighContrast ? highContrastMode : isDark ? darkMode : lightMode;
 
 	useEffect(() => {
-		const bodyColor = isDark
-			? themeColors.dark.body.background
-			: themeColors.light.body.background;
-		const bodyTextColor = isDark
-			? themeColors.dark.body.color
-			: themeColors.light.body.color;
+		const bodyColor = isHighContrast
+			? "#000000"
+			: (isDark ? themeColors.dark.body.background : themeColors.light.body.background);
+		const bodyTextColor = isHighContrast
+			? "#ffffff"
+			: isDark ? themeColors.dark.body.color : themeColors.light.body.color;
 		document.body.style.background = bodyColor;
 		document.body.style.color = bodyTextColor;
-	}, [isDark]);
+		document.documentElement.dataset.colorVision = settings.accessibility.colorVisionMode;
+		if (isHighContrast) {
+			document.documentElement.dataset.highContrast = "true";
+		} else {
+			delete document.documentElement.dataset.highContrast;
+		}
+		document.documentElement.style.setProperty("--formbar-accent", settings.appearance.accentColor);
+	}, [isDark, isHighContrast, settings.accessibility.colorVisionMode, settings.appearance.accentColor]);
 
 	const toggleTheme = () => {
 		updateSettings({
@@ -208,8 +230,30 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
 	};
 
 	return (
-		<ThemeContext.Provider value={{ isDark, toggleTheme }}>
-			<ConfigProvider theme={isDark ? darkMode : lightMode}>
+		<ThemeContext.Provider value={{ isDark, isHighContrast, toggleTheme }}>
+			<ConfigProvider theme={{
+				...activeTheme,
+				components: {
+					...activeTheme.components,
+					Segmented: {
+						...activeTheme.components.Segmented,
+						...(isHighContrast ? {} : {
+							itemSelectedBg: settings.appearance.accentColor,
+							itemSelectedColor: "#ffffff",
+						}),
+					},
+				},
+				token: {
+					...activeTheme.token,
+					fontSize: 20 * settings.accessibility.largeText / 100,
+					fontSizeLG: 24 * settings.accessibility.largeText / 100,
+					...(isHighContrast ? {} : {
+						colorPrimary: settings.appearance.accentColor,
+						colorLink: settings.appearance.accentColor,
+						colorInfo: settings.appearance.accentColor,
+					}),
+				},
+			}}>
 				{children}
 			</ConfigProvider>
 		</ThemeContext.Provider>
@@ -239,7 +283,20 @@ const SettingsProvider = ({ children }: { children: ReactNode }) => {
 	const [settings, setSettings] = useState<AppSettings>(() => {
 		try {
 			const saved = localStorage.getItem("formbar-settings");
-			return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
+			const parsed = saved ? JSON.parse(saved) : {};
+			const savedLargeText = parsed.accessibility?.largeText;
+			const largeText = typeof savedLargeText === "boolean"
+				? (savedLargeText ? 120 : 100)
+				: typeof savedLargeText === "number"
+					? savedLargeText
+					: defaultSettings.accessibility.largeText;
+			return {
+				...defaultSettings,
+				...parsed,
+				general: { ...defaultSettings.general, ...parsed.general },
+				appearance: { ...defaultSettings.appearance, ...parsed.appearance },
+				accessibility: { ...defaultSettings.accessibility, ...parsed.accessibility, largeText },
+			};
 		} catch {
 			return defaultSettings;
 		}
@@ -622,6 +679,19 @@ const AppContent = () => {
 function App() {
 	return (
 		<StrictMode>
+			<svg aria-hidden="true" style={{ position: "absolute", width: 0, height: 0 }}>
+				<defs>
+					<filter id="formbar-deuteranopia" colorInterpolationFilters="sRGB">
+						<feColorMatrix values="0.625 0.375 0 0 0  0.7 0.3 0 0 0  0 0.3 0.7 0 0  0 0 0 1 0" />
+					</filter>
+					<filter id="formbar-protanopia" colorInterpolationFilters="sRGB">
+						<feColorMatrix values="0.567 0.433 0 0 0  0.558 0.442 0 0 0  0 0.242 0.758 0 0  0 0 0 1 0" />
+					</filter>
+					<filter id="formbar-tritanopia" colorInterpolationFilters="sRGB">
+						<feColorMatrix values="0.95 0.05 0 0 0  0 0.433 0.567 0 0  0 0.475 0.525 0 0  0 0 0 1 0" />
+					</filter>
+				</defs>
+			</svg>
 			<BrowserRouter>
 				<SettingsProvider>
 					<ThemeProvider>

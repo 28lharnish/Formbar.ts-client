@@ -4,6 +4,8 @@ import { textColorForBackground } from "@utils/GlobalFunctions";
 import { IonIcon } from "@ionic/react";
 import * as IonIcons from "ionicons/icons";
 import SanitizedMDView from "./SanitizedMDView";
+import { useSettings } from "@/main";
+import { accessiblePollColor } from "@utils/accessibilityColors";
 
 export interface Answer {
 	answer: string;
@@ -61,6 +63,7 @@ export default function PollModal({
 	secondaryFooterButton,
 	readOnly = false,
 }: PollModalProps) {
+	const { settings } = useSettings();
 	const handleAnswerChange = (index: number, field: keyof Answer, value: any) => {
 		if (readOnly || !onAnswersChange) return;
 		const newAnswers = answers.map((a, i) =>
@@ -109,17 +112,19 @@ export default function PollModal({
 				) : null
 			}
 		>
-			{answers.map((answer, index) => (
+			{answers.map((answer, index) => {
+				const answerColor = accessiblePollColor(answer.color, settings.accessibility.colorVisionMode, index) || answer.color;
+				return (
 				<Flex key={index} gap={8} align="center" style={{ marginTop: "5px" }}>
 					<Button
 						style={{
-							backgroundColor: answer.color,
-							color: textColorForBackground(answer.color),
+							backgroundColor: answerColor,
+							color: textColorForBackground(answerColor),
 							flex: 1,
 						}}
 					>
 						{readOnly ? (
-							<Text strong style={{ color: textColorForBackground(answer.color)}}>
+										<Text strong style={{ color: textColorForBackground(answerColor)}}>
 								{answer.answer}
 								{answer.responses !== undefined &&
 									` - ${answer.responses} vote${answer.responses !== 1 ? "s" : ""}`}
@@ -132,7 +137,7 @@ export default function PollModal({
 								placeholder="Answer"
 								onChange={(e) => handleAnswerChange(index, "answer", e.target.value)}
 								style={{
-									color: textColorForBackground(answer.color),
+															color: textColorForBackground(answerColor),
 								}}
 							/>
 						)}
@@ -162,7 +167,8 @@ export default function PollModal({
 						</>
 					)}
 				</Flex>
-			))}
+				);
+			})}
 			{!readOnly && (
 				<Button
 					type="dashed"

@@ -38,6 +38,149 @@ body,
 	position: relative;
 }
 
+/* Keep the whole application visually consistent with the selected vision mode. */
+html[data-color-vision="deuteranopia"] body {
+	filter: url("#formbar-deuteranopia");
+}
+
+html[data-color-vision="protanopia"] body {
+	filter: url("#formbar-protanopia");
+}
+
+html[data-color-vision="tritanopia"] body {
+	filter: url("#formbar-tritanopia");
+}
+
+#root::after {
+	content: "";
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	z-index: 2147483647;
+	background: color-mix(in srgb, var(--formbar-accent, #1677ff) 2%, transparent);
+}
+
+html[data-high-contrast="true"] #root .ant-card,
+html[data-high-contrast="true"] #root .ant-input,
+html[data-high-contrast="true"] #root .ant-input-number,
+html[data-high-contrast="true"] #root .ant-select-selector,
+html[data-high-contrast="true"] #root .ant-btn {
+	border-width: 2px;
+}
+html[data-high-contrast="true"] #root {
+	--high-contrast-border: #ffffff;
+	--high-contrast-surface: #000000;
+	background: #000000;
+	color: #ffffff;
+}
+
+html[data-high-contrast="true"] #root::after {
+	background: transparent;
+}
+
+html[data-high-contrast="true"] #root * {
+	border-radius: 0 !important;
+	border-color: var(--high-contrast-border) !important;
+	background-image: none !important;
+}
+
+html[data-high-contrast="true"] .ant-modal-container,
+html[data-high-contrast="true"] .ant-popover {
+	border: 2px solid white !important;
+}
+
+/* Preset-color buttons and dropdowns create their own CSS variables, and
+ * dropdowns render outside #root. Keep their rendered states monochrome. */
+html[data-high-contrast="true"] .ant-btn:not(:disabled) {
+	background: #000000 !important;
+	color: #ffffff !important;
+	border-color: #ffffff !important;
+	box-shadow: none !important;
+}
+
+html[data-high-contrast="true"] .ant-btn:not(:disabled):hover,
+html[data-high-contrast="true"] .ant-btn:not(:disabled):focus-visible {
+	background: #ffffff !important;
+	color: #000000 !important;
+	border-color: #ffffff !important;
+}
+
+/* Application filter state is normally communicated with red/green. Use an
+ * inverse black/white state when colors are intentionally suppressed. */
+html[data-high-contrast="true"] .ant-btn.high-contrast-filter-active,
+html[data-high-contrast="true"] .ant-btn.high-contrast-filter-active:hover,
+html[data-high-contrast="true"] .ant-btn.high-contrast-filter-active:focus-visible {
+	background: #ffffff !important;
+	color: #000000 !important;
+	border-color: #ffffff !important;
+}
+
+html[data-high-contrast="true"] .ant-switch.ant-switch-checked {
+	background: #ffffff !important;
+	border: 2px solid #ffffff !important;
+}
+
+html[data-high-contrast="true"] .ant-switch.ant-switch-checked .ant-switch-handle::before {
+	background: #000000 !important;
+}
+
+html[data-high-contrast="true"] .ant-btn:disabled,
+html[data-high-contrast="true"] .ant-btn[disabled] {
+	background: #000000 !important;
+	color: #767676 !important;
+	border-color: #767676 !important;
+	box-shadow: none !important;
+}
+
+html[data-high-contrast="true"] .ant-select-selector,
+html[data-high-contrast="true"] .ant-input,
+html[data-high-contrast="true"] .ant-input-number,
+html[data-high-contrast="true"] .ant-select-dropdown,
+html[data-high-contrast="true"] .ant-select-item,
+html[data-high-contrast="true"] .ant-pagination-item,
+html[data-high-contrast="true"] .ant-pagination-item-link {
+	background: #000000 !important;
+	color: #ffffff !important;
+	border-color: #ffffff !important;
+}
+
+html[data-high-contrast="true"] .ant-select-selection-item,
+html[data-high-contrast="true"] .ant-select-selection-placeholder,
+html[data-high-contrast="true"] .ant-select-arrow,
+html[data-high-contrast="true"] .ant-input,
+html[data-high-contrast="true"] .ant-input-number-input,
+html[data-high-contrast="true"] .ant-pagination-item a,
+html[data-high-contrast="true"] .ant-pagination-item-link {
+	color: #ffffff !important;
+}
+
+html[data-high-contrast="true"] .ant-select-item-option-selected,
+html[data-high-contrast="true"] .ant-select-item-option-active,
+html[data-high-contrast="true"] .ant-pagination-item-active {
+	background: #ffffff !important;
+	color: #000000 !important;
+	border-color: #ffffff !important;
+}
+
+html[data-high-contrast="true"] .ant-select-item-option-selected *,
+html[data-high-contrast="true"] .ant-select-item-option-active *,
+html[data-high-contrast="true"] .ant-pagination-item-active a {
+	color: #000000 !important;
+}
+
+html[data-high-contrast="true"] .ant-select-disabled .ant-select-selector,
+html[data-high-contrast="true"] .ant-input-disabled,
+html[data-high-contrast="true"] .ant-input-number-disabled {
+	background: #000000 !important;
+	border-color: #767676 !important;
+}
+
+html[data-high-contrast="true"] .ant-select-disabled .ant-select-selection-item,
+html[data-high-contrast="true"] .ant-input-disabled,
+html[data-high-contrast="true"] .ant-input-number-disabled input {
+	color: #767676 !important;
+}
+
 #root:has(div.formbarHeader) {
 	padding-top: 60px;
 }

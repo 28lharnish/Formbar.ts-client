@@ -9,13 +9,14 @@ import {
     Select,
     Button,
     Popconfirm,
+    Card,
 } from "antd";
 
 const { Text } = Typography;
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useMobileDetect, useSettings, useUserData } from "@/main";
+import { useMobileDetect, useSettings, useUserData, useTheme } from "@/main";
 import { settingCategories, settingsConfig, type SettingConfig } from "@/settings.config";
 import { clearAuthTokens } from "@api/authApi";
 import { socket } from "@utils/socket";
@@ -59,6 +60,7 @@ export default function SettingsModal() {
     });
     
     const { settings, updateSettings } = useSettings();
+    const { isDark, isHighContrast } = useTheme();
     const isMobile = useMobileDetect();
     const { userData, setUserData } = useUserData();
     const navigate = useNavigate();
@@ -108,9 +110,8 @@ export default function SettingsModal() {
         switch (config.type) {
             case "boolean":
                 return (
-                    <Flex gap={10} align="center">
-                        <Switch checked={value} onChange={onChange} />
-                        <Flex vertical gap={2}>
+                    <Flex gap={16} align="center" justify="space-between" style={{ width: "100%" }}>
+                        <Flex vertical gap={2} style={{ flex: 1 }}>
                             <Text>{isMobile && config.mobileLabel ? config.mobileLabel : config.label}</Text>
                             {!isMobile && config.description && (
                                 <Text type="secondary" style={{ fontSize: "12px" }}>
@@ -118,32 +119,52 @@ export default function SettingsModal() {
                                 </Text>
                             )}
                         </Flex>
+                        <Switch checked={value} onChange={onChange} />
                     </Flex>
                 );
             case "number":
                 return (
-                    <Flex gap={10} align="center" style={{ width: "100%" }}>
-                        <Text>{isMobile && config.mobileLabel ? config.mobileLabel : config.label}</Text>
+                    <Flex vertical gap={8} style={{ width: "100%" }}>
+                        <Flex justify="space-between" align="center">
+                            <Flex vertical gap={2}>
+                                <Text>{isMobile && config.mobileLabel ? config.mobileLabel : config.label}</Text>
+                                {!isMobile && config.description && <Text type="secondary" style={{ fontSize: 12 }}>{config.description}</Text>}
+                            </Flex>
+                            <Text strong>{value}%</Text>
+                        </Flex>
                         <Slider
-                            style={{ flex: 1 }}
                             value={value}
                             onChange={onChange}
                             min={config.min}
                             max={config.max}
                             step={config.step}
                         />
-                        <Text style={{ minWidth: "30px" }}>{value}</Text>
                     </Flex>
                 );
             case "select":
                 return (
-                    <Flex gap={10} align="center">
-                        <Text>{isMobile && config.mobileLabel ? config.mobileLabel : config.label}</Text>
+                    <Flex gap={16} align="center" justify="space-between">
+                        <Flex vertical gap={2} style={{ flex: 1 }}>
+                            <Text>{isMobile && config.mobileLabel ? config.mobileLabel : config.label}</Text>
+                            {!isMobile && config.description && <Text type="secondary" style={{ fontSize: 12 }}>{config.description}</Text>}
+                        </Flex>
                         <Select
-                            style={{ flex: 1 }}
+                            style={{ minWidth: 140 }}
                             value={value}
                             onChange={onChange}
                             options={config.options}
+                            optionRender={config.key === "accentColor" ? (option) => (
+                                <Flex align="center" gap={8}>
+                                    <span style={{ width: 14, height: 14, borderRadius: "50%", background: String(option.value), border: "1px solid #0004" }} />
+                                    {option.label}
+                                </Flex>
+                            ) : undefined}
+                            labelRender={config.key === "accentColor" ? (option) => (
+                                <Flex align="center" gap={8}>
+                                    <span style={{ width: 12, height: 12, borderRadius: "50%", background: String(option.value), border: "1px solid #0004" }} />
+                                    {option.label}
+                                </Flex>
+                            ) : undefined}
                         />
                     </Flex>
                 );
@@ -234,7 +255,7 @@ export default function SettingsModal() {
                 mode="inline"
                 items={visibleMenuItems}
                 inlineCollapsed={isMobile}
-                theme={"dark"}
+                theme={isHighContrast ? "light" : isDark ? "dark" : "light"}
                 style={{
                     height: "100%",
                     minWidth: isMobile ? "80px" : "250px",
@@ -250,16 +271,34 @@ export default function SettingsModal() {
                 }}
                 onClick={(e) => openMenu(e.key)}
             />
-            <Flex style={{ padding: 20, width: "100%", height: "100%", overflowY: "auto" }}>
-                <Flex vertical gap={15} style={{ width: "100%" }}>
+            <Flex vertical gap={20} style={{ padding: isMobile ? 16 : 28, width: "100%", height: "100%", overflowY: "auto" }}>
+                <Flex vertical gap={4}>
+                    <Text strong style={{ fontSize: 24 }}>
+                        {settingCategories.find((category) => category.id === currentCategoryId)?.label}
+                    </Text>
+                    <Text type="secondary">
+                        {settingCategories.find((category) => category.id === currentCategoryId)?.description}
+                    </Text>
+                </Flex>
+                <Flex vertical gap={12} style={{ width: "100%" }}>
+                    {currentCategoryId === "user" && userData && (
+                        <Card size="small" styles={{ body: { padding: isMobile ? 14 : 18 } }}>
+                            <Flex vertical gap={4}>
+                                <Text strong style={{ fontSize: 16 }}>{userData.displayName}</Text>
+                                <Text type="secondary">{userData.email || "Guest account"}</Text>
+                                <Text type="secondary">User ID: {userData.id}</Text>
+                            </Flex>
+                        </Card>
+                    )}
                     {currentCategorySettings.map((config) => (
-                        <SettingItem
-                            key={config.key}
-                            config={config}
-                            value={getSettingValue(config)}
-                            onChange={(newValue) => updateSetting(config, newValue)}
-                            onAction={handleAction}
-                        />
+                        <Card key={config.key} size="small" styles={{ body: { padding: isMobile ? 14 : 18 } }}>
+                            <SettingItem
+                                config={config}
+                                value={getSettingValue(config)}
+                                onChange={(newValue) => updateSetting(config, newValue)}
+                                onAction={handleAction}
+                            />
+                        </Card>
                     ))}
                 </Flex>
             </Flex>

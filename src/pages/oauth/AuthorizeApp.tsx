@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Alert, Button, Card, Divider, Flex, Typography } from "antd";
 import { IonIcon } from "@ionic/react";
 import * as IonIcons from "ionicons/icons";
-import { darkMode, lightMode } from "@/themes/ThemeConfig";
+import { darkMode, highContrastMode, lightMode } from "@/themes/ThemeConfig";
 import { authorizeOAuthApp, getOAuthAuthorizationMetadata } from "@api/oauthApi";
 import { AppScopes } from "@/types";
 import { useSettings, useUserData } from "@/main";
@@ -115,7 +115,8 @@ export default function AuthorizeApp() {
 	const [isAuthorizing, setIsAuthorizing] = useState(false);
 	const [errorMessage, setErrorMessage] = useState<string | null>(null);
 	const [oauthRequest, setOauthRequest] = useState<OAuthRequest>(emptyOAuthRequest);
-	const theme = settings.appearance.theme === "dark" ? darkMode : lightMode;
+	const isHighContrast = settings.accessibility.highContrast;
+	const theme = isHighContrast ? highContrastMode : settings.appearance.theme === "dark" ? darkMode : lightMode;
 
 	useEffect(() => {
         let cancelled = false;
@@ -249,8 +250,9 @@ export default function AuthorizeApp() {
 			style={{
 				width: "100%",
 				height: "100vh",
-				background:
-					settings.appearance.theme === "dark"
+				background: isHighContrast
+					? "#000000"
+					: settings.appearance.theme === "dark"
 						? "linear-gradient(rgba(54, 94, 146, 1) 0%, rgba(13, 40, 77, 1) 100%)"
 						: "#f0f2f5",
 			}}
