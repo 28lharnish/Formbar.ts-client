@@ -252,6 +252,10 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
 						colorLink: settings.appearance.accentColor,
 						colorInfo: settings.appearance.accentColor,
 					}),
+					...(settings.accessibility.disableAnimations ? {
+						motionDurationMid: '0',
+						motionDurationSlow: '0',
+					}: {}),
 				},
 			}}>
 				{children}
