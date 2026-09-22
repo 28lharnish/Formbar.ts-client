@@ -447,7 +447,6 @@ export default function Student() {
 								onClick={() => {
 									endBreak(classData.id)
 								}}
-								color="blue"
 								type="primary"
 								variant="solid"
 								style={{ padding: 8, marginTop: 20 }}

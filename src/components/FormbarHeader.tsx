@@ -1,4 +1,4 @@
-import { Button, Flex, Tooltip, Modal, Badge } from "antd";
+import { Button, Flex, Tooltip, Modal, Badge, Avatar } from "antd";
 import { IonIcon } from "@ionic/react";
 import * as IonIcons from "ionicons/icons";
 import { useNavigate } from "react-router-dom";
@@ -267,37 +267,6 @@ export default function FormbarHeader() {
 
 				</>)}
 
-				{
-                
-                userData && (<div
-					style={{
-						borderRight: `2px solid ${isDark ? "#fff3" : "#0003"}`,
-						borderRadius: "999px",
-						height: "30px",
-					}}
-				/>)}
-
-				{userData && (
-					<Tooltip
-                        mouseEnterDelay={0.5}
-						placement="bottomRight"
-						title="Profile"
-						arrow={{ pointAtCenter: true }}
-						color="purple"
-					>
-						<Button
-							type="primary"
-							variant="solid"
-							color="purple"
-							size="large"
-							style={styles.headerButton}
-							onClick={() => navigate("/profile")}
-						>
-							<IonIcon icon={IonIcons.person} size="large" />
-						</Button>
-					</Tooltip>
-				)}
-
                 <Tooltip
                     mouseEnterDelay={0.5}
                     placement="bottomRight"
@@ -316,6 +285,29 @@ export default function FormbarHeader() {
                         <IonIcon icon={IonIcons.settings} size="large" />
                     </Button>
                 </Tooltip>
+
+				{
+                
+                userData && (<div
+					style={{
+						borderRight: `2px solid ${isDark ? "#fff3" : "#0003"}`,
+						borderRadius: "999px",
+						height: "30px",
+					}}
+				/>)}
+				
+				{userData && (
+					<Tooltip
+                        mouseEnterDelay={0.5}
+						placement="bottomRight"
+						title="Profile"
+						arrow={{ pointAtCenter: true }}
+						color={settings.appearance.accentColor}
+					>
+						<Avatar size={36} style={{cursor: 'pointer', background: settings.appearance.accentColor}} icon={userData.displayName[0].toUpperCase()} onClick={() => { navigate('/profile') }} />
+					</Tooltip>
+				)}
+
 			</Flex>
 
             <Modal

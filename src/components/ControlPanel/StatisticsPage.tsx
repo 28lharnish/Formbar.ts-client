@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useClassData, useMobileDetect } from "@/main";
 import { Card, Flex, Statistic, Tooltip, Typography } from "antd";
 const { Title } = Typography;
@@ -13,56 +12,36 @@ export default function Statistics() {
 		classData && classData.students
 			? (Object.values(classData.students) as any[])
 			: [];
-
-	const [responseTime, setResponseTime] = useState<number>(0);
-	const [responses, setResponses] = useState<number>(0);
-	const [studentsOnBreak, setStudentsOnBreak] = useState<number>(0);
-	const [helpTickets, setHelpTickets] = useState<number>(0);
+	const classOwnerId = Number(classData?.owner);
+	const studentVoters = students.filter(
+		(student) => Number(student.id) !== classOwnerId,
+	);
+	const excludedVoterIds = new Set(
+		(classData?.poll?.excludedRespondents ?? []).map((id) => Number(id)),
+	);
+	const eligibleVoters = studentVoters.filter(
+		(student) => !student.isOffline && !excludedVoterIds.has(Number(student.id)),
+	);
 
     const isMobile = useMobileDetect();
 
-	useEffect(() => {
-		let totalResponseTimes: number[] = [];
+	const responseTimes = studentVoters.flatMap((student) => {
+		if (!student.pollRes?.time || !classData?.poll?.startTime) return [];
 
-		students.forEach((student) => {
-			if (student.pollRes && student.pollRes.time) {
-				// Convert ISO string to milliseconds
-				const studentResponseTimeMs = new Date(
-					student.pollRes.time,
-				).getTime();
+		const responseTimeMs = new Date(student.pollRes.time).getTime();
+		const seconds = (responseTimeMs - classData.poll.startTime) / 1000;
+		return Number.isFinite(seconds) && seconds > 0 ? [seconds] : [];
+	});
+	const responseTime = responseTimes.length
+		? responseTimes.reduce((total, seconds) => total + seconds, 0) /
+			responseTimes.length
+		: 0;
+	const responses = responseTimes.length;
+	const studentsOnBreak = studentVoters.filter((student) => student.break).length;
+	const helpTickets = studentVoters.filter((student) => student.help).length;
 
-				// Poll start time is already in milliseconds
-				const pollStartTimeMs = classData?.poll ? classData?.poll.startTime : undefined;
-
-				// Calculate difference in seconds (student time - poll start time)
-				const timeDifferenceMs =
-					studentResponseTimeMs - (pollStartTimeMs ?? 0);
-				const timeDifferenceSeconds = timeDifferenceMs / 1000;
-
-				// Only include if positive and reasonable (less than 1 hour)
-				if (timeDifferenceSeconds > 0) {
-					totalResponseTimes.push(timeDifferenceSeconds);
-				}
-			}
-		});
-
-		// Calculate average response time
-		const averageResponseTime =
-			totalResponseTimes.length > 0
-				? totalResponseTimes.reduce((a, b) => a + b, 0) /
-					totalResponseTimes.length
-				: 0;
-
-		if (classData?.poll && classData?.poll.startTime !== undefined)
-			setResponseTime(averageResponseTime);
-		else setResponseTime(0);
-
-		setResponses(totalResponseTimes.length);
-		setStudentsOnBreak(students.filter((s: any) => s.break).length);
-		setHelpTickets(students.filter((s: any) => s.help).length);
-	}, [students, classData]);
-
-    const [statistics] = useState<Array<{
+	const pollStartTime = classData?.poll?.startTime;
+	const statistics: Array<{
         title: string;
         stats: Array<{
             title: string;
@@ -73,39 +52,34 @@ export default function Statistics() {
             prefix?: React.ReactNode;
             suffix?: string;
         }>;
-    }>>([
+	}> = [
         {
             title: "Current Poll",
             stats: [
                 {
                     title: "Poll Runtime",
-                    value: classData?.poll ? classData?.poll.startTime == undefined
-                        ? Date.now()
-                        : classData?.poll?.startTime
-						: Date.now(),
-                    type: "timer",
+					value: pollStartTime ?? 0,
+					type: pollStartTime ? "timer" : undefined,
                     format: "H:mm:ss",
                 },
                 {
                     title: "Allowed to Vote",
-                    value: students.filter((s: any) => !s.isOffline).length,
+                    value: eligibleVoters.length,
                 },
                 {
                     title: "Response Time",
-                    value: responseTime,
-                    precision: 2,
+                    value: formatDuration(responseTime),
                     prefix: (<>
                         <IonIcon
                             icon={IonIcons.arrowUp}
                             style={{ marginTop: "2px" }}
                         />
                     </>),
-                    suffix: "s",
                 },
                 {
                     title: "Responses",
                     value: responses,
-                    suffix: `/ ${students.length}`,
+                    suffix: `/ ${eligibleVoters.length}`,
                 },
             ],
         },
@@ -127,7 +101,7 @@ export default function Statistics() {
                 },
             ],
         },
-    ]);
+	];
 
 	return (
 		<>
@@ -167,9 +141,8 @@ export default function Statistics() {
                                             key={statIndex}
                                             mouseEnterDelay={0.5}
                                             title={
-                                                "Average Response Time: " +
-                                                responseTime.toFixed(2) +
-                                                " seconds"
+												"Average Response Time: " +
+												formatDuration(responseTime)
                                             }
                                             placement="top"
                                         >
@@ -201,6 +174,17 @@ export default function Statistics() {
 			</Flex>
 		</>
 	);
+}
+
+function formatDuration(totalSeconds: number) {
+	const seconds = Math.max(0, Math.round(totalSeconds));
+	const hours = Math.floor(seconds / 3600);
+	const minutes = Math.floor((seconds % 3600) / 60);
+	const remainingSeconds = seconds % 60;
+
+	if (hours > 0) return `${hours}h ${minutes}m ${remainingSeconds}s`;
+	if (minutes > 0) return `${minutes}m ${remainingSeconds}s`;
+	return `${remainingSeconds}s`;
 }
 
 const gridStyle = {
