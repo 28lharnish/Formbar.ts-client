@@ -1,8 +1,11 @@
-import { Badge, Button, Flex, Modal, Typography } from "antd";
-import { StudentAccordion } from "@components/AccordionCollapse";
-import { useClassData } from "@/main";
+import { Badge, Button, Flex, Row, Modal, Typography } from "antd";
+import { useClassData, useMobileDetect, useUserData } from "@/main";
 import { useEffect, useRef } from "react";
 const { Text } = Typography;
+import { currentUserHasScope } from "@/utils/scopeUtils";
+import type { Student } from "@/types";
+import StudentManagementGrid from "@components/StudentManagementGrid";
+import { StudentAccordion } from "./AccordionCollapse";
 
 export default function StudentObject({
 	student,
@@ -12,14 +15,16 @@ export default function StudentObject({
 	setOpenModalId,
     style,
 }: {
-	student: any;
-	isVoteExcluded: boolean;
-	onToggleVote: (studentId: number, exclude: boolean) => void;
+	student: Student;
+	isVoteExcluded?: boolean;
+	onToggleVote?: (studentId: number, exclude: boolean) => void;
 	openModalId: number | null;
 	setOpenModalId: React.Dispatch<React.SetStateAction<number | null>>;
     style?: React.CSSProperties;
 }) {
 	const clickTimeoutRef = useRef<number | null>(null);
+	const isMobileView = useMobileDetect();
+	const { userData } = useUserData();
 
 	const getStatusText = () => {
 		if (student.isOffline) return "Offline";
@@ -69,8 +74,19 @@ export default function StudentObject({
 			clickTimeoutRef.current = null;
 		}
 
-		onToggleVote(Number(student.id), !isVoteExcluded);
+		if(typeof onToggleVote == 'function') onToggleVote(Number(student.id), !isVoteExcluded);
 	}
+
+	const canManageHelp = currentUserHasScope(userData, "class.help.approve");
+	const canManageBreak = currentUserHasScope(userData, "class.break.approve");
+	const canEndBreaks = currentUserHasScope(userData, "class.break.end");
+
+	const canAssignRoles = currentUserHasScope(userData, "class.roles.assign");
+	
+	const canAwardDigipogs = currentUserHasScope(userData, "class.digipogs.award");
+
+	const canKick = currentUserHasScope(userData, "class.students.kick");
+	const canBan = currentUserHasScope(userData, "class.students.ban");
 
 	return (
 		<div key={student.id} style={style}>
@@ -134,10 +150,15 @@ export default function StudentObject({
 					open={openModalId === student.id}
 					onCancel={() => setOpenModalId(null)}
 					footer={null}
+					width={1000}
 				>
-					<Flex justify="center">
-						<StudentAccordion studentData={student} isOpen={openModalId === student.id} />
-					</Flex>
+					{userData && !isMobileView &&(
+						<StudentManagementGrid student={student} classData={classData} userData={userData} />
+					)}
+
+					{userData && isMobileView &&(
+						<StudentAccordion studentData={student} />
+					)}
 				</Modal>
 			</div>
 		</div>

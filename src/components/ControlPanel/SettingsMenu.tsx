@@ -10,18 +10,15 @@ import {
 	Modal,
 	Tooltip,
     Card,
-    Empty,
     notification,
 } from "antd";
-import { IonIcon } from "@ionic/react";
-import * as IonIcons from "ionicons/icons";
 const { Title, Text } = Typography;
 import { getAppearAnimation, useClassData, useMobileDetect, useTheme, useUserData, useSettings } from "@/main";
 import { useEffect, useState } from "react";
 import Log from "@utils/debugLogger";
 import { createClassLink, deleteClass, deleteClassLink, getAllClassLinks, getBannedClassStudents, kickAllStudents, regenerateClassCode, updateSettings } from "@api/classApi";
 import { currentUserHasScope } from "@/utils/scopeUtils";
-import StudentObject from "../StudentObject";
+import StudentObject from "@components/StudentObject";
 import type { Student } from "@/types";
 
 type BannedClassStudent = {
@@ -141,18 +138,12 @@ export default function SettingsMenu() {
             return;
         }
 
-        // Basic URL validation
-        try {
-            new URL("https://" + newLinkInput.url.replace(/^https?:\/\//, ''));
-        } catch (e) {
-            showErrorNotification("Please enter a valid URL.");
-            return;
-        }
+		let fixedLink = { name: newLinkInput.name, url: "https://" + newLinkInput.url.replace(/^https?:\/\//, '') };
 
-        createClassLink(classData!.id, newLinkInput)
+        createClassLink(classData!.id, fixedLink)
         .then((data) => {
             if (data.success) {
-                setClassLinks([...classLinks, newLinkInput]);
+                setClassLinks([...classLinks, fixedLink]);
                 setNewLinkInput({ name: "", url: "" });
             } else {
                 showErrorNotification("Failed to add link.");

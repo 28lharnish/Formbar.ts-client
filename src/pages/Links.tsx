@@ -11,7 +11,7 @@ const { Title, Text } = Typography;
 
 export default function Links() {
 	const { userData } = useUserData();
-	const { isDark } = useTheme();
+	const { isDark, isHighContrast } = useTheme();
 	const isMobile = useMobileDetect();
 
 	const [classLinks, setClassLinks] = useState<any[]>([]);
@@ -33,11 +33,11 @@ export default function Links() {
 			<Flex style={{ display: "flex", height: "100%", gap: 20}}>
 				{
 					!isMobile && (
-						<Flex vertical style={{ width: 320, padding: 24, borderRadius: 8, background: isDark ? darkMode.components.Card.colorBgContainer : lightMode.components.Card.colorBgContainer }}>
+						<Flex vertical style={{ width: 320, padding: 24, borderRadius: isHighContrast ? 0 : 8, background: isHighContrast ? "#000000" : isDark ? darkMode.components.Card.colorBgContainer : lightMode.components.Card.colorBgContainer, border: isHighContrast ? "2px solid #ffffff" : undefined }}>
 							<Title level={2} style={{ margin: 0 }}>
 								Links
 							</Title>
-							<Text style={{ marginTop: 8, color: isDark ? "#bfcbdc" : "#5b6c85" }}>
+							<Text style={{ marginTop: 8, color: isHighContrast ? "#ffffff" : isDark ? "#bfcbdc" : "#5b6c85" }}>
 								Quick access to your favorite sites and tools.
 							</Text>
 						</Flex>

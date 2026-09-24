@@ -200,17 +200,18 @@ export default function ControlPanel() {
 
     const { settings } = useSettings();
 
-    const [playAlarm, alarmData] = useSound(alarmSFX, { volume: settings.general.sfxVolume / 100 });
-    const [playBreak] = useSound(breakSFX, { volume: settings.general.sfxVolume / 100 });
-    const [playHelp] = useSound(helpSFX, { volume: settings.general.sfxVolume / 100 });
-    const [playJoin] = useSound(joinSFX, { volume: settings.general.sfxVolume / 100 });
-    const [playLeave] = useSound(leaveSFX, { volume: settings.general.sfxVolume / 100 });
-    const [playRemove] = useSound(removeSFX, { volume: settings.general.sfxVolume / 100 });
-    const [playTUTD] = useSound(tutdSFX, { volume: settings.general.sfxVolume / 100 });
+	const soundVolume = settings.general.muteSfx ? 0 : settings.general.sfxVolume / 100;
+	const [playAlarm, alarmData] = useSound(alarmSFX, { volume: soundVolume });
+	const [playBreak] = useSound(breakSFX, { volume: soundVolume });
+	const [playHelp] = useSound(helpSFX, { volume: soundVolume });
+	const [playJoin] = useSound(joinSFX, { volume: soundVolume });
+	const [playLeave] = useSound(leaveSFX, { volume: soundVolume });
+	const [playRemove] = useSound(removeSFX, { volume: soundVolume });
+	const [playTUTD] = useSound(tutdSFX, { volume: soundVolume });
 
 	const { setUserData, userData } = useUserData();
 
-	const { isDark } = useTheme();
+	const { isDark, isHighContrast } = useTheme();
 
 	const navigate = useNavigate();
     const visibleMenuItems = useMemo(
@@ -487,7 +488,7 @@ export default function ControlPanel() {
                         ...item,
                         icon: item.key === currentMenu ? item.selectedicon : item.deselectedicon,
                     }))}
-					theme={isDark ? "dark" : "light"}
+					theme={isHighContrast ? "light" : isDark ? "dark" : "light"}
 					style={{
 						height: "100%",
 						minWidth: isMobileDevice ? "80px" : "250px",

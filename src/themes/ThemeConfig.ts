@@ -126,6 +126,75 @@ export const lightMode = {
 	},
 };
 
+// This is intentionally independent of the light and dark themes.  It is a
+// complete black-on-white palette so changing the regular theme cannot lower
+// contrast or change the high-contrast presentation.
+export const highContrastMode = {
+	algorithm: theme.darkAlgorithm,
+	token: {
+		...consistentValues.token,
+		colorBgBase: "#000000",
+		colorBgContainer: "#000000",
+		colorBgElevated: "#000000",
+		colorText: "#ffffff",
+		colorTextSecondary: "#ffffff",
+		colorTextDescription: "#ffffff",
+		colorBorder: "#ffffff",
+		colorBorderSecondary: "#ffffff",
+		colorPrimary: "#ffffff",
+		colorPrimaryBg: "#ffffff",
+		colorPrimaryBgHover: "#ffffff",
+		colorPrimaryBorder: "#ffffff",
+		colorPrimaryHover: "#ffffff",
+		colorPrimaryActive: "#ffffff",
+		colorInfo: "#ffffff",
+		colorLink: "#ffffff",
+		borderRadius: 0,
+		borderRadiusLG: 0,
+		borderRadiusSM: 0,
+		borderRadiusXS: 0,
+	},
+	components: {
+		Card: { colorBgContainer: "#000000", colorBorderSecondary: "#ffffff" },
+		Menu: {
+			colorBgContainer: "#000000",
+			itemBg: "#000000",
+			itemColor: "#ffffff",
+			itemHoverBg: "#000000",
+			itemHoverColor: "#ffffff",
+			itemActiveBg: "#000000",
+			itemSelectedBg: "#ffffff",
+			itemSelectedColor: "#000000",
+			subMenuItemBg: "#000000",
+		},
+		Modal: { contentBg: "#000000", titleColor: "#ffffff" },
+		Button: {
+			primaryColor: "#000000",
+			solidTextColor: "#000000",
+			defaultBg: "#000000",
+			defaultColor: "#ffffff",
+			defaultBorderColor: "#ffffff",
+			defaultHoverBg: "#000000",
+			defaultHoverColor: "#ffffff",
+			defaultHoverBorderColor: "#ffffff",
+			defaultActiveBg: "#000000",
+			defaultActiveColor: "#ffffff",
+			defaultActiveBorderColor: "#ffffff",
+			primaryShadow: "none",
+			defaultShadow: "none",
+		},
+		Input: { controlHeight: consistentValues.components.Input.controlHeight, colorBgContainer: "#000000", colorBorder: "#ffffff" },
+		Select: { controlHeight: consistentValues.components.Select.controlHeight, colorBgContainer: "#000000", colorBorder: "#ffffff" },
+		Segmented: {
+			trackBg: "#000000",
+			itemSelectedBg: "#ffffff",
+			itemSelectedColor: "#000000",
+			controlHeight: consistentValues.components.Segmented.controlHeight,
+			controlPaddingHorizontal: consistentValues.components.Segmented.controlPaddingHorizontal,
+		},
+	},
+};
+
 export const version = "3";
 
 export const showMobileIfVertical = true;

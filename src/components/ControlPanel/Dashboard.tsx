@@ -293,6 +293,7 @@ export default function Dashboard({
                                                 </Flex>
                                                 <Button
                                                     variant="solid"
+													className={filterState.answeredPoll ? "high-contrast-filter-active" : undefined}
                                                     color={
                                                         filterState.answeredPoll
                                                             ? "green"
@@ -312,6 +313,7 @@ export default function Dashboard({
                                                 </Button>
                                                 <Button
                                                     variant="solid"
+													className={filterState.needsHelp ? "high-contrast-filter-active" : undefined}
                                                     color={
                                                         filterState.needsHelp
                                                             ? "green"
@@ -331,6 +333,7 @@ export default function Dashboard({
                                                 </Button>
                                                 <Button
                                                     variant="solid"
+													className={filterState.onBreak ? "high-contrast-filter-active" : undefined}
                                                     color={
                                                         filterState.onBreak
                                                             ? "green"
@@ -350,6 +353,7 @@ export default function Dashboard({
                                                 </Button>
                                                 <Button
                                                     variant="solid"
+													className={filterState.canVote ? "high-contrast-filter-active" : undefined}
                                                     color={
                                                         filterState.canVote
                                                             ? "green"

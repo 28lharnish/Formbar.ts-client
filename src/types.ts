@@ -30,7 +30,7 @@ export type CurrentUserData = {
 	ownedPolls: any[];
 	permissions: number;
 	pogMeter: number;
-	pollRes: { buttonRes: string; textRes: string; time: number | null };
+	pollRes: { buttonRes: string | string[]; textRes: string; time: number | null };
 	sharedPolls: any[];
 	verified?: number;
 };

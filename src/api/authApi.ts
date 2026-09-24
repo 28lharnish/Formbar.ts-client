@@ -34,6 +34,7 @@ function decryptToken(encrypted: string): string {
 		return decrypted;
 	} catch (e) {
 		console.error("Failed to decrypt token:", e);
+		setRefreshToken('')
 		return "";
 	}
 }

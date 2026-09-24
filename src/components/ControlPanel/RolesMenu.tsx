@@ -1,5 +1,5 @@
-import { useClassData, useMobileDetect, useSettings, useUserData } from "@/main";
-import { Button, Card, ColorPicker, Divider, Flex, Input, List, Switch, Typography } from "antd";
+import { useClassData, useMobileDetect, useSettings, useTheme, useUserData } from "@/main";
+import { Button, Card, ColorPicker, Divider, Flex, Input, Listy, Switch, Typography } from "antd";
 const { Title, Text } = Typography;
 import { IonIcon } from "@ionic/react";
 import * as IonIcons from "ionicons/icons";
@@ -27,6 +27,11 @@ import { CSS } from "@dnd-kit/utilities";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { currentUserHasScope } from "@utils/scopeUtils";
 
+interface Item {
+	id: number;
+	content: string;
+}
+
 type CategoryKey = keyof typeof SCOPES.CLASS;
 
 interface SortableRoleItemProps {
@@ -35,7 +40,7 @@ interface SortableRoleItemProps {
 	onSelect: (id: number) => void;
 }
 
-function SortableRoleItem({ role, isSelected, onSelect }: SortableRoleItemProps) {
+	function SortableRoleItem({ role, isSelected, onSelect }: SortableRoleItemProps) {
 	const {
 		attributes,
 		listeners,
@@ -53,7 +58,7 @@ function SortableRoleItem({ role, isSelected, onSelect }: SortableRoleItemProps)
 	};
 
 	return (
-		<List.Item
+		<Flex
 			ref={setNodeRef}
 			style={style}
 			onClick={() => onSelect(role.id)}
@@ -90,7 +95,7 @@ function SortableRoleItem({ role, isSelected, onSelect }: SortableRoleItemProps)
 					{role.name}
 				</span>
 			</Flex>
-		</List.Item>
+		</Flex>
 	);
 }
 
@@ -299,14 +304,15 @@ export default function RolesMenu() {
 	}
 
 	const canEditRoles = currentUserHasScope(userData, "class.roles.manage");
+	const { isHighContrast } = useTheme();
 
 	return (
 		<>
 			<Flex style={{width: '100%', height: '100%', padding: 20, overflow:'scroll'}} gap={10} vertical={isMobile}>
-				<Flex vertical style={{width:isMobile ? '100%' : '300px', borderRadius: 6, background: settings.appearance.theme === 'dark' ? darkMode.components.Card.colorBgContainer : lightMode.components.Card.colorBgContainer, padding: '15px 0'}} gap={10}>
+				<Flex vertical style={{width:isMobile ? '100%' : '300px', borderRadius: isHighContrast ? 0 : 6, background: isHighContrast ? '#000000' : settings.appearance.theme === 'dark' ? darkMode.components.Card.colorBgContainer : lightMode.components.Card.colorBgContainer, border: isHighContrast ? '2px solid #ffffff' : undefined, padding: '15px 0'}} gap={10}>
 					<Flex align="center" justify="space-between" style={{padding: '0 15px'}}>
 						<Title level={4} style={{margin: 0}}>Roles</Title>
-						<Button type="primary" variant="solid" color="blue" onClick={handleCreateRole} style={{display:'flex',justifyContent:'center',alignItems:'center'}}><IonIcon icon={IonIcons.addCircle}/></Button>
+						<Button type="primary" variant="solid" onClick={handleCreateRole} style={{display:'flex',justifyContent:'center',alignItems:'center'}}><IonIcon icon={IonIcons.addCircle}/></Button>
 					</Flex>
 					<DndContext
 						sensors={canEditRoles ? sensors : []}
@@ -318,10 +324,17 @@ export default function RolesMenu() {
 							items={roles.map((r) => r.id)}
 							strategy={verticalListSortingStrategy}
 						>
-							<List
+							<Listy
 								style={{width:'100%', borderRadius: 6, background: 'none', paddingInline: 0, overflowY: 'scroll', overflowX: 'hidden', flex: 1}}
-								dataSource={roles}
-								renderItem={(role) => (
+								styles={{
+									item: {
+										padding: 0,
+										width: '100%'
+									}
+								}}
+								items={roles}
+								rowKey={"id"}
+								itemRender={(role) => (
 									<SortableRoleItem
 										key={role.id}
 										role={role}

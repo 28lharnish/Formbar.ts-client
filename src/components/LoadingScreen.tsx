@@ -3,7 +3,7 @@ const { Title, Text } = Typography;
 import { LoadingOutlined } from "@ant-design/icons";
 import { IonIcon } from "@ionic/react";
 import * as IonIcons from "ionicons/icons";
-import { useMobileDetect } from "@/main";
+import { useMobileDetect, useSettings, useTheme } from "@/main";
 
 export default function LoadingScreen({
 	socketErrors,
@@ -15,11 +15,19 @@ export default function LoadingScreen({
 	isConnected: boolean;
 }) {
     const isMobile = useMobileDetect();
+	const { settings } = useSettings();
+	const { isHighContrast } = useTheme();
+	const loadingBackground = settings.accessibility.highContrast
+		? "#000000"
+		: "linear-gradient(rgba(95, 122, 158, 1) 0%, rgba(28, 68, 124, 1) 100%)";
     
 	return (
 		<>
 			<Flex
-				style={isConnected ? hideLoadingStyle : showLoadingStyle}
+				style={{
+					...(isConnected ? hideLoadingStyle : showLoadingStyle),
+					background: loadingBackground,
+				}}
 				justify="center"
 				align="center"
 				vertical
@@ -27,7 +35,7 @@ export default function LoadingScreen({
 			>
 				<Title
 					style={{
-						color: "#fff9",
+						color: isHighContrast ? "#ffffff" : "#fff9",
 						fontSize: isMobile ? "70px" : "120px",
 						fontWeight: 700,
 						marginBottom: "0",
@@ -73,7 +81,7 @@ export default function LoadingScreen({
 
 				<Text
 					style={{
-						color: "#fff7",
+						color: isHighContrast ? "#ffffff" : "#fff7",
 						fontSize: "20px",
 						fontWeight: 500,
 						marginTop: "0",
@@ -86,7 +94,7 @@ export default function LoadingScreen({
 				{isConnected ? null : (
 					<Text
 						style={{
-							color: "#fff5",
+							color: isHighContrast ? "#ffffff" : "#fff5",
 							fontSize: "12px",
 							fontWeight: 400,
 							marginTop: "0",

@@ -107,7 +107,7 @@ export default function TimerPage() {
                                         }}
                                         strokeLinecap='round'
                                     />
-                                    <Button type='primary' variant='solid' onClick={()=> {startTimer(timer.duration)}} color={'green'}>
+                                    <Button type='primary' variant='solid' onClick={()=> {startTimer(timer.duration)}}>
                                         {
                                             isMobile ? (
                                                 <Flex align="center" justify="center" gap={5}>
@@ -177,7 +177,6 @@ export default function TimerPage() {
                                 <Button
                                     type='primary'
                                     variant='solid'
-                                    color='green'
                                     disabled={!classData?.id || customTotalSeconds <= 0}
                                     onClick={() => startTimer(customTotalSeconds)}
                                 >

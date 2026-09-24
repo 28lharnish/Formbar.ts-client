@@ -1,8 +1,9 @@
 import { Progress } from "antd";
 import type { Poll } from "@/types";
-import { useTheme } from "@/main";
+import { useSettings, useTheme } from "@/main";
 import { useState } from "react";
 import { formatTime, textColorForBackground } from "@utils/GlobalFunctions";
+import { accessiblePollColor } from "@utils/accessibilityColors";
 
 type CircularPollProperties = {
 	percentage: number;
@@ -30,6 +31,7 @@ export default function FullCircularPoll({
     onlyTimer = false,
 }: PollObjectProperties) {
     const { isDark } = useTheme();
+	const { settings } = useSettings();
 	const ringStrokeWidth = 23;
 	const [hoveredSegment, setHoveredSegment] = useState<{
 		answer: string;
@@ -51,11 +53,23 @@ export default function FullCircularPoll({
 						: 0),
 				0,
 			);
+	const answerBase = poll.responses.reduce(
+		(acc, response) =>
+			acc +
+			(typeof response.responses === "number" &&
+			Number.isFinite(response.responses)
+				? response.responses
+				: 0),
+		0,
+	);
+	const segmentBase = poll.allowMultipleResponses
+		? Math.max(responderBase, answerBase)
+		: responderBase;
 
 	const getHoveredAnswerFromEvent = (
 		event: React.MouseEvent<HTMLDivElement>,
 	) => {
-		if (poll.blind || responderBase <= 0) {
+		if (poll.blind || segmentBase <= 0) {
 			return null;
 		}
 
@@ -78,7 +92,7 @@ export default function FullCircularPoll({
 		const percentageFromAngle = (angleFromTopClockwise / 360) * 100;
 
 		let cumulativePercentage = 0;
-		for (const response of poll.responses) {
+		for (const [index, response] of poll.responses.entries()) {
 			const responseCount =
 				typeof response.responses === "number" &&
 				Number.isFinite(response.responses)
@@ -87,7 +101,7 @@ export default function FullCircularPoll({
 			const responsePercentage =
 				responseCount === 0
 					? 0
-					: (responseCount / responderBase) * 100;
+					: (responseCount / segmentBase) * 100;
 			if (responsePercentage <= 0) {
 				continue;
 			}
@@ -96,7 +110,7 @@ export default function FullCircularPoll({
 			if (percentageFromAngle <= cumulativePercentage) {
 				return {
 					answer: response.answer,
-					color: response.color,
+					color: accessiblePollColor(response.color, settings.accessibility.colorVisionMode, index),
 				};
 			}
 		}
@@ -200,15 +214,15 @@ export default function FullCircularPoll({
                                     size={size}
                                 />
                             ) : (
-                                poll.responses.map((answer, index) => (
+								poll.responses.map((answer, index) => (
                                 <CircularPoll
                                     key={index}
                                     percentage={
                                         answer.responses === 0
                                             ? 0
-                                            : (answer.responses / poll.totalResponders) * 100
+											: (answer.responses / segmentBase) * 100
                                     }
-                                    color={answer.color}
+									color={accessiblePollColor(answer.color, settings.accessibility.colorVisionMode, index)}
                                     offset={poll.responses
                                         .slice(0, index)
                                         .reduce(
@@ -216,7 +230,7 @@ export default function FullCircularPoll({
                                                 acc +
                                                 (curr.responses === 0
                                                     ? 0
-                                                    : (curr.responses / poll.totalResponders) * 100),
+														: (curr.responses / segmentBase) * 100),
                                             0,
                                         )}
                                     size={size}

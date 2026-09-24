@@ -1,10 +1,10 @@
-import { Button, Flex, Tooltip, Modal, Badge } from "antd";
+import { Button, Flex, Tooltip, Modal, Badge, Avatar } from "antd";
 import { IonIcon } from "@ionic/react";
 import * as IonIcons from "ionicons/icons";
 import { useNavigate } from "react-router-dom";
 import Log from "@utils/debugLogger";
 
-import { isDev, useMobileDetect, useTheme, useUserData } from "@/main";
+import { isDev, useMobileDetect, useSettings, useTheme, useUserData } from "@/main";
 import { themeColors } from "@/themes/ThemeConfig";
 
 import { useState } from "react";
@@ -13,10 +13,11 @@ import { leaveClassSession } from "@api/classApi";
 import { currentUserHasScope } from "@utils/scopeUtils";
 
 export default function FormbarHeader() {
-	const { isDark } = useTheme();
+	const { isDark, isHighContrast } = useTheme();
 	const navigate = useNavigate();
 	const isMobileView = useMobileDetect();
 	const { userData } = useUserData();
+	const { settings } = useSettings();
 	const canTeacherPanel = currentUserHasScope(userData, "class.system.panel_access");
 	const canStudentPanel = Boolean(userData?.activeClass) && !canTeacherPanel;
 	const canOpenDebug = currentUserHasScope(userData, 'global.system.admin');
@@ -27,18 +28,35 @@ export default function FormbarHeader() {
 
 	const headerStyles = {
 		...styles.formbarHeader,
-		background: isDark
-			? themeColors.dark.header.background
-			: themeColors.light.header.background,
+		background: isHighContrast
+			? "#000000"
+			: (isDark ? themeColors.dark.header.background : themeColors.light.header.background),
+		borderBottom: isHighContrast
+			? "2px solid #ffffff"
+			: undefined,
         padding: isMobileView ? "0 16px" : "0 32px",
 	};
 
-	const primaryTextColor = isDark
+	const primaryTextColor = isHighContrast
+		? "#ffffff" : isDark
 		? themeColors.dark.text.primary
 		: themeColors.light.text.primary;
 
 	// Badge style that adapts to dark / light themes for better contrast
-	const badgeStyle: React.CSSProperties = isDark
+	const badgeStyle: React.CSSProperties = isHighContrast
+		? {
+			marginLeft: 10,
+			backgroundColor: "black",
+			border: `2px solid white`,
+			padding: "2px 8px",
+			borderRadius: 0,
+			fontWeight: 700,
+			color: "white",
+			display: "flex",
+			alignItems: "center",
+			justifyContent: "center",
+		}
+		: isDark
 		? {
 			marginLeft: 10,
 			backgroundColor: "transparent",
@@ -249,37 +267,6 @@ export default function FormbarHeader() {
 
 				</>)}
 
-				{
-                
-                userData && (<div
-					style={{
-						borderRight: `2px solid ${isDark ? "#fff3" : "#0003"}`,
-						borderRadius: "999px",
-						height: "30px",
-					}}
-				/>)}
-
-				{userData && (
-					<Tooltip
-                        mouseEnterDelay={0.5}
-						placement="bottomRight"
-						title="Profile"
-						arrow={{ pointAtCenter: true }}
-						color="purple"
-					>
-						<Button
-							type="primary"
-							variant="solid"
-							color="purple"
-							size="large"
-							style={styles.headerButton}
-							onClick={() => navigate("/profile")}
-						>
-							<IonIcon icon={IonIcons.person} size="large" />
-						</Button>
-					</Tooltip>
-				)}
-
                 <Tooltip
                     mouseEnterDelay={0.5}
                     placement="bottomRight"
@@ -298,6 +285,29 @@ export default function FormbarHeader() {
                         <IonIcon icon={IonIcons.settings} size="large" />
                     </Button>
                 </Tooltip>
+
+				{
+                
+                userData && (<div
+					style={{
+						borderRight: `2px solid ${isDark ? "#fff3" : "#0003"}`,
+						borderRadius: "999px",
+						height: "30px",
+					}}
+				/>)}
+				
+				{userData && (
+					<Tooltip
+                        mouseEnterDelay={0.5}
+						placement="bottomRight"
+						title="Profile"
+						arrow={{ pointAtCenter: true }}
+						color={settings.appearance.accentColor}
+					>
+						<Avatar size={36} style={{cursor: 'pointer', background: settings.appearance.accentColor}} icon={userData.displayName[0].toUpperCase()} onClick={() => { navigate('/profile') }} />
+					</Tooltip>
+				)}
+
 			</Flex>
 
             <Modal
