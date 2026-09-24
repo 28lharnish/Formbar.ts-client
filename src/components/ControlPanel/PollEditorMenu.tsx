@@ -238,6 +238,19 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
 			delete pollProperties.prompt;
 		}
 
+		if(pollProperties.answers.find((e) => e.answer === "remove")) {
+			return showErrorNotification("Poll answer cannot be \"remove\".")
+		}
+
+		if(
+			(pollProperties.prompt !== undefined && pollProperties.prompt === "") ||
+			(pollProperties.promptMD !== undefined && pollProperties.promptMD === "") || 
+			(pollProperties.promptHTML !== undefined && pollProperties.promptHTML === "") ||
+			(pollProperties.promptMD === undefined && pollProperties.promptHTML === undefined && pollProperties.prompt === undefined)
+		) {
+			return showErrorNotification("Poll requires a prompt.")
+		}
+
         createPoll(classData.id, {
             ...pollProperties,
             blindUntilEnded: pollProperties.blind ? pollProperties.blindUntilEnded : false,

@@ -43,7 +43,12 @@ export default function PollEditorResponse({
 
             <Input placeholder="Answer Text" style={{
                 height: '100%'
-            }} value={answer.answer} onChange={(e) => setAnswer({ ...answer, answer: e.target.value })} />
+            }} styles={{
+				root: {
+					color:
+						answer.answer == "remove" ? "red" : "inherit"
+				},	
+			}} value={answer.answer} onChange={(e) => setAnswer({ ...answer, answer: e.target.value })} />
 
             <Tooltip title="Answer Weight" mouseEnterDelay={0.5}>
                 <InputNumber styles={{
