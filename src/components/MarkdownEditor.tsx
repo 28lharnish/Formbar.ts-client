@@ -230,7 +230,7 @@ export default function MarkdownEditor({
 				{ mode !== "Preview" && (<textarea
 					ref={textareaRef}
 					value={value}
-					onChange={(e) => setValue(e.target.value)}
+					onChange={(e) => { const nextValue = e.target.value; if (nextValue.split("\n").length <= 3) {setValue(nextValue);}}}
 					onKeyDown={onKeyDown}
 					placeholder="Prompt"
 					maxLength={chararacterLimit}
