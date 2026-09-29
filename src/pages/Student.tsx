@@ -4,7 +4,7 @@ import FormbarHeader from "@components/FormbarHeader";
 import FullCircularPoll from "@components/CircularPoll";
 import { useEffect, useState, useRef } from "react";
 import { useMobileDetect, useSettings, useUserData } from "@/main";
-import { Typography, Flex, Input, Button } from "antd";
+import { Typography, Flex, Input, Button, notification } from "antd";
 import PollButton from "@components/PollButton";
 import Log from "@utils/debugLogger";
 import StudentMenu from "@components/StudentMenu";
@@ -18,6 +18,7 @@ import { accessiblePollColor } from "@utils/accessibilityColors";
 const { Title, Text } = Typography;
 
 export default function Student() {
+	const [notificationApi, notificationHolder] = notification.useNotification();
 	const navigate = useNavigate();
 	const { settings } = useSettings();
 	const { userData: initialUserData } = useUserData();
@@ -58,18 +59,19 @@ export default function Student() {
             textRes: classData.poll.allowTextResponses ? resTextResponse : undefined,
         })
         .then((res) => {
-            if (!res.ok) {
-                throw new Error("Failed to send poll response");
+            if (!res.ok || res.error || res.success === false) {
+                throw new Error(res.error?.message || res.message || "Failed to send poll response");
             }
             Log({ message: "Poll response sent successfully.", data: res });
+            setLastAnswer(response);
         })
         .catch((err) => {
             Log({ message: "Error sending poll response:", data: err, level: "error" });
+			notificationApi.error({ title: "Failed to submit response", description: err instanceof Error ? err.message : "Please try again.", placement: "bottom" });
         });
         
 
 		Log({ message: `Responded with: ${response}`, level: "info" });
-        setLastAnswer(response);
 		// socket.emit("classUpdate", ""); // Request updated class data after responding
 	}
 
@@ -233,6 +235,7 @@ export default function Student() {
 
 	return (
 		<>
+			{notificationHolder}
 			<FormbarHeader />
 
 			{
@@ -445,7 +448,9 @@ export default function Student() {
 							</Text>
 							<Button
 								onClick={() => {
-									endBreak(classData.id)
+									endBreak(classData.id).then((res: any) => {
+										if (res?.error || res?.success === false || res?.ok === false) throw new Error(res?.error?.message || res?.message || "Failed to end break.");
+									}).catch((err) => notificationApi.error({ title: "Failed to end break", description: err instanceof Error ? err.message : "Please try again.", placement: "bottom" }))
 								}}
 								type="primary"
 								variant="solid"

@@ -1,4 +1,4 @@
-import { Button, Card, Flex, Input, Modal, Select, Typography } from "antd";
+import { Button, Card, Flex, Input, Modal, Select, Typography, notification } from "antd";
 const { Title, Text } = Typography;
 import FormbarHeader from "@components/FormbarHeader";
 import Log from "@utils/debugLogger";
@@ -18,7 +18,27 @@ export default function ClassesPage() {
 	const isMobileView = useMobileDetect();
 	const { settings } = useSettings();
 
-    const [modal, contextHolder] = Modal.useModal();
+	const [modal, contextHolder] = Modal.useModal();
+	const [notificationApi, notificationHolder] = notification.useNotification();
+	const showActionError = (err: unknown, fallback: string) => {
+		const extractMessage = (value: unknown, depth = 0): string | undefined => {
+			if (depth > 4 || value == null) return undefined;
+			if (typeof value === "string") {
+				try {
+					return extractMessage(JSON.parse(value), depth + 1) || value;
+				} catch {
+					return value;
+				}
+			}
+			if (typeof value !== "object") return undefined;
+			const details = value as Record<string, unknown>;
+			return extractMessage(details.message, depth + 1)
+				|| extractMessage(details.detail, depth + 1)
+				|| extractMessage(details.error, depth + 1);
+		};
+		const description = extractMessage(err) || fallback;
+		notificationApi.error({ title: "Action failed", description, placement: "bottom" });
+	};
 
 	const [joinClassCode, setJoinClassCode] = useState<string>("");
 
@@ -86,6 +106,7 @@ export default function ClassesPage() {
                     data: err,
                     level: "error",
                 });
+                showActionError(err, "Failed to load your classes.");
             });
     }
 
@@ -108,6 +129,7 @@ export default function ClassesPage() {
                     if (!res.ok) {
                         const message = (res && (res.detail || res.message)) || "Failed to delete class.";
                         Log({ message: "Failed to delete class:", data: message, level: "error" });
+                        showActionError(res, "Failed to delete class.");
                         return;
                     }
                     Log({message: "Class deleted:", data: res.data});
@@ -116,6 +138,7 @@ export default function ClassesPage() {
                 })
                 .catch((err) => {
                     Log({ message: "Error deleting class:", data: err, level: "error" });
+                    showActionError(err, "Failed to delete class.");
                 })
             }
         })
@@ -152,7 +175,10 @@ export default function ClassesPage() {
                                 data: err,
                                 level: "error",
                             });
+                            showActionError(err, "Failed to load your account after entering the class.");
                         });
+                } else {
+                    showActionError(response, "Failed to enter class.");
                 }
             })
             .catch((err) => {
@@ -161,22 +187,26 @@ export default function ClassesPage() {
                     data: err,
                     level: "error",
                 });
+                showActionError(err, "Failed to enter class.");
             });
     }
 	function createClass() {
 		if(!canCreateClasses) return;
 		if (createClassName.trim() === "") {
 			Log({ message: "Class name cannot be empty", level: "error" });
+			showActionError("Please enter a class name.", "Please enter a class name.");
 			return;
 		}
 		createClassAPI({ name: createClassName })
 			.then((response) => {
 				const { data } = response;
 				Log({ message: "Created class", data });
-                if (response.success) {
+				if (response.success) {
 					setOwnedClasses((prev) => [...prev, { id: data.classId, name: data.className }]);
 					setCreateClassName("");
 					enterClassWithId(data.classId);
+				} else {
+					showActionError(response, "Failed to create class.");
                 }
 			})
 			.catch((err) => {
@@ -185,12 +215,14 @@ export default function ClassesPage() {
 					data: err,
 					level: "error",
 				});
+				showActionError(err, "Failed to create class.");
 			});
 	}
 
 	function joinClassByCode(code: string) {
 		if (code.trim() === "") {
 			Log({ message: "Class code cannot be empty", level: "error" });
+			showActionError("Please enter a class code.", "Please enter a class code.");
 			return;
 		}
 		enrollInClass(code)
@@ -207,7 +239,9 @@ export default function ClassesPage() {
 						} as CurrentUserData
 					);
 					navigate("/student");
-				}
+				} else {
+					showActionError(response, "Failed to join class.");
+                }
 			})
 			.catch((err) => {
 				Log({
@@ -215,6 +249,7 @@ export default function ClassesPage() {
 					data: err,
 					level: "error",
 				});
+				showActionError(err, "Failed to join class.");
 			});
 	}
 
@@ -222,6 +257,7 @@ export default function ClassesPage() {
 		<>
 			<FormbarHeader />
             {contextHolder}
+			{notificationHolder}
 
 			<Flex
 				vertical

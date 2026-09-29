@@ -212,13 +212,18 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
 		document.body.style.background = bodyColor;
 		document.body.style.color = bodyTextColor;
 		document.documentElement.dataset.colorVision = settings.accessibility.colorVisionMode;
+		if (settings.accessibility.disableAnimations) {
+			document.documentElement.dataset.disableAnimations = "true";
+		} else {
+			delete document.documentElement.dataset.disableAnimations;
+		}
 		if (isHighContrast) {
 			document.documentElement.dataset.highContrast = "true";
 		} else {
 			delete document.documentElement.dataset.highContrast;
 		}
 		document.documentElement.style.setProperty("--formbar-accent", settings.appearance.accentColor);
-	}, [isDark, isHighContrast, settings.accessibility.colorVisionMode, settings.appearance.accentColor]);
+	}, [isDark, isHighContrast, settings.accessibility.colorVisionMode, settings.accessibility.disableAnimations, settings.appearance.accentColor]);
 
 	const toggleTheme = () => {
 		updateSettings({

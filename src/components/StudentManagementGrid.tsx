@@ -308,11 +308,10 @@ export default function StudentManagementGrid({
 
 				return (
 					<Flex vertical gap={12}>
-						<div>
+							{selectedResponses.length > 0 ? (<>
 							<Text type="secondary" style={{ display: "block", marginBottom: 6, fontSize: 12 }}>
 								Selected answers
 							</Text>
-							{selectedResponses.length > 0 ? (
 								<Flex wrap gap={8}>
 									{selectedResponses.map((res: string, index: number) => {
 										const answerIndex = classData?.poll.responses.findIndex(
@@ -336,11 +335,12 @@ export default function StudentManagementGrid({
 											</Tag>
 										);
 									})}
-								</Flex>
+								</Flex></>
 							) : (
-								<Text type="secondary" italic>No answer selected</Text>
+								<Text type="secondary" style={{fontWeight: 300, fontSize: "16px", textAlign: 'center'}}>
+									No Answer
+								</Text>
 							)}
-						</div>
 						{classData?.poll.allowTextResponses && textResponse ? (<>
 							<Text type="secondary" style={{ display: "block", fontSize: 12 }}>
 								Text Response

@@ -218,6 +218,11 @@ ion-icon[size="large"] {
 	transition-duration: 1s !important;
 }
 
+:root[data-disable-animations="true"] .ant-progress-circle,
+:root[data-disable-animations="true"] .ant-progress-circle-path {
+	transition: none !important;
+}
+
 .ant-statistic-content {
 	display: flex;
 }

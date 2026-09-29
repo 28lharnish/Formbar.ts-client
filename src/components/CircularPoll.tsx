@@ -294,6 +294,8 @@ export function CircularPoll({
 		borderColor = `rgba(${r * colorDarkenFactor}, ${g * colorDarkenFactor}, ${b * colorDarkenFactor})`;
 	}
 
+	const { settings } = useSettings();
+
 	return (
 		<>
 			<Progress
@@ -302,8 +304,7 @@ export function CircularPoll({
                     left: "50%",
                     top: "50%",
 					transform: `translate(-50%, -50%) rotate(${offsetDeg}deg)`,
-					transition:
-						"transform var(--ant-motion-duration-slow) ease",
+					transition: settings.accessibility.disableAnimations ? "none !important" : "transform var(--ant-motion-duration-slow) ease",
 					pointerEvents: "none",
 				}}
 				type="circle"
@@ -320,6 +321,9 @@ export function CircularPoll({
 						"--borderWidth": `${borderSize}px`,
 						"--borderColor": borderColor,
 					} as React.CSSProperties,
+					body: {
+						transition: 'none !important'
+					}
 				}}
 			/>
 		</>
