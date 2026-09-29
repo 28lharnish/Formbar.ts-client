@@ -146,7 +146,7 @@ export default function PogPools() {
 			<FormbarHeader />
 			<div
 				style={{
-					height: "calc(100vh - 80px)",
+					height: "calc(100vh - 64px)",
 					overflowY: "auto",
 					overflowX: "hidden",
 					WebkitOverflowScrolling: "touch",
@@ -160,6 +160,7 @@ export default function PogPools() {
 					gutter={[16, 16]}
 					style={{
 						margin: "20px",
+						justifyContent: 'center'
 					}}
 				>
 					{isLoading && (
@@ -211,7 +212,7 @@ export default function PogPools() {
 				{totalPools > 0 && (
 					<Flex
 						justify="center"
-						style={{ marginBottom: "32px", marginTop: "20px" }}
+						style={{ margin: 0, position: 'absolute', width: '100%', bottom: 8 }}
 					>
 						<Pagination
 							current={currentPage}

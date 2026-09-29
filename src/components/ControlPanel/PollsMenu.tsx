@@ -434,15 +434,17 @@ export default function PollsMenu({
 						})}
 					</Row>
 					{totalPreviousPolls > 0 && (
-						<Pagination
-							current={currentPage}
-							pageSize={pageSize}
-							total={totalPreviousPolls}
-							pageSizeOptions={[10, 20, 50, 100]}
+						<Flex style={{ margin: 0, position: 'absolute', bottom: 8 }}>
+							<Pagination
+								current={currentPage}
+								pageSize={pageSize}
+								total={totalPreviousPolls}
+								pageSizeOptions={[10, 20, 50, 100]}
 
-							onChange={(page, size) => { setCurrentPage(page); setPageSize(size); }}
-							style={{ marginTop: "20px" }}
-						/>
+								onChange={(page, size) => { setCurrentPage(page); setPageSize(size); }}
+								style={{ marginTop: "20px" }}
+							/>
+						</Flex>
 					)}
 				</>
 			)}

@@ -556,7 +556,7 @@ export default function ManagerPanel() {
 										)}
 									</Flex>
 								) : (
-									<Row gutter={[8, 8]} style={{ margin: "10px" }}>
+									<Row gutter={[8, 8]} style={{ margin: "10px", justifyContent: 'center' }}>
 										{users.length > 0 ? (
 											users.map((user, index) => renderUserCard(user, index, false))
 										) : (
@@ -567,7 +567,7 @@ export default function ManagerPanel() {
 									</Row>
 								)}
 								{totalUsers > 0 && (
-									<Flex justify="center" style={{ marginTop: "8px", marginBottom: "24px" }}>
+									<Flex justify="center" style={{  margin: 0, position: 'absolute', width: '100%', bottom: 8  }}>
 										<Pagination
 											current={currentPage}
 											pageSize={pageSize}

@@ -150,9 +150,10 @@ export default function Transactions() {
 							Error: {error}
 						</Text>
 					)}
+				</Flex>
 
 					{totalTransactions > 0 && (
-						<Flex justify="center" style={{ marginTop: "12px" }}>
+						<Flex justify="center" style={{ width: "100%", margin: 0, position: 'absolute', bottom: 8 }}>
 							<Pagination
 								current={currentPage}
 								pageSize={pageSize}
@@ -167,7 +168,6 @@ export default function Transactions() {
 							/>
 						</Flex>
 					)}
-				</Flex>
 			</Flex>
 		</>
 	);
