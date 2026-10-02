@@ -13,21 +13,60 @@ const { Text, Title } = Typography;
 
 const defaultTimers = [
     {
-        name: "Timer 1",
+        name: "Quick Countdown",
+        duration: 15,
+        isRunning: false,
+    },
+    {
+        name: "Short Pause",
         duration: 30,
         isRunning: false,
     },
     {
-        name: "Timer 2",
+        name: "One Minute",
         duration: 60,
         isRunning: false,
     },
     {
-        name: "Timer 3",
+        name: "Quick Activity",
         duration: 90,
         isRunning: false,
-    }
+    },
+    {
+        name: "Two Minute Task",
+        duration: 120,
+        isRunning: false,
+    },
+    {
+        name: "Discussion",
+        duration: 180,
+        isRunning: false,
+    },
+    {
+        name: "Work Session",
+        duration: 300,
+        isRunning: false,
+    },
+    {
+        name: "Extended Activity",
+        duration: 600,
+        isRunning: false,
+    },
+    {
+        name: "15m Timer",
+        duration: 900,
+        isRunning: false,
+    },
 ]
+
+function formatTimerDuration(duration: number) {
+    if (duration < 60) {
+        return `${duration}s`;
+    }
+
+    const minutes = duration / 60;
+    return `${minutes % 1 === 0 ? minutes : minutes.toFixed(1)}m`;
+}
 
 export default function TimerPage() {
 	const { userData } = useUserData();
@@ -74,57 +113,52 @@ export default function TimerPage() {
 
     const customTotalSeconds = getCustomTimerTotalSeconds();
 
-    // Create a 5x2 grid using defaultTimers
     const grid = [];
-    for (let rowIdx = 0; rowIdx < 5; rowIdx++) {
-        for (let colIdx = 0; colIdx < 2; colIdx++) {
-            const timerIdx = rowIdx * 2 + colIdx;
-            const timer = defaultTimers[timerIdx];
-            grid.push(
-                <Col span={8} key={`col-${rowIdx}-${colIdx}`}>
-                    {
-                        timer && (
-                            <Card>
-                                <Flex justify='center' align='center' vertical gap={10}>
-                                    {
-                                        !isMobile && (
-                                            <Title level={3} style={{margin:0}}>{timer.name}</Title>
-                                        )
-                                    }
-                                    <Progress 
-                                        type="dashboard"
-                                        percent={100}
-                                        size={isMobile ? 50 : 70}
-                                        format={() => timer.duration.toString() + "s"}
-                                        strokeColor={{
-                                            '0%': 'rgb(94, 158, 230)',
-                                            '100%': 'rgba(41, 96, 167, 0.9)',
-                                        }}
-                                        styles={{
-                                            indicator: {
-                                                color: 'white',
-                                            }
-                                        }}
-                                        strokeLinecap='round'
-                                    />
-                                    <Button type='primary' variant='solid' onClick={()=> {startTimer(timer.duration)}}>
-                                        {
-                                            isMobile ? (
-                                                <Flex align="center" justify="center" gap={5}>
-                                                    <IonIcon icon={IonIcons.play} />
-                                                </Flex>
-                                            ) : (
-                                                "Start"
-                                            )
-                                        }
-                                    </Button>
-                                </Flex>
-                            </Card>
-                        )
-                    }
-                </Col>
-            );
-        }
+    for (const timer of defaultTimers) {
+		grid.push(
+			<Col span={8} key={`${timer.duration}-${timer.name}`}>
+				{
+					timer && (
+						<Card>
+							<Flex justify='center' align='center' vertical gap={10}>
+								{
+									!isMobile && (
+										<Title level={3} style={{margin:0, fontSize: 24}}>{timer.name}</Title>
+									)
+								}
+								<Progress 
+									type="dashboard"
+									percent={100}
+									size={isMobile ? 50 : 70}
+									format={() => timer.duration.toString() + "s"}
+									strokeColor={{
+										'0%': 'rgb(94, 158, 230)',
+										'100%': 'rgba(41, 96, 167, 0.9)',
+									}}
+									styles={{
+										indicator: {
+											color: 'white',
+										}
+									}}
+									strokeLinecap='round'
+								/>
+								<Button type='primary' variant='solid' onClick={()=> {startTimer(timer.duration)}}>
+									{
+										isMobile ? (
+											<Flex align="center" justify="center" gap={5}>
+												<IonIcon icon={IonIcons.play} />
+											</Flex>
+										) : (
+											"Start"
+										)
+									}
+								</Button>
+							</Flex>
+						</Card>
+					)
+				}
+			</Col>
+		);
     }
     return (
         <Flex style={{padding: 20, paddingBottom: 0}} vertical>
@@ -134,7 +168,7 @@ export default function TimerPage() {
                     {grid}
                 </Row>
                 <Flex gap={20} style={{width: '100%'}}>
-                    <Card title="Custom Timer" style={{width: '100%'}}>
+                    <Card title="Custom Timer" style={{ width: '100%', alignSelf: 'flex-start' }}>
                         <Flex vertical gap={16}>
                             <Flex gap={12} wrap align='end'>
                                 <Flex style={{minWidth: isMobile ? '100px' : '140px'}} align='center' gap={10}>
@@ -166,11 +200,15 @@ export default function TimerPage() {
 
                             <Text>Or select a preset:</Text>
                             <Flex gap={8} wrap>
-                                <Button onClick={() => setCustomFromTotalSeconds(30)}>30s</Button>
-                                <Button onClick={() => setCustomFromTotalSeconds(60)}>1m</Button>
-                                <Button onClick={() => setCustomFromTotalSeconds(120)}>2m</Button>
-                                <Button onClick={() => setCustomFromTotalSeconds(300)}>5m</Button>
-                                <Button onClick={() => setCustomFromTotalSeconds(600)}>10m</Button>
+                                {defaultTimers.map((timer) => (
+                                    <Button
+                                        key={`${timer.duration}-${timer.name}`}
+                                        title={timer.name}
+                                        onClick={() => setCustomFromTotalSeconds(timer.duration)}
+                                    >
+                                        {formatTimerDuration(timer.duration)}
+                                    </Button>
+                                ))}
                             </Flex>
 
                             <Flex gap={10} align="center" justify="center" vertical={isMobile}>

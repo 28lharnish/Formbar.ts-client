@@ -150,29 +150,6 @@ export default function FormbarHeader() {
 			<Flex align="center" justify="center" gap={10}>
 
 				{userData &&
-				userData.activeClass && (
-					<Tooltip
-                        mouseEnterDelay={0.5}
-						placement="bottomRight"
-						title={"Links"}
-						arrow={{ pointAtCenter: true }}
-						color="geekblue"
-					>
-						<Button
-							type="primary"
-							variant="solid"
-							color="geekblue"
-							size="large"
-							style={styles.headerButton}
-							onClick={() => navigate(`/links`)}
-						>
-							<IonIcon icon={IonIcons.link} size="large" />
-						</Button>
-					</Tooltip>
-				)
-			}
-
-				{userData &&
 				userData.activeClass &&
 				canStudentPanel ? (
 					<Tooltip
@@ -215,6 +192,29 @@ export default function FormbarHeader() {
 						</Button>
 					</Tooltip>
 				) : null}
+
+				{userData &&
+				userData.activeClass && (
+					<Tooltip
+                        mouseEnterDelay={0.5}
+						placement="bottomRight"
+						title={"Links"}
+						arrow={{ pointAtCenter: true }}
+						color="geekblue"
+					>
+						<Button
+							type="primary"
+							variant="solid"
+							color="geekblue"
+							size="large"
+							style={styles.headerButton}
+							onClick={() => navigate(`/links`)}
+						>
+							<IonIcon icon={IonIcons.link} size="large" />
+						</Button>
+					</Tooltip>
+				)
+			}
 
 				{userData &&
 					canOpenManagerPanel && (

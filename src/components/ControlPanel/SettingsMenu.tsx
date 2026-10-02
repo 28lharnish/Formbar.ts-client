@@ -187,11 +187,11 @@ export default function SettingsMenu() {
         {contextHolderModal}
 			<Flex
 				gap={50}
-				style={{ height: "100%", width: "100%", overflowY: "auto", padding: 20, paddingBottom: 0 }}
+				style={{ height: "100%", minHeight: 0, width: "100%", overflowY: "auto", padding: 20, paddingBottom: 0 }}
 			>
 				<Flex
 					vertical
-					style={{ width: "100%", paddingRight: 20 }}
+					style={{ width: "100%", minWidth: 0, paddingRight: 20 }}
 				>
 					<Title style={{ marginBottom: "0" }}>Settings</Title>
 					<Divider />

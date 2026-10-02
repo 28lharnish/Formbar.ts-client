@@ -220,7 +220,7 @@ export default function Dashboard({
                 gap={20}
                 justify="space-between"
             >
-                <Flex style={{ flex: 1 }} vertical gap={10}>
+                <Flex style={{ flex: 1, minHeight: 0, minWidth: 0 }} vertical gap={10}>
                     <Flex
                         align={isMobile ? "start" : "center"}
                         gap={10}
@@ -398,7 +398,8 @@ export default function Dashboard({
                             gridTemplateColumns: isMobile ? "unset" : "repeat(auto-fill, minmax(200px, 1fr))",
                             gap: "16px",
                             width: "100%",
-                            overflowY: isMobile ? 'scroll' : 'unset',
+                            minHeight: 0,
+                            overflowY: "auto",
                             padding: isMobile ? "20px 15px" : "0",
                         }}
                     >
@@ -421,7 +422,10 @@ export default function Dashboard({
                             .map((student: any, index: number) =>
                                 student.id !== userData?.id ? (
                                     <StudentObject
-                                        style={getAppearAnimation(settings.accessibility.disableAnimations, index)}
+                                        style={{
+                                            ...getAppearAnimation(settings.accessibility.disableAnimations, index),
+                                            height: "100%",
+                                        }}
                                         key={student.id}
                                         student={student}
                                             isVoteExcluded={excludedRespondents.includes(Number(student.id)) && !student.isOffline}

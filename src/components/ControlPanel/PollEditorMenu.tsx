@@ -280,7 +280,15 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
 			<Flex vertical align="center" justify="start" style={{ height: "100%", flex: 1, padding: 20, paddingBottom: 0 }}>
 				<Title level={isMobile ? 3 : 2}>Poll Editor</Title>
 				
-				<Flex gap={20} vertical={isMobile} style={isMobile ? {width: '100%'} : {}}>
+				<Flex
+					gap={20}
+					vertical={isMobile}
+					style={{
+						width: "100%",
+						flex: 1,
+						minHeight: 0,
+					}}
+				>
 					<Card title={
 						<Flex justify="space-between">
 							<Text>Poll Properties</Text>
@@ -303,8 +311,8 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
 								onChange={setPromptMode}
 							/>
 						</Flex>
-					} style={{ width: isMobile ? "100%" : "475px" }}>
-						<Flex vertical gap={15} style={{height: isMobile ? 'min-content' : 'auto'}}>
+					} style={{ width: isMobile ? "100%" : "50%", minWidth: 0, height: "100%" }}>
+						<Flex vertical gap={15} style={{ height: "100%" }}>
 							<MarkdownEditor value={pollProperties.prompt || ""} setValue={(newVal: string) => setPollProperties({ ...pollProperties, prompt: newVal })} textAreaStyles={{	
 								lineHeight: 1.2,
 								height: 80,
@@ -534,8 +542,8 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
 								Add Answer
 							</Button>
 						</Flex>
-					} style={{ width: isMobile ? '100%' : "500px", ...(isMobile ? {flex: '1 1 auto', height: 'unset'} : {})  }}>
-						<Flex vertical gap={10} style={{ maxHeight: "500px", overflowY: "auto", ...{height: isMobile ? '200px' : 'auto'} }}>
+					} style={{ width: isMobile ? '100%' : "50%", minWidth: 0, height: "100%" }}>
+						<Flex vertical gap={10} style={{ height: "100%", maxHeight: "none", overflowY: "auto" }}>
 							{
 								pollProperties.answers.map((answer, index) => (
 									<PollEditorResponse 
