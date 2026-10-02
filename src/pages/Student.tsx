@@ -342,6 +342,7 @@ export default function Student() {
 										onChange={(e) =>
 											setTextResponse(e.target.value)
 										}
+										placeholder="Text Response"
 									></Input.TextArea>
 								) : null}
 								<Flex
