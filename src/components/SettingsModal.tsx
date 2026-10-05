@@ -249,7 +249,7 @@ export default function SettingsModal() {
     });
 
     return (
-        <Flex style={{ width: "100%", height: "100%" }}>
+        <Flex style={{ height: "100%" }}>
             <Menu
                 defaultSelectedKeys={["appearance"]}
                 mode="inline"

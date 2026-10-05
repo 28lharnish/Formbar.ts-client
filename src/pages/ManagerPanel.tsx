@@ -15,7 +15,6 @@ import {
 	Pagination,
     Modal,
     Switch,
-    notification,
 } from "antd";
 
 const { Title, Text } = Typography;
@@ -30,6 +29,8 @@ import { addIpToList, deleteIpFromList, getAllIpAccessList, getManagerData, togg
 import { deleteClass } from "@api/classApi";
 import { SCOPES } from "@/types";
 import { currentUserHasScope } from "@/utils/scopeUtils";
+import { useGlobalMessage } from "@/components/providers/GlobalMessageProvider";
+import { messageTemplates } from "@utils/messageTemplates";
 
 type ManagerPanelUser = {
 	id: number | string;
@@ -56,6 +57,7 @@ export default function ManagerPanel() {
 	>("Users");
 
 	const { userData } = useUserData();
+	const globalMessageAPI = useGlobalMessage();
 
     const [ipListData, setIpListData] = useState<{ active: boolean, ips: { id: number, ip: string }[] }>({ active: false, ips: [] });
     const [selectedIpList, setSelectedIpList] = useState<"whitelist" | "blacklist">("whitelist");
@@ -63,7 +65,7 @@ export default function ManagerPanel() {
     const [showIpModal, setShowIpModal] = useState(false);
     const [isNewIpValid, setIsNewIpValid] = useState(false);
 
-    const [api, contextHolder] = notification.useNotification();
+	
 
     const [classrooms, setClassrooms] = useState<any[]>([]);
 
@@ -187,7 +189,12 @@ export default function ManagerPanel() {
 		verifyUser(String(userId))
 			.then((response) => {
 				const { data } = response;
+				if (response?.success === false || response?.error) {
+					globalMessageAPI.error(messageTemplates["user.verify.failed"]);
+					return;
+				}
 				Log({ message: "User verified", data });
+				globalMessageAPI.success(messageTemplates["user.verified.success"]);
 				setIsLoading(true);
 				setInitialLoad(false);
 				setCurrentPage(1);
@@ -222,11 +229,14 @@ export default function ManagerPanel() {
                         Log({ message: "Failed to delete user:", data: res, level: "error" });
                         return;
                     }
-                    if (res?.success) {
+					if (res?.success) {
+						globalMessageAPI.success(messageTemplates["user.deleted.success"]);
                         setIsLoading(true);
                         setInitialLoad(false);
                         setRefreshNonce((value) => value + 1);
-                    }
+					} else {
+						globalMessageAPI.error(messageTemplates["user.delete.failed"]);
+					}
                 })
                 .catch((err) => {
                     Log({ message: "Error deleting user:", data: err, level: "error" });
@@ -254,11 +264,14 @@ export default function ManagerPanel() {
                         Log({ message: "Failed to ban user:", data: res, level: "error" });
                         return;
                     }
-                    if (res?.success) {
+					if (res?.success) {
+						globalMessageAPI.success(messageTemplates["user.banned.success"]);
                         setIsLoading(true);
                         setInitialLoad(false);
                         setRefreshNonce((value) => value + 1);
-                    }
+					} else {
+						globalMessageAPI.error(messageTemplates["user.banned.failed"]);
+					}
                 })
                 .catch((err) => {
                     Log({ message: "Error banning user:", data: err, level: "error" });
@@ -287,11 +300,14 @@ export default function ManagerPanel() {
                         Log({ message: "Failed to unban user:", data: res, level: "error" });
                         return;
                     }
-                    if (res?.success) {
+					if (res?.success) {
+						globalMessageAPI.success(messageTemplates["user.unbanned.success"]);
                         setIsLoading(true);
                         setInitialLoad(false);
                         setRefreshNonce((value) => value + 1);
-                    }
+					} else {
+						globalMessageAPI.error(messageTemplates["user.unbanned.failed"]);
+					}
                 })
                 .catch((err) => {
                     Log({ message: "Error unbanning user:", data: err, level: "error" });
@@ -456,7 +472,6 @@ export default function ManagerPanel() {
 	return (
         <>
         {contextModal}
-        {contextHolder}
 		<div
 			style={{
 				display: "flex",
@@ -602,23 +617,16 @@ export default function ManagerPanel() {
 																			throw new Error(message);
 																		}
 																		Log({ message: "Class deleted:", data: response.data });
-																		api.success({
-																			title: "Class deleted",
-																			description: "The class has been deleted successfully.",
-																			placement: 'bottom'
-																		});
+																		globalMessageAPI.success(messageTemplates["class.deleted.success"]);
 																		setIsLoading(true);
 																		setInitialLoad(false);
 																		setRefreshNonce((value) => value + 1);
 																	})
 																	.catch((error) => {
 																		Log({ message: "Failed to delete class:", data: error, level: "error" });
-																		api.error({
-																			title: "Failed to delete class",
-																			description:
-																			(error && error.message) || "An unexpected error occurred while deleting the class.",
-																			placement: 'bottom'
-																		});
+																		globalMessageAPI.error(
+																			(error && error.message) || messageTemplates["class.delete.failed"],
+																		);
 																	});
 															}}>
 																Delete Class

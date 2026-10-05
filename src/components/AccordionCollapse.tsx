@@ -1,4 +1,4 @@
-import { Button, Flex, InputNumber, Modal, Select, Tag, Tooltip, notification } from "antd";
+import { Button, Flex, InputNumber, Modal, Select, Tag, Tooltip } from "antd";
 import { Activity, useState, useEffect, useRef } from "react";
 import { textColorForBackground } from "@utils/GlobalFunctions";
 import { type Student } from "@/types";
@@ -6,11 +6,13 @@ import { IonIcon } from "@ionic/react";
 import * as IonIcons from "ionicons/icons";
 import { useClassData, useTheme, useUserData } from "@/main";
 
-import { awardDigipogs as awardDigipogAPICall }  from "@api/digipogApi";
+import { awardDigipogs as awardDigipogAPI }  from "@api/digipogApi";
 import { approveStudentBreak, banClassStudent, deleteHelpRequest, denyStudentBreak, endStudentBreak, kickClassStudent } from "@api/classApi";
 import { addRoleToStudent, removeRoleFromStudent } from "@api/rolesApi";
 import { currentUserHasScope } from "@utils/scopeUtils";
 import { themeColors } from "@/themes/ThemeConfig";
+import { useGlobalMessage } from "@/components/providers/GlobalMessageProvider";
+import { messageTemplates } from "@utils/messageTemplates";
 
 type AccordionCategory = {
 	name: string;
@@ -277,29 +279,14 @@ export function StudentAccordion({ studentData, isOpen = false }: { studentData:
 	const { classData } = useClassData();
 	const { userData } = useUserData();
 	const { isDark } = useTheme();
+	const globalMessageAPI = useGlobalMessage();
 
 	const [awardDigipogs, setAwardDigipogs] = useState<number>(0);
 	const [studentRoleIds, setStudentRoleIds] = useState<number[]>([]);
 	const [isUpdatingRoles, setIsUpdatingRoles] = useState<boolean>(false);
 
-	const [api, contextHolder] = notification.useNotification();
+	
     const [modal, contextHolderModal] = Modal.useModal();
-
-	const showSuccessNotification = (message: string, title: string) => {
-		api["success"]({
-			title: title,
-			description: message,
-			placement: "bottom",
-		});
-	};
-
-	const showErrorNotification = (message: string) => {
-		api["error"]({
-			title: "Error",
-			description: message,
-			placement: "bottom",
-		});
-	};
 
 	useEffect(() => {
 		setStudentRoleIds((studentData.roles?.class || []).map((role) => Number(role.id)));
@@ -338,30 +325,10 @@ export function StudentAccordion({ studentData, isOpen = false }: { studentData:
 				.filter((role): role is { id: number; name: string } => role !== null);
 		} catch {
 			setStudentRoleIds(previousRoleIds);
-			showErrorNotification("Failed to update student roles.");
 		} finally {
 			setIsUpdatingRoles(false);
 		}
 	}
-
-    function awardDigipogsAPI(studentId: number, amount: number) {
-        
-        awardDigipogAPICall({
-            studentId,
-            amount,
-        })
-        .then((data) => {
-            if (data.success) {
-                showSuccessNotification(`Awarded ${amount} digipogs to student.`, "Awarded Digipogs");
-            } else {
-                showErrorNotification("Failed to award digipogs.");
-            }
-        })
-        .catch(() => {
-            showErrorNotification("Failed to award digipogs.");
-        });        
-    }
-
 	const availableRoles = classData?.roles || [];
 	const roleOptions = availableRoles.map((role) => ({
 		value: Number(role.id),
@@ -381,7 +348,7 @@ export function StudentAccordion({ studentData, isOpen = false }: { studentData:
 	const canBan = currentUserHasScope(userData, "class.students.ban");
 
 	return (
-        <>{contextHolder}
+		<>
 		<AccordionCollapse
 			isOpen={isOpen}
 			categories={[
@@ -406,14 +373,12 @@ export function StudentAccordion({ studentData, isOpen = false }: { studentData:
 								color="red"
 								onClick={async () => {
 									if (!canManageHelp) return;
-                                    await deleteHelpRequest(classData?.id!, studentData.id)
-                                    .then((data) => {
-                                        if(data.success) {
-                                            showSuccessNotification("Deleted help ticket.", "Deleted Help Ticket");
-                                            return;
-                                        }
-                                        showErrorNotification("Failed to delete help ticket.");
-                                    });
+									const response = await deleteHelpRequest(classData?.id!, studentData.id);
+									if (response?.success === false || response?.error) {
+										globalMessageAPI.error(messageTemplates["user.helpTicket.delete.failed"]);
+										return;
+									}
+									globalMessageAPI.success(messageTemplates["user.helpTicket.deleted.success"]);
 								}}
 							>
 								Delete
@@ -442,9 +407,14 @@ export function StudentAccordion({ studentData, isOpen = false }: { studentData:
 											variant="solid"
 											color="green"
 											style={{ width: "120px" }}
-											onClick={() => {
+											onClick={async () => {
 												if (!canManageBreak) return;
-												approveStudentBreak(classData?.id!, studentData.id);
+												const response = await approveStudentBreak(classData?.id!, studentData.id);
+												if (response?.success === false || response?.error) {
+													globalMessageAPI.error(messageTemplates["user.break.approve.failed"]);
+													return;
+												}
+												globalMessageAPI.success(messageTemplates["user.break.approved.success"]);
 											}}
 										>
 											Approve
@@ -453,9 +423,14 @@ export function StudentAccordion({ studentData, isOpen = false }: { studentData:
 											variant="solid"
 											color="red"
 											style={{ width: "120px" }}
-											onClick={() => {
+											onClick={async () => {
 												if (!canManageBreak) return;
-												denyStudentBreak(classData?.id!, studentData.id);
+												const response = await denyStudentBreak(classData?.id!, studentData.id);
+												if (response?.success === false || response?.error) {
+													globalMessageAPI.error(messageTemplates["user.break.deny.failed"]);
+													return;
+												}
+												globalMessageAPI.success(messageTemplates["user.break.denied.success"]);
 											}}
 										>
 											Deny
@@ -467,9 +442,14 @@ export function StudentAccordion({ studentData, isOpen = false }: { studentData:
 									variant="solid"
 									color="red"
 									style={{ width: "120px" }}
-									onClick={() => {
+									onClick={async () => {
 										if (!canEndBreaks) return;
-										endStudentBreak(classData?.id!, studentData.id);
+										const response = await endStudentBreak(classData?.id!, studentData.id);
+										if (response?.success === false || response?.error) {
+											globalMessageAPI.error(messageTemplates["user.break.end.failed"]);
+											return;
+										}
+										globalMessageAPI.success(messageTemplates["user.break.ended.success"]);
 									}}
 								>
 									End Break
@@ -509,8 +489,13 @@ export function StudentAccordion({ studentData, isOpen = false }: { studentData:
 								variant="solid"
 								color="blue"
 								style={{ width: "120px" }}
-								onClick={() => {
-									awardDigipogsAPI(studentData.id, awardDigipogs);
+								onClick={async () => {
+									const response = await awardDigipogAPI({studentId: studentData.id, amount: awardDigipogs});
+									if (response?.success === false || response?.error) {
+										globalMessageAPI.error(messageTemplates["user.digipogs.award.failed"]);
+										return;
+									}
+									globalMessageAPI.success(messageTemplates["user.digipogs.awarded.success"](awardDigipogs));
 								}}
 							>
 								Award
@@ -612,9 +597,14 @@ export function StudentAccordion({ studentData, isOpen = false }: { studentData:
                                         content: "Are you sure you want to ban this user?",
                                         okText: "Ban",
                                         centered: true,
-                                        onOk: () => {
+										 onOk: async () => {
 											if(!canBan) return;
-											banClassStudent(classData?.id!, studentData.id);
+											const response = await banClassStudent(classData?.id!, studentData.id);
+											if (response?.success === false || response?.error) {
+													globalMessageAPI.error(messageTemplates["user.ban.failed"]);
+												return;
+											}
+											globalMessageAPI.success(messageTemplates["user.ban.success"](studentData.id));
                                         }
                                     });
                                 }}
@@ -627,9 +617,14 @@ export function StudentAccordion({ studentData, isOpen = false }: { studentData:
 								color="red"
 								style={{ width: "120px" }}
 								disabled={!canKick}
-								onClick={() => {
+								onClick={async () => {
 									if(!canKick) return;
-									kickClassStudent(classData?.id!, studentData.id);
+									const response = await kickClassStudent(classData?.id!, studentData.id);
+									if (response?.success === false || response?.error) {
+										globalMessageAPI.error(messageTemplates["user.kick.failed"]);
+										return;
+									}
+									globalMessageAPI.success(messageTemplates["user.kick.success"](studentData.id));
 								}}
 							>
 								Kick User

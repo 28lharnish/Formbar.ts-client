@@ -17,6 +17,7 @@ import {
 } from "react-router-dom";
 import { Button, ConfigProvider, Modal, Space, Typography } from "antd";
 import LoadingScreen from "@components/LoadingScreen";
+import { GlobalMessageProvider } from "@/components/providers/GlobalMessageProvider";
 
 import {
 	socket,
@@ -704,11 +705,13 @@ function App() {
 			<BrowserRouter>
 				<SettingsProvider>
 					<ThemeProvider>
-						<UserDataProvider>
-							<ClassDataProvider>
-								<AppContent />
-							</ClassDataProvider>
-						</UserDataProvider>
+						<GlobalMessageProvider>
+							<UserDataProvider>
+								<ClassDataProvider>
+									<AppContent />
+								</ClassDataProvider>
+							</UserDataProvider>
+						</GlobalMessageProvider>
 					</ThemeProvider>
 				</SettingsProvider>
 			</BrowserRouter>

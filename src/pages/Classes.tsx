@@ -1,9 +1,9 @@
-import { Button, Card, Flex, Input, Modal, Select, Typography, notification } from "antd";
+import { Button, Card, Flex, Input, Modal, Select, Typography } from "antd";
 const { Title, Text } = Typography;
 import FormbarHeader from "@components/FormbarHeader";
 import Log from "@utils/debugLogger";
 import { useUserData, useSettings, getAppearAnimation } from "@/main";
-import type { CardStylesType } from "antd/es/card/Card";
+import type { CardProps } from "antd/es/card/Card";
 import { useMobileDetect } from "@/main";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,8 @@ import { getAllUserClasses, getMe } from "@api/userApi";
 import { joinClassSession, createClass as createClassAPI, deleteClass as deleteClassAPI, enrollInClass } from "@api/classApi";
 import { type CurrentUserData } from "@/types";
 import { currentUserHasScope } from "@utils/scopeUtils";
+import { useGlobalMessage } from "@/components/providers/GlobalMessageProvider";
+import { messageTemplates } from "@utils/messageTemplates";
 
 export default function ClassesPage() {
 	const navigate = useNavigate();
@@ -19,7 +21,8 @@ export default function ClassesPage() {
 	const { settings } = useSettings();
 
 	const [modal, contextHolder] = Modal.useModal();
-	const [notificationApi, notificationHolder] = notification.useNotification();
+	const globalMessageAPI = useGlobalMessage();
+	
 	const showActionError = (err: unknown, fallback: string) => {
 		const extractMessage = (value: unknown, depth = 0): string | undefined => {
 			if (depth > 4 || value == null) return undefined;
@@ -37,7 +40,9 @@ export default function ClassesPage() {
 				|| extractMessage(details.error, depth + 1);
 		};
 		const description = extractMessage(err) || fallback;
-		notificationApi.error({ title: "Action failed", description, placement: "bottom" });
+		if (!(err instanceof Error)) {
+			globalMessageAPI.error(description);
+		}
 	};
 
 	const [joinClassCode, setJoinClassCode] = useState<string>("");
@@ -60,7 +65,7 @@ export default function ClassesPage() {
 		cardStyle = { width: "300px", height: "200px" };
 	}
 
-	const cardStyles = {
+	const cardStyles: CardProps['styles'] = {
 		root: getAppearAnimation(settings.accessibility.disableAnimations),
 		title: {
 			width: "100%",
@@ -69,7 +74,7 @@ export default function ClassesPage() {
 		body: {
 			height: "calc(100% - 64px)",
 		},
-	} as CardStylesType;
+	}
 
 	useEffect(() => {
 		if (!userData) return;
@@ -114,6 +119,7 @@ export default function ClassesPage() {
 		if(!canDeleteClasses) return;
         if (selectedClass === null) {
             Log({ message: "No class selected", level: "error" });
+			globalMessageAPI.error(messageTemplates["class.selection.required.error"]);
             return;
         }
         Log({ message: "Selected class for deletion", data: { selectedClass } });
@@ -148,6 +154,11 @@ export default function ClassesPage() {
 
     function enterClassWithId(classId: number) {
         Log({ message: "Selected class (direct)", data: { classId } });
+		if(classId === null) {
+			Log({message: "No Class Selected", level: 'error'});
+			globalMessageAPI.error(messageTemplates["class.selection.required.error"]);
+			return;
+		}
         joinClassSession(classId)
             .then((response) => {
                 const { data } = response;
@@ -257,7 +268,6 @@ export default function ClassesPage() {
 		<>
 			<FormbarHeader />
             {contextHolder}
-			{notificationHolder}
 
 			<Flex
 				vertical

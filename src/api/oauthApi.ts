@@ -1,4 +1,4 @@
-import { http } from "@api/HTTPApi";
+import { http, reportApiError } from "@api/HTTPApi";
 
 export type OAuthAuthorizeParams = {
 	clientId: string;
@@ -48,7 +48,9 @@ export async function authorizeOAuthApp(params: OAuthAuthorizeParams): Promise<s
 
 	const redirectUrl = response?.data?.redirectUrl;
 	if (typeof redirectUrl !== "string" || !redirectUrl) {
-		throw new Error("OAuth authorization did not return a redirect URL.");
+		const error = new Error("OAuth authorization did not return a redirect URL.");
+		reportApiError(error, "OAuth authorization failed.");
+		throw error;
 	}
 
 	return redirectUrl;

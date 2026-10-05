@@ -4,13 +4,13 @@ import { useUserData } from "@/main";
 import { useEffect, useState, } from "react";
 import { useParams } from "react-router-dom";
 import type { InventoryItem } from "@/types";
-import { Row, Flex, Typography, Spin, notification } from "antd";
+import { Row, Flex, Typography, Spin } from "antd";
 const { Title } = Typography;
 import InventoryItemElement from "@/components/InventoryItemElement";
 import ProfileViewingCard from "@/components/ProfileViewingCard";
+import Log from "@utils/debugLogger";
 
 export default function InventoryPage() {
-	const [notificationApi, notificationHolder] = notification.useNotification();
 	const { userData } = useUserData();
 	const { id } = useParams<{ id?: string }>();
 
@@ -25,7 +25,7 @@ export default function InventoryPage() {
 
 		getUserInventory(targetUserId).then(({ data }) => {
 			setInventory(data);
-		}).catch((err) => notificationApi.error({ title: "Failed to load inventory", description: err instanceof Error ? err.message : "Please try again.", placement: "bottom" }))
+		}).catch((error) => Log({ message: "Error loading inventory", data: error, level: "error" }))
 		.finally(() => {
 			setIsLoading(false);
 		});
@@ -39,7 +39,7 @@ export default function InventoryPage() {
 				throw new Error(response?.error?.message || response?.message || "Failed to delete inventory item.");
 			}
 			updateInventory();
-		}).catch((err) => notificationApi.error({ title: "Failed to delete item", description: err instanceof Error ? err.message : "Please try again.", placement: "bottom" }));
+		}).catch((error) => Log({ message: "Error deleting inventory item", data: error, level: "error" }));
 	}
 
 
@@ -48,7 +48,7 @@ export default function InventoryPage() {
 
 		getUserInventory(targetId).then(({ data }) => {
 			setInventory(data);
-		}).catch((err) => notificationApi.error({ title: "Failed to refresh inventory", description: err instanceof Error ? err.message : "Please try again.", placement: "bottom" }))
+		}).catch((error) => Log({ message: "Error refreshing inventory", data: error, level: "error" }))
 		.finally(() => {
 			setIsLoading(false);
 		});
@@ -57,7 +57,6 @@ export default function InventoryPage() {
 	return (
 		<>
 			<Flex vertical style={{ height: "100vh" }}>
-				{notificationHolder}
 				<FormbarHeader />
 
 				<Title style={{ textAlign: "center", margin: "20px" }}>

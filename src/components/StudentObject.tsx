@@ -77,17 +77,6 @@ export default function StudentObject({
 		if(typeof onToggleVote == 'function') onToggleVote(Number(student.id), !isVoteExcluded);
 	}
 
-	const canManageHelp = currentUserHasScope(userData, "class.help.approve");
-	const canManageBreak = currentUserHasScope(userData, "class.break.approve");
-	const canEndBreaks = currentUserHasScope(userData, "class.break.end");
-
-	const canAssignRoles = currentUserHasScope(userData, "class.roles.assign");
-	
-	const canAwardDigipogs = currentUserHasScope(userData, "class.digipogs.award");
-
-	const canKick = currentUserHasScope(userData, "class.students.kick");
-	const canBan = currentUserHasScope(userData, "class.students.ban");
-
 	return (
 		<div key={student.id} style={style}>
 			<Button

@@ -119,10 +119,11 @@ const defaultPolls: DefaultPoll[] = [
 import { useTheme } from "@/main";
 import { useEffect, useState } from "react";
 
-import { notification } from "antd";
 import { getPolls } from "@api/classApi";
 import { currentUserHasScope } from "@utils/scopeUtils";
 import { millisecondsToSeconds, secondsToMilliseconds } from "@utils/GlobalFunctions";
+import { useGlobalMessage } from "../providers/GlobalMessageProvider";
+import { messageTemplates } from "@utils/messageTemplates";
 
 export default function PollsMenu({
 	openModalId,
@@ -168,18 +169,10 @@ export default function PollsMenu({
 	const [previousPollPrompt, setPreviousPollPrompt] = useState<string>("");
 	const [previousPollAnswers, setPreviousPollAnswers] = useState<{answer: string, weight: number, color: string}[]>([]);
 
-	const [api, contextHolder] = notification.useNotification();
+	const globalMessageAPI = useGlobalMessage();
 
 	const canSeePolls = currentUserHasScope(userData, "class.poll.read");
 	const canCreatePolls = currentUserHasScope(userData, "class.poll.create");
-
-	const showErrorNotification = (message: string) => {
-		api["error"]({
-			title: "Error",
-			description: message,
-			placement: "bottom",
-		});
-	};
 
 	function seedPollEditor(poll: {
 		prompt: string;
@@ -224,9 +217,7 @@ export default function PollsMenu({
         poll.answers = pollAnswers;
 
 		if (!classData?.isActive) {
-			showErrorNotification(
-                "Class is not active.",
-            );
+			globalMessageAPI.error(messageTemplates["poll.class.inactive.error"]);
 			return;
 		}
 
@@ -249,19 +240,13 @@ export default function PollsMenu({
 					setTotalPreviousPolls(total);
 				}
 			})
-			.catch((err) => {
-				showErrorNotification(
-					JSON.parse(err.message).message || "Failed to fetch previous polls.",
-				);
-				setPreviousPolls([]);
-			})
 			.finally(() => {
 				setIsPreviousPollsLoading(false);
 			});
 	}, [classData, currentPage, pageSize])
 
 	return (
-        <>{contextHolder}
+		<>
 		<Flex align="stretch" justify="space-between" gap={30} style={{ height: "100%", minHeight: 0, padding: 20, paddingBottom: 0 }} vertical={isMobile}>
 			<Flex vertical align="center" justify="start" style={{ height: isMobile ? "min-content" : "100%", width: isMobile ? '100%' : '300px', flexShrink: 0 }}>
 				<Title level={isMobile ? 3 : 2}>Default Polls</Title>

@@ -8,7 +8,6 @@ import {
 	Row,
 	Spin,
 	Typography,
-	notification,
 } from "antd";
 const { Text, Title } = Typography;
 import FormbarHeader from "@components/FormbarHeader";
@@ -23,7 +22,9 @@ import {
 	createPool,
 } from "@api/pogPoolsApi";
 import { currentUserHasScope } from "@/utils/scopeUtils";
-import PogPoolElement from "@/components/PogPool";
+import PogPoolElement from "@/components/PogPoolElement";
+import { useGlobalMessage } from "@/components/providers/GlobalMessageProvider";
+import { messageTemplates } from "@utils/messageTemplates";
 
 const DEFAULT_PAGE_SIZE = 6;
 
@@ -55,13 +56,14 @@ function parsePools(responseData: unknown): PogPool[] {
 
 export default function PogPools() {
 	const { userData } = useUserData();
+	const globalMessageAPI = useGlobalMessage();
 	const [pools, setPools] = useState<PogPool[]>([]);
 	const [error, setError] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 	const [totalPools, setTotalPools] = useState(0);
-	const [api, contextHolderNotification] = notification.useNotification();
+	
 
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 	const [poolName, setPoolName] = useState("");
@@ -106,43 +108,32 @@ export default function PogPools() {
 
 	const handleCreatePool = () => {
 		if (!poolName.trim()) {
-			api["error"]({
-				title: "Validation Error",
-				description: "Pool name is required.",
-				placement: "bottom",
-			});
+			globalMessageAPI.error(messageTemplates["pool.name.required.error"]);
 
 			return;
 		}
 
 		Log({ message: `Creating pool: ${poolName}` });
 		createPool({ name: poolName, description: poolDesc })
-			.then(() => {
+			.then((response) => {
+				if (response?.success === false || response?.error) {
+					globalMessageAPI.error(messageTemplates["pool.create.failed"]);
+					return;
+				}
 				Log({ message: `Pool ${poolName} created successfully` });
+				globalMessageAPI.success(messageTemplates["pool.created.success"]);
 				setPoolName("");
 				setPoolDesc("");
 				setIsCreateModalOpen(false);
 				refreshPools();
 			})
-			.catch((err) => {
-				Log({
-					message: `Error creating pool`,
-					data: err,
-					level: "error",
-				});
-				api["error"]({
-					title: "Error Creating Pool",
-					description: `Failed to create the pool. Please try again.`,
-					placement: "bottom",
-				});
-			});
+			.catch((error) => Log({ message: "Error creating pool", data: error, level: "error" }));
 	};
 
 	const canManagePools = currentUserHasScope(userData, "global.pools.manage");
 
 	return (
 		<>
-			{contextHolderNotification}
 			<FormbarHeader />
 			<div
 				style={{

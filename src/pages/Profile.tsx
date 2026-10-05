@@ -23,11 +23,14 @@ import CountUp from 'react-countup';
 import { getMe, getUser, regenerateUserApiKey, requestUserPinReset, updateUserPin, verifyUserPin } from "@api/userApi";
 import { transferDigipogs } from "@/api/digipogApi";
 import { currentUserHasScope } from "@/utils/scopeUtils";
+import { useGlobalMessage } from "@/components/providers/GlobalMessageProvider";
+import { messageTemplates } from "@utils/messageTemplates";
 
 export default function Profile() {
     const { settings } = useSettings();
 	const { isHighContrast } = useTheme();
 	const { userData } = useUserData();
+	const globalMessageAPI = useGlobalMessage();
 	const [messageApi, contextHolder] = message.useMessage();
 	const navigate = useNavigate();
 	const [showSensitiveInfo, setShowSensitiveInfo] = useState(false);
@@ -516,12 +519,14 @@ export default function Profile() {
 										if (!transferDigipog || transferDigipog <= 0 || !canTransferDigipogs || !userData) {
 											return;
 										}
-										transferDigipogs({from: userData.id, to: Number(profileProps.ID), amount: transferDigipog, pin: transferDigipogPin, reason: transferDigipogReason}).then(() => {
+										transferDigipogs({from: userData.id, to: Number(profileProps.ID), amount: transferDigipog, pin: transferDigipogPin, reason: transferDigipogReason}).then((response) => {
+											if (response?.success === false || response?.error) return;
+											globalMessageAPI.success(messageTemplates["profile.digipogs.transfer.success"]);
 											setTransferDigipogModalOpen(false);
 											setTransferDigipog(0);
 											setTransferDigipogPin("");
 											setTransferDigipogReason("");
-										})
+										}).catch((error) => Log({ message: "Error transferring digipogs", data: error, level: "error" }));
 									}}
 									closeIcon={<IonIcon icon={IonIcons.close} />}
 								>

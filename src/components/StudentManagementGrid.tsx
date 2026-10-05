@@ -1,20 +1,21 @@
 import type { ClassData, CurrentUserData, Student } from "@/types";
-import { Row, Col, Flex, Card, Typography, Button, notification, Modal, InputNumber, Select, Tag } from "antd";
+import { Row, Col, Flex, Card, Typography, Button, Modal, InputNumber, Select, Tag } from "antd";
 const { Text } = Typography;
 import { IonIcon } from "@ionic/react";
 import * as IonIcons from "ionicons/icons";
-import { StudentAccordion } from "./AccordionCollapse";
 import { currentUserHasScope } from "@utils/scopeUtils";
 import { approveStudentBreak, banClassStudent, deleteHelpRequest, denyStudentBreak, endStudentBreak, kickClassStudent } from "@api/classApi";
 import { awardDigipogs as awardDigipogAPICall }  from "@api/digipogApi";
 import { addRoleToStudent, removeRoleFromStudent } from "@api/rolesApi";
-import PollButton from "./PollButton";
 import { useEffect, useState } from "react";
 import { themeColors } from "@/themes/ThemeConfig";
 import { useTheme } from "@/main";
 import { useSettings } from "@/main";
 import { accessiblePollColor } from "@utils/accessibilityColors";
 import { darkenButtonColor } from "@/utils/GlobalFunctions";
+import { useGlobalMessage } from "@/components/providers/GlobalMessageProvider";
+import { messageTemplates } from "@utils/messageTemplates";
+import Log from "@utils/debugLogger";
 
 export default function StudentManagementGrid({
 	student,
@@ -27,8 +28,9 @@ export default function StudentManagementGrid({
 }) {
 	const { isDark } = useTheme();
 	const { settings } = useSettings();
+	const globalMessageAPI = useGlobalMessage();
 
-	const [api, contextHolder] = notification.useNotification();
+	
     const [modal, contextHolderModal] = Modal.useModal();
 
 	const canManageHelp = currentUserHasScope(userData, "class.help.approve");
@@ -51,22 +53,6 @@ export default function StudentManagementGrid({
 	const canKick = currentUserHasScope(userData, "class.students.kick");
 	const canBan = currentUserHasScope(userData, "class.students.ban");
 
-	const showSuccessNotification = (message: string, title: string) => {
-		api["success"]({
-			title: title,
-			description: message,
-			placement: "bottom",
-		});
-	};
-
-	const showErrorNotification = (message: string) => {
-		api["error"]({
-			title: "Error",
-			description: message,
-			placement: "bottom",
-		});
-	};
-
 	type Category = {
 		icon: string,
 		color: string,
@@ -82,15 +68,13 @@ export default function StudentManagementGrid({
 			amount,
 		})
 		.then((data) => {
-			if (data.success) {
-				showSuccessNotification(`Awarded ${amount} digipogs to student.`, "Awarded Digipogs");
-			} else {
-				showErrorNotification("Failed to award digipogs.");
+			if (data.success === false || data.error) {
+				globalMessageAPI.error(messageTemplates["user.digipogs.award.failed"]);
+				return;
 			}
+			globalMessageAPI.success(messageTemplates["user.digipogs.awarded.success"](amount));
 		})
-		.catch(() => {
-			showErrorNotification("Failed to award digipogs.");
-		});        
+		.catch((error) => Log({ message: "Error awarding digipogs", data: error, level: "error" }));
 	}
 
 	useEffect(() => {
@@ -128,9 +112,9 @@ export default function StudentManagementGrid({
 					};
 				})
 				.filter((role): role is { id: number; name: string } => role !== null);
+			globalMessageAPI.success(messageTemplates["user.roles.updated.success"]);
 		} catch {
 			setStudentRoleIds(previousRoleIds);
-			showErrorNotification("Failed to update student roles.");
 		} finally {
 			setIsUpdatingRoles(false);
 		}
@@ -182,10 +166,10 @@ export default function StudentManagementGrid({
 									await deleteHelpRequest(classData?.id!, student.id)
 									.then((data) => {
 										if(data.success) {
-											showSuccessNotification("Deleted help ticket.", "Deleted Help Ticket");
+											globalMessageAPI.success(messageTemplates["user.helpTicket.deleted.success"]);
 											return;
 										}
-										showErrorNotification("Failed to delete help ticket.");
+										globalMessageAPI.error(messageTemplates["user.helpTicket.delete.failed"]);
 									});
 								}}
 							>
@@ -243,7 +227,15 @@ export default function StudentManagementGrid({
 											style={{ width: "120px" }}
 											onClick={() => {
 												if (!canManageBreak) return;
-												approveStudentBreak(classData?.id!, student.id);
+													approveStudentBreak(classData?.id!, student.id)
+														.then((response) => {
+															if (response?.success === false || response?.error) {
+																globalMessageAPI.error(messageTemplates["user.break.approve.failed"]);
+																return;
+															}
+															globalMessageAPI.success(messageTemplates["user.break.approved.success"]);
+														})
+															.catch((error) => Log({ message: "Error approving break", data: error, level: "error" }));
 											}}
 										>
 											Approve
@@ -254,7 +246,15 @@ export default function StudentManagementGrid({
 											style={{ width: "120px" }}
 											onClick={() => {
 												if (!canManageBreak) return;
-												denyStudentBreak(classData?.id!, student.id);
+													denyStudentBreak(classData?.id!, student.id)
+														.then((response) => {
+															if (response?.success === false || response?.error) {
+																globalMessageAPI.error(messageTemplates["user.break.deny.failed"]);
+																return;
+															}
+															globalMessageAPI.success(messageTemplates["user.break.denied.success"]);
+														})
+															.catch((error) => Log({ message: "Error denying break", data: error, level: "error" }));
 											}}
 										>
 											Deny
@@ -274,7 +274,15 @@ export default function StudentManagementGrid({
 											style={{margin:'auto'}}
 											onClick={() => {
 												if (!canEndBreaks) return;
-												endStudentBreak(classData?.id!, student.id);
+													endStudentBreak(classData?.id!, student.id)
+														.then((response) => {
+															if (response?.success === false || response?.error) {
+																globalMessageAPI.error(messageTemplates["user.break.end.failed"]);
+																return;
+															}
+															globalMessageAPI.success(messageTemplates["user.break.ended.success"]);
+														})
+															.catch((error) => Log({ message: "Error ending break", data: error, level: "error" }));
 											}}
 										>
 											End Break
@@ -414,8 +422,8 @@ export default function StudentManagementGrid({
 
 						value={studentRoleIds}
 						loading={isUpdatingRoles}
-						disabled={isUpdatingRoles || availableRoles.length === 0}
-						onChange={handleStudentRolesChange}
+						disabled={isUpdatingRoles || availableRoles.length === 0 || !canAssignRoles}
+						onChange={(e) => {if(!canAssignRoles) return; handleStudentRolesChange(e);}}
 						options={roleOptions}
 						showSearch={
 							{
@@ -487,7 +495,15 @@ export default function StudentManagementGrid({
 								centered: true,
 								onOk: () => {
 									if(!canBan) return;
-									banClassStudent(classData?.id!, student.id);
+															banClassStudent(classData?.id!, student.id)
+																.then((response) => {
+																	if (response?.success === false || response?.error) {
+																		globalMessageAPI.error(messageTemplates["user.ban.failed"]);
+																		return;
+																	}
+																	globalMessageAPI.success(messageTemplates["user.ban.success"](student.id));
+																})
+																	.catch((error) => Log({ message: "Error banning user", data: error, level: "error" }));
 								}
 							});
 						}}
@@ -502,7 +518,15 @@ export default function StudentManagementGrid({
 						disabled={!canKick}
 						onClick={() => {
 							if(!canKick) return;
-							kickClassStudent(classData?.id!, student.id);
+									kickClassStudent(classData?.id!, student.id)
+										.then((response) => {
+											if (response?.success === false || response?.error) {
+												globalMessageAPI.error(messageTemplates["user.kick.failed"]);
+												return;
+											}
+											globalMessageAPI.success(messageTemplates["user.kick.success"](student.id));
+										})
+											.catch((error) => Log({ message: "Error kicking user", data: error, level: "error" }));
 						}}
 					>
 						Kick User
@@ -557,7 +581,7 @@ export default function StudentManagementGrid({
 		)
 	}
 
-	return (<>{contextHolder}{contextHolderModal}
+	return (<>{contextHolderModal}
 		<Row gutter={[12, 12]} align="stretch">
 			{categories.map((category) => createGridItem(category))}
 		</Row>

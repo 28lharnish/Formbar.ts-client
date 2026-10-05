@@ -4,7 +4,7 @@ import * as IonIcons from "ionicons/icons";
 import { useNavigate } from "react-router-dom";
 import Log from "@utils/debugLogger";
 
-import { isDev, useMobileDetect, useSettings, useTheme, useUserData } from "@/main";
+import { useMobileDetect, useSettings, useTheme, useUserData } from "@/main";
 import { themeColors } from "@/themes/ThemeConfig";
 
 import { useState } from "react";
@@ -20,7 +20,6 @@ export default function FormbarHeader() {
 	const { settings } = useSettings();
 	const canTeacherPanel = currentUserHasScope(userData, "class.system.panel_access");
 	const canStudentPanel = Boolean(userData?.activeClass) && !canTeacherPanel;
-	const canOpenDebug = currentUserHasScope(userData, 'global.system.admin');
 	const canOpenManagerPanel = currentUserHasScope(userData, 'global.users.manage');
 
     const [settingsOpen, setSettingsOpen] = useState(false);
@@ -317,7 +316,7 @@ export default function FormbarHeader() {
                 onCancel={() => {setSettingsOpen(false)}}
                 footer={null}
                 height={'90%'}
-                width={'90%'}
+                width={'60%'}
                 styles={{
                     wrapper: {
                         overflow: "hidden",

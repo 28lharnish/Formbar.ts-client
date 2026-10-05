@@ -6,7 +6,6 @@ import {
 	Input,
 	Segmented,
 	Typography,
-	notification,
 } from "antd";
 import FormbarHeader from "@components/FormbarHeader";
 import Log from "@utils/debugLogger";
@@ -21,12 +20,15 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useTheme } from "@/main";
 import { authLogin, guestLogin, registerUser, setRefreshToken } from "@api/authApi";
 import { getServerConfig } from "@api/systemApi";
+import { wasApiErrorReported } from "@api/HTTPApi";
+import { useGlobalMessage } from "@/components/providers/GlobalMessageProvider";
 
 export default function LoginPage() {
 	const { isDark, isHighContrast } = useTheme();
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { userData } = useUserData();
+	const globalMessageAPI = useGlobalMessage();
 
 	const [mode, setMode] = useState<"Login" | "Sign Up" | "Guest">("Login");
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,15 +51,7 @@ export default function LoginPage() {
 	// Sign Up mode only
 	const [confirmPassword, setConfirmPassword] = useState("");
 
-	const [api, contextHolder] = notification.useNotification();
-
-	const showErrorNotification = (message: string) => {
-		api.error({
-			title: "Error",
-			description: message,
-			placement: "bottom",
-		});
-	};
+	
 
 	const getErrorMessage = (
 		err: unknown,
@@ -164,7 +158,9 @@ export default function LoginPage() {
 		}
 		} catch (err) {
 			Log({ message: "Form submission error", data: err, level: "error" });
-			showErrorNotification(getErrorMessage(err));
+			if (!wasApiErrorReported(err)) {
+				globalMessageAPI.error(getErrorMessage(err));
+			}
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -232,7 +228,6 @@ export default function LoginPage() {
 
 	return (
 		<>
-			{contextHolder}
 			<FormbarHeader />
 			<Flex
 				vertical

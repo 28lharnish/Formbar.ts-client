@@ -9,8 +9,7 @@ import {
 	Collapse,
 	Modal,
 	Tooltip,
-    Card,
-    notification,
+	Card,
 } from "antd";
 const { Title, Text } = Typography;
 import { getAppearAnimation, useClassData, useMobileDetect, useTheme, useUserData, useSettings } from "@/main";
@@ -20,6 +19,8 @@ import { createClassLink, deleteClass, deleteClassLink, getAllClassLinks, getBan
 import { currentUserHasScope } from "@/utils/scopeUtils";
 import StudentObject from "@components/StudentObject";
 import type { Student } from "@/types";
+import { useGlobalMessage } from "@/components/providers/GlobalMessageProvider";
+import { messageTemplates } from "@utils/messageTemplates";
 
 type BannedClassStudent = {
 	id?: number;
@@ -37,6 +38,7 @@ export default function SettingsMenu() {
 	const frontendUrl = import.meta.env.VITE_FORMBAR_CLIENT_URL || "http://localhost:5173";
 	const { userData } = useUserData();
 	const { classData } = useClassData();
+	const globalMessageAPI = useGlobalMessage();
     const isMobile = useMobileDetect();
 
 	// const canManageSettings = currentUserHasScope(userData, 'class.session.settings');
@@ -51,30 +53,20 @@ export default function SettingsMenu() {
 	const [isQRModalOpen, setIsQRModalOpen] = useState(false);
 
 	const [openModalId, setOpenModalId] = useState<number | null>(null);
-	const [searchQuery, setSearchQuery] = useState("");
 
     const [newLinkInput, setNewLinkInput] = useState<{ name: string; url: string }>({ name: "", url: "" });
 
-    const [newTagInput, setNewTagInput] = useState<string>("");
 	const [bannedStudents, setBannedStudents] = useState<BannedClassStudent[]>([]);
 	const [bannedSearchQuery, setBannedSearchQuery] = useState("");
 	const [isBannedLoading, setIsBannedLoading] = useState(false);
 
-	const [api, contextHolder] = notification.useNotification();
+	
     const [modal, contextHolderModal] = Modal.useModal();
 
 	const students =
 			classData && classData.students
 				? (Object.values(classData.students) as Student[])
 				: [];
-
-	const showErrorNotification = (message: string) => {
-		api["error"]({
-			title: "Error",
-			description: message,
-			placement: "bottom",
-		});
-	};
 
 	const [classLinks, setClassLinks] = useState<
 		{ name: string; url: string }[]
@@ -129,12 +121,12 @@ export default function SettingsMenu() {
 
     function tryAddLink() {
 		if (!canManageLinks) {
-			showErrorNotification("You do not have permission to manage links.");
+			globalMessageAPI.error(messageTemplates["class.links.permission.error"]);
 			return;
 		}
 
         if (!newLinkInput.name || !newLinkInput.url) {
-            showErrorNotification("Please fill out both the link name and URL.");
+			globalMessageAPI.error(messageTemplates["class.links.fields.required.error"]);
             return;
         }
 
@@ -142,38 +134,34 @@ export default function SettingsMenu() {
 
         createClassLink(classData!.id, fixedLink)
         .then((data) => {
-            if (data.success) {
+			if (data.success && !data.error) {
                 setClassLinks([...classLinks, fixedLink]);
                 setNewLinkInput({ name: "", url: "" });
-            } else {
-                showErrorNotification("Failed to add link.");
+				globalMessageAPI.success(messageTemplates["class.links.added.success"]);
+			} else {
+				globalMessageAPI.error(messageTemplates["class.links.add.failed"]);
             }
         })
-        .catch((err) => {
-            Log({ message: "Error adding link:", data: err, level: "error" });
-            showErrorNotification("An error occurred while adding the link.");
-        });
+		.catch((error) => Log({ message: "Error adding link:", data: error, level: "error" }));
 
     }
 
     function removeLink(linkToRemove: { name: string; url: string }) {
 		if (!canManageLinks) {
-			showErrorNotification("You do not have permission to manage links.");
+			globalMessageAPI.error(messageTemplates["class.links.permission.error"]);
 			return;
 		}
 
         deleteClassLink(classData!.id, linkToRemove.name)
         .then((data) => {
-            if (data.success) {
+			if (data.success && !data.error) {
                 setClassLinks(classLinks.filter(link => link.url !== linkToRemove.url));
+				globalMessageAPI.success(messageTemplates["class.links.removed.success"]);
             } else {
-                showErrorNotification("Failed to remove link.");
+				globalMessageAPI.error(messageTemplates["class.links.remove.failed"]);
             }
         })
-        .catch((err) => {
-            Log({ message: "Error removing link:", data: err, level: "error" });
-            showErrorNotification("An error occurred while removing the link.");
-        });
+		.catch((error) => Log({ message: "Error removing link:", data: error, level: "error" }));
     }
 
 	const {isDark} = useTheme();
@@ -183,7 +171,6 @@ export default function SettingsMenu() {
 
 	return (
 		<>
-        {contextHolder}
         {contextHolderModal}
 			<Flex
 				gap={50}
@@ -225,6 +212,14 @@ export default function SettingsMenu() {
 										if(!canRenameClass || !classData) return;
 
 										updateSettings(classData.id, { name: classData.className })
+											.then((response) => {
+												if (response?.success === false || response?.error) {
+													globalMessageAPI.error(messageTemplates["class.name.update.failed"]);
+													return;
+												}
+												globalMessageAPI.success(messageTemplates["class.name.updated.success"]);
+											})
+											.catch((error) => Log({ message: "Error updating class name", data: error, level: "error" }));
 									}}>
 										Change Class Name
 									</Button>
@@ -252,7 +247,15 @@ export default function SettingsMenu() {
 											onClick={() => {
 												if(!canKickStudents || !classData) return;
 
-												kickAllStudents(classData.id)
+													kickAllStudents(classData.id)
+														.then((response) => {
+															if (response?.success === false || response?.error) {
+																globalMessageAPI.error(messageTemplates["class.students.kick.failed"]);
+																return;
+															}
+															globalMessageAPI.success(messageTemplates["class.students.kicked.success"]);
+														})
+														.catch((error) => Log({ message: "Error kicking all students", data: error, level: "error" }));
 											}}
 										>
 											Kick All Students
@@ -265,7 +268,15 @@ export default function SettingsMenu() {
 											onClick={() => {
 												if(!canRegenerateCode || !classData) return;
 
-												regenerateClassCode(classData.id)
+													regenerateClassCode(classData.id)
+														.then((response) => {
+															if (response?.success === false || response?.error) {
+																globalMessageAPI.error(messageTemplates["class.code.regenerate.failed"]);
+																return;
+															}
+															globalMessageAPI.success(messageTemplates["class.code.regenerated.success"]);
+														})
+														.catch((error) => Log({ message: "Error regenerating class code", data: error, level: "error" }));
 											}}
 										>
 											Regenerate Code
@@ -293,20 +304,11 @@ export default function SettingsMenu() {
 															throw new Error(message);
 														}
 														Log({ message: "Class deleted:", data: response.data });
-														api.success({
-															title: "Class deleted",
-															description: "The class has been deleted successfully.",
-															placement: 'bottom'
-														});
+															globalMessageAPI.success(messageTemplates["class.deleted.success"]);
 													})
 													.catch((error) => {
 														Log({ message: "Failed to delete class:", data: error, level: "error" });
-														api.error({
-															title: "Failed to delete class",
-															description:
-															(error && error.message) || "An unexpected error occurred while deleting the class.",
-															placement: 'bottom'
-														});
+															Log({ message: "Failed to delete class:", data: error, level: "error" });
 													});
 												}
 											})
@@ -445,7 +447,7 @@ export default function SettingsMenu() {
 					</>
 					)}
 
-					{canManageUsers && (
+					{canManageUsers && !isBannedLoading && (
 						<>
 							<Divider />
 
@@ -493,7 +495,7 @@ export default function SettingsMenu() {
 								.filter((student) =>
 									student.displayName
 										.toLowerCase()
-										.includes(searchQuery.toLowerCase()),
+										.includes(bannedSearchQuery.toLowerCase()),
 								)
 								.filter((student) =>
 									bannedStudents.some((banned) => banned.id === student.id),

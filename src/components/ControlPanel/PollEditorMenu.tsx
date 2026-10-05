@@ -1,4 +1,4 @@
-import { Button, Card, Collapse, Flex, Input, Switch, Tooltip, Typography, notification, InputNumber, Modal, Segmented } from "antd";
+import { Button, Card, Collapse, Flex, Input, Switch, Tooltip, Typography, InputNumber, Modal, Segmented } from "antd";
 const { Title, Text } = Typography;
 import { useClassData, useMobileDetect, useUserData } from "@/main";
 import { useEffect, useState } from "react";
@@ -36,6 +36,9 @@ import { socket } from "@utils/socket";
 import { createPoll, savePollTemplateToClass } from "@api/classApi";
 import { savePollTemplateToUser } from "@api/userApi";
 import MarkdownEditor, { type MDEditorModes } from "../MarkdownEditor";
+import { useGlobalMessage } from "@/components/providers/GlobalMessageProvider";
+import Log from "@/utils/debugLogger";
+import { messageTemplates } from "@utils/messageTemplates";
 
 type EditorSeedPoll = {
     prompt: string;
@@ -107,7 +110,7 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
     const { classData } = useClassData();
     const { userData } = useUserData();
 
-	const [api, contextHolder] = notification.useNotification();
+	const globalMessageAPI = useGlobalMessage();
 
     const [saveModalOpen, setSaveModalOpen] = useState(false);
     const [pollSaveName, setPollSaveName] = useState("");
@@ -116,14 +119,6 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
 
     const canCreatePolls = currentUserHasScope(userData, "class.poll.create");
     const showSaveButtons = canCreatePolls;
-
-	const showErrorNotification = (message: string) => {
-		api["error"]({
-			title: "Error",
-			description: message,
-			placement: "bottom",
-		});
-	};
 
     function openSaveModal(mode: PollSaveMode) {
         setSaveMode(mode);
@@ -134,12 +129,12 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
     async function confirmSavePoll() {
         const trimmedName = pollSaveName.trim();
         if (!trimmedName) {
-            showErrorNotification("Please enter a poll name.");
+			globalMessageAPI.error(messageTemplates["poll.name.required.error"]);
             return;
         }
 
         if (!classData?.id) {
-            showErrorNotification("No active class to save this poll.");
+			globalMessageAPI.error(messageTemplates["poll.class.required.error"]);
             return;
         }
 
@@ -163,14 +158,10 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
                     ? await savePollTemplateToClass(classData.id, payload)
                     : await savePollTemplateToUser(userData?.id.toString() || "0", { ...payload, classId: classData.id });
 
-            api.success({
-                title: "Success",
-                description: saveResponse?.data?.message ?? "Poll saved successfully!",
-                placement: "bottom",
-            });
+			globalMessageAPI.success(saveResponse?.data?.message ?? messageTemplates["poll.save.success"]);
             setSaveModalOpen(false);
         } catch (err) {
-            showErrorNotification(err instanceof Error ? err.message : "Failed to save poll.");
+			globalMessageAPI.error(err instanceof Error ? err.message : messageTemplates["poll.save.failed"]);
         } finally {
             setIsSavingPoll(false);
         }
@@ -224,9 +215,6 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
 
     function startCustomPoll(promptMode: MDEditorModes) {
 		if (!classData?.isActive) {
-			showErrorNotification(
-                "Class is not active.",
-            );
 			return;
 		}
 
@@ -239,7 +227,7 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
 		}
 
 		if(pollProperties.answers.find((e) => e.answer === "remove")) {
-			return showErrorNotification("Poll answer cannot be \"remove\".")
+			return globalMessageAPI.error(messageTemplates["poll.answer.remove.error"])
 		}
 
 		if(
@@ -248,7 +236,7 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
 			(pollProperties.promptHTML !== undefined && pollProperties.promptHTML === "") ||
 			(pollProperties.promptMD === undefined && pollProperties.promptHTML === undefined && pollProperties.prompt === undefined)
 		) {
-			return showErrorNotification("Poll requires a prompt.")
+			return globalMessageAPI.error(messageTemplates["poll.prompt.required.error"])
 		}
 
         createPoll(classData.id, {
@@ -261,7 +249,7 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
                 socket?.emit("classUpdate", ""); // Refresh class data to show new poll
             })
             .catch((err) => {
-                console.error("Error starting custom poll:", err);
+                Log({message: "Error starting custom poll:", data: err, level: "error" });
             });
     }
 
@@ -276,7 +264,7 @@ export default function PollsEditorMenu({ initialPoll }: { initialPoll?: EditorS
 	const [promptMode, setPromptMode] = useState<MDEditorModes>("Basic");
 
     return (
-        <>{contextHolder}
+		<>
 			<Flex vertical align="center" justify="start" style={{ height: "100%", flex: 1, padding: 20, paddingBottom: 0 }}>
 				<Title level={isMobile ? 3 : 2}>Poll Editor</Title>
 				
