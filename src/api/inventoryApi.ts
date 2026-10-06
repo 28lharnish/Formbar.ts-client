@@ -6,6 +6,15 @@ export function getUserInventory(id: string) {
 }
 
 // DELETE /user/{id}/inventory/{itemId}
-export function deleteInventoryItem(userId: string, itemId: number, quantity: number = 1) {
-	return http(`/user/${userId}/inventory/${itemId}`, "DELETE", {}, { quantity });
+export function deleteInventoryItem(
+	userId: string,
+	itemId: number,
+	quantity: number = 1,
+) {
+	return http(
+		`/user/${userId}/inventory/${itemId}`,
+		"DELETE",
+		{},
+		{ quantity },
+	);
 }

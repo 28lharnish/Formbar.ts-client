@@ -95,26 +95,26 @@ const pages: Page[] = [
 		routePath: "/oauth",
 		page: LoginPage,
 	},
-    {
-        pageName: "Testing",
-        routePath: "/testing",
-        page: Testing
-    },
-    {
-        pageName: "Classes",
-        routePath: "/joinClass",
-        page: ClassesPage,
-    },
-    {
-        pageName: "Authorize App",
-        routePath: "/oauth/authorize",
-        page: AuthorizeApp,
-    },
+	{
+		pageName: "Testing",
+		routePath: "/testing",
+		page: Testing,
+	},
+	{
+		pageName: "Classes",
+		routePath: "/joinClass",
+		page: ClassesPage,
+	},
+	{
+		pageName: "Authorize App",
+		routePath: "/oauth/authorize",
+		page: AuthorizeApp,
+	},
 	{
 		pageName: "Links",
 		routePath: "/links",
 		page: Links,
-	}
+	},
 ];
 
 export default pages;

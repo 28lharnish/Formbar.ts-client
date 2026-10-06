@@ -23,8 +23,8 @@ export default function Transactions() {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 	const [totalTransactions, setTotalTransactions] = useState(0);
-	const [targetId, setTargetId] = useState<string>('')
-    const isMobile = useMobileDetect();
+	const [targetId, setTargetId] = useState<string>("");
+	const isMobile = useMobileDetect();
 
 	useEffect(() => {
 		// Fetch transactions from API when userData is available
@@ -128,16 +128,16 @@ export default function Transactions() {
 						transactions &&
 						!error &&
 						transactions.length === 0 && (
-						<Text
-							style={{
-								textAlign: "center",
-								marginTop: "20px",
-								color: "#888",
-							}}
-						>
-							No transactions found.
-						</Text>
-					)}
+							<Text
+								style={{
+									textAlign: "center",
+									marginTop: "20px",
+									color: "#888",
+								}}
+							>
+								No transactions found.
+							</Text>
+						)}
 
 					{error && (
 						<Text
@@ -152,22 +152,33 @@ export default function Transactions() {
 					)}
 				</Flex>
 
-					{totalTransactions > 0 && (
-						<Flex justify="center" style={{ width: "100%", margin: 0, position: 'absolute', bottom: 8 }}>
-							<Pagination
-								current={currentPage}
-								pageSize={pageSize}
-								total={totalTransactions}
-								showSizeChanger
-								pageSizeOptions={[10, 20, 50, 100]}
-								onChange={(page, size) => {
-									setIsLoading(true);
-									setCurrentPage(page);
-									setPageSize(size);
-								}}
-							/>
-						</Flex>
-					)}
+				{totalTransactions > 0 && (
+					<Flex
+						justify="center"
+						style={{
+							width: "100%",
+							margin: 0,
+							position: "absolute",
+							bottom: 8,
+						}}
+					>
+						<Pagination
+							current={currentPage}
+							pageSize={pageSize}
+							total={totalTransactions}
+							showSizeChanger
+							pageSizeOptions={[10, 20, 50, 100]}
+							showTotal={(total, [start, end]) =>
+								`${start}-${end} of ${total}`
+							}
+							onChange={(page, size) => {
+								setIsLoading(true);
+								setCurrentPage(page);
+								setPageSize(size);
+							}}
+						/>
+					</Flex>
+				)}
 			</Flex>
 		</>
 	);

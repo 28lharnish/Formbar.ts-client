@@ -12,14 +12,14 @@ type answer = {
 };
 
 export default function PollButton({
-    wasLastAnswer = false,
+	wasLastAnswer = false,
 	answerData,
 	Respond,
 	allowMultipleResponses = false,
 	selected,
 	onSelectToggle,
 }: {
-    wasLastAnswer?: boolean;
+	wasLastAnswer?: boolean;
 	answerData: answer;
 	Respond: (response: string) => void;
 	allowMultipleResponses?: boolean;
@@ -31,18 +31,25 @@ export default function PollButton({
 	const isSelected = selected ?? localSelected;
 
 	useEffect(() => {
-		setAnswerStyleState(createButtonStyles(answerData.color, wasLastAnswer));
+		setAnswerStyleState(
+			createButtonStyles(answerData.color, wasLastAnswer),
+		);
 	}, [answerData.color, wasLastAnswer]);
 
 	return (
 		<Button
 			variant="solid"
-			style={answerData.answer !== "remove" && answerData.answer !== "Submit" && allowMultipleResponses ? {
-                opacity: isSelected ? 1 : 0.5,
-                transform: isSelected ? "scale(1)" : "scale(0.95)",
-                transition: "all 0.3s ease-in-out",
-                
-            } : {}}
+			style={
+				answerData.answer !== "remove" &&
+				answerData.answer !== "Submit" &&
+				allowMultipleResponses
+					? {
+							opacity: isSelected ? 1 : 0.5,
+							transform: isSelected ? "scale(1)" : "scale(0.95)",
+							transition: "all 0.3s ease-in-out",
+						}
+					: {}
+			}
 			onClick={() => {
 				if (
 					allowMultipleResponses &&
@@ -104,7 +111,9 @@ function createButtonStyles(buttonColor: string, wasLastAnswer: boolean) {
 				padding: "5px 20px",
 				fontSize: "28px",
 				height: "auto",
-                boxShadow: wasLastAnswer ? `0 0 10px ${darkenButtonColor(buttonColor, 50)}` : "none",
+				boxShadow: wasLastAnswer
+					? `0 0 10px ${darkenButtonColor(buttonColor, 50)}`
+					: "none",
 			},
 		},
 		hover: {
@@ -115,7 +124,9 @@ function createButtonStyles(buttonColor: string, wasLastAnswer: boolean) {
 				padding: "5px 20px",
 				fontSize: "28px",
 				height: "auto",
-                boxShadow: wasLastAnswer ? `0 0 10px ${darkenButtonColor(buttonColor, 50)}` : "none",
+				boxShadow: wasLastAnswer
+					? `0 0 10px ${darkenButtonColor(buttonColor, 50)}`
+					: "none",
 			},
 		},
 		active: {
@@ -126,7 +137,9 @@ function createButtonStyles(buttonColor: string, wasLastAnswer: boolean) {
 				padding: "5px 20px",
 				fontSize: "28px",
 				height: "auto",
-                boxShadow: wasLastAnswer ? `0 0 10px ${darkenButtonColor(buttonColor, 50)}` : "none",
+				boxShadow: wasLastAnswer
+					? `0 0 10px ${darkenButtonColor(buttonColor, 50)}`
+					: "none",
 			},
 		},
 		current: "default",

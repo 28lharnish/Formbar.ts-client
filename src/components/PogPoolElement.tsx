@@ -10,10 +10,7 @@ import {
 	InputNumber,
 	Segmented,
 } from "antd";
-import {
-	payoutPool,
-	deletePool,
-} from "@api/pogPoolsApi";
+import { payoutPool, deletePool } from "@api/pogPoolsApi";
 const { Text } = Typography;
 import { IonIcon } from "@ionic/react";
 import Log from "@utils/debugLogger";
@@ -35,26 +32,40 @@ export default function PogPoolElement({
 	const { userData } = useUserData();
 	const globalMessageAPI = useGlobalMessage();
 	const [modal, contextHolder] = Modal.useModal();
-	
+
 	const [payoutModalOpen, setPayoutModalOpen] = useState<boolean>(false);
-	const [percentOrSet, setPercentOrSet] = useState<"Percent" | "Digipogs">("Percent");
+	const [percentOrSet, setPercentOrSet] = useState<"Percent" | "Digipogs">(
+		"Percent",
+	);
 	const [payoutPercent, setPayoutPercent] = useState<number>(100);
 	const [payoutDigipogs, setPayoutDigipogs] = useState<number>(pool.amount);
 
 	const handlePayout = (poolId: number) => {
 		Log({ message: `Payout initiated for pool ${poolId}` });
 
-		payoutPool(poolId, (percentOrSet === "Percent" ? payoutPercent : payoutDigipogs), percentOrSet)
+		payoutPool(
+			poolId,
+			percentOrSet === "Percent" ? payoutPercent : payoutDigipogs,
+			percentOrSet,
+		)
 			.then((response) => {
 				if (response?.success === false || response?.error) {
-					globalMessageAPI.error(messageTemplates["user.pool.payout.failed"]);
+					globalMessageAPI.error(
+						messageTemplates.user_pool_payout_failed,
+					);
 					return;
 				}
 				Log({ message: `Payout successful for pool ${poolId}` });
-				globalMessageAPI.success(messageTemplates["pool.payout.success"]);
+				globalMessageAPI.success(messageTemplates.pool_payout_success);
 				refreshPools();
 			})
-			.catch((error) => Log({ message: `Error paying out pool ${poolId}`, data: error, level: "error" }));
+			.catch((error) =>
+				Log({
+					message: `Error paying out pool ${poolId}`,
+					data: error,
+					level: "error",
+				}),
+			);
 	};
 
 	const handleDelete = (poolId: number) => {
@@ -72,14 +83,24 @@ export default function PogPoolElement({
 				deletePool(poolId)
 					.then((response) => {
 						if (response?.success === false || response?.error) {
-							globalMessageAPI.error(messageTemplates["pool.delete.failed"]);
+							globalMessageAPI.error(
+								messageTemplates.pool_delete_failed,
+							);
 							return;
 						}
 						Log({ message: `Pool ${poolId} deleted` });
-						globalMessageAPI.success(messageTemplates["pool.deleted.success"]);
+						globalMessageAPI.success(
+							messageTemplates.pool_deleted_success,
+						);
 						refreshPools();
 					})
-					.catch((error) => Log({ message: `Error deleting pool ${poolId}`, data: error, level: "error" }));
+					.catch((error) =>
+						Log({
+							message: `Error deleting pool ${poolId}`,
+							data: error,
+							level: "error",
+						}),
+					);
 			},
 		});
 	};
@@ -98,22 +119,53 @@ export default function PogPoolElement({
 	return (
 		<>
 			{contextHolder}
-			<Modal open={payoutModalOpen} onCancel={() => setPayoutModalOpen(false)} closable={false} title="Payout Pool" okType="primary" okText="Payout" onOk={() => handlePayout(pool.id)} cancelText="Cancel">
-				<Text type="secondary" style={{fontSize: 14}}>You can payout a set amount of digipogs, or a percentage of the full amount.</Text>
-				<Flex align="center" justify="space-between" gap={10} style={{marginTop: 20}}>
-					<Segmented options={[
-						"Percent",
-						"Digipogs"
-					]} onChange={setPercentOrSet} />
-					{
-						percentOrSet === 'Digipogs'
-							? <>
-								<InputNumber suffix="digipogs" style={{ width: 200 }} max={pool.amount} min={0} value={payoutDigipogs}  onChange={(e) => setPayoutDigipogs(e || 0)}/>
-							</>
-							: <>
-								<InputNumber suffix="%" style={{ width: 200 }} max={100} min={0} value={payoutPercent} onChange={(e) => setPayoutPercent(e || 0)} />
-							</>
-					}
+			<Modal
+				open={payoutModalOpen}
+				onCancel={() => setPayoutModalOpen(false)}
+				closable={false}
+				title="Payout Pool"
+				okType="primary"
+				okText="Payout"
+				onOk={() => handlePayout(pool.id)}
+				cancelText="Cancel"
+			>
+				<Text type="secondary" style={{ fontSize: 14 }}>
+					You can payout a set amount of digipogs, or a percentage of
+					the full amount.
+				</Text>
+				<Flex
+					align="center"
+					justify="space-between"
+					gap={10}
+					style={{ marginTop: 20 }}
+				>
+					<Segmented
+						options={["Percent", "Digipogs"]}
+						onChange={setPercentOrSet}
+					/>
+					{percentOrSet === "Digipogs" ? (
+						<>
+							<InputNumber
+								suffix="digipogs"
+								style={{ width: 200 }}
+								max={pool.amount}
+								min={0}
+								value={payoutDigipogs}
+								onChange={(e) => setPayoutDigipogs(e || 0)}
+							/>
+						</>
+					) : (
+						<>
+							<InputNumber
+								suffix="%"
+								style={{ width: 200 }}
+								max={100}
+								min={0}
+								value={payoutPercent}
+								onChange={(e) => setPayoutPercent(e || 0)}
+							/>
+						</>
+					)}
 				</Flex>
 			</Modal>
 
@@ -140,35 +192,36 @@ export default function PogPoolElement({
 				actions={
 					isOwner && canManagePools
 						? [
-							<Tooltip
-								mouseEnterDelay={0.5}
-								title="Payout Funds"
-								key="payout"
-								placement="top"
-								color="green"
-							>
-								<IonIcon
-									icon={IonIcons.cashOutline}
-									style={{ fontSize: "32px" }}
-									onClick={() => setPayoutModalOpen(true)}
+								<Tooltip
+									mouseEnterDelay={0.5}
+									title="Payout Funds"
 									key="payout"
-								/>
-							</Tooltip>,
-							<Tooltip
-								mouseEnterDelay={0.5}
-								title="Delete Pool"
-								key="delete"
-								placement="top"
-								color="red"
-							>
-								<IonIcon
-									icon={IonIcons.trashOutline}
-									style={{ fontSize: "32px" }}
-									onClick={() => handleDelete(pool.id)}
+									placement="top"
+									color="green"
+								>
+									<IonIcon
+										icon={IonIcons.cashOutline}
+										style={{ fontSize: "32px" }}
+										onClick={() => setPayoutModalOpen(true)}
+										key="payout"
+									/>
+								</Tooltip>,
+								<Tooltip
+									mouseEnterDelay={0.5}
+									title="Delete Pool"
 									key="delete"
-								/>
-							</Tooltip>,
-						] : []
+									placement="top"
+									color="red"
+								>
+									<IonIcon
+										icon={IonIcons.trashOutline}
+										style={{ fontSize: "32px" }}
+										onClick={() => handleDelete(pool.id)}
+										key="delete"
+									/>
+								</Tooltip>,
+							]
+						: []
 				}
 			>
 				<p>{pool.description}</p>

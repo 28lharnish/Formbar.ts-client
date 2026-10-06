@@ -19,7 +19,8 @@ export function registerApiErrorReporter(
 }
 
 export function reportApiError(error: unknown, fallback: string): void {
-	const message = error instanceof Error && error.message ? error.message : fallback;
+	const message =
+		error instanceof Error && error.message ? error.message : fallback;
 	if (typeof error === "object" && error !== null) {
 		reportedApiErrors.add(error);
 	}
@@ -27,7 +28,11 @@ export function reportApiError(error: unknown, fallback: string): void {
 }
 
 export function wasApiErrorReported(error: unknown): boolean {
-	return typeof error === "object" && error !== null && reportedApiErrors.has(error);
+	return (
+		typeof error === "object" &&
+		error !== null &&
+		reportedApiErrors.has(error)
+	);
 }
 
 function getToken() {
@@ -56,7 +61,7 @@ function getErrorMessage(text: string, statusText: string): string {
 export async function http(
 	path: string,
 	method: HttpMethod = "GET",
-    headers?: Record<string, string>,
+	headers?: Record<string, string>,
 	body?: unknown,
 ): Promise<any> {
 	const baseUrl = import.meta.env.VITE_FORMBAR_API_URL ?? "";
@@ -70,7 +75,14 @@ export async function http(
 				Authorization: token ? `Bearer ${token}` : "",
 				...(headers || {}),
 			},
-			...(body !== undefined ? { body: body instanceof URLSearchParams ? body.toString() : JSON.stringify(body) } : {}),
+			...(body !== undefined
+				? {
+						body:
+							body instanceof URLSearchParams
+								? body.toString()
+								: JSON.stringify(body),
+					}
+				: {}),
 		});
 
 		if (!res.ok) {

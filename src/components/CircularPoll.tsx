@@ -8,13 +8,13 @@ import { accessiblePollColor } from "@utils/accessibilityColors";
 type PollObjectProperties = {
 	poll: Poll;
 	size?: number;
-    timer?: {
-        active: boolean;
-        current: number;
-        duration: number;
-        remainingSeconds: number;
-    };
-    onlyTimer?: boolean;
+	timer?: {
+		active: boolean;
+		current: number;
+		duration: number;
+		remainingSeconds: number;
+	};
+	onlyTimer?: boolean;
 };
 
 type CircularPollCanvasProperties = {
@@ -89,7 +89,8 @@ function CircularPollCanvas({
 				return;
 			}
 
-			const startAngle = -Math.PI / 2 + (segment.offset / 100) * Math.PI * 2;
+			const startAngle =
+				-Math.PI / 2 + (segment.offset / 100) * Math.PI * 2;
 			const endAngle = startAngle + (percentage / 100) * Math.PI * 2;
 			const color = colors[index] || "#1890ff";
 			context.beginPath();
@@ -126,17 +127,20 @@ function CircularPollCanvas({
 export default function FullCircularPoll({
 	poll,
 	size = 400,
-    timer = { active: false, current: 0, duration: 0, remainingSeconds: 0 },
-    onlyTimer = false,
+	timer = { active: false, current: 0, duration: 0, remainingSeconds: 0 },
+	onlyTimer = false,
 }: PollObjectProperties) {
-    const { isDark } = useTheme();
+	const { isDark } = useTheme();
 	const { settings } = useSettings();
 	const ringStrokeWidth = 23;
 	const [hoveredSegment, setHoveredSegment] = useState<{
 		answer: string;
 		color?: string;
 	} | null>(null);
-	const [hoverPosition, setHoverPosition] = useState<{ x: number; y: number } | null>(null);
+	const [hoverPosition, setHoverPosition] = useState<{
+		x: number;
+		y: number;
+	} | null>(null);
 
 	const responderBase =
 		typeof poll.totalResponders === "number" &&
@@ -144,14 +148,14 @@ export default function FullCircularPoll({
 		poll.totalResponders > 0
 			? poll.totalResponders
 			: poll.responses.reduce(
-				(acc, response) =>
-					acc +
-					(typeof response.responses === "number" &&
-					Number.isFinite(response.responses)
-						? response.responses
-						: 0),
-				0,
-			);
+					(acc, response) =>
+						acc +
+						(typeof response.responses === "number" &&
+						Number.isFinite(response.responses)
+							? response.responses
+							: 0),
+					0,
+				);
 	const answerBase = poll.responses.reduce(
 		(acc, response) =>
 			acc +
@@ -165,16 +169,32 @@ export default function FullCircularPoll({
 		? Math.max(responderBase, answerBase)
 		: responderBase;
 	const segmentTargets = poll.blind
-		? [{ percentage: poll.totalResponders > 0 ? (poll.totalResponses / poll.totalResponders) * 100 : 0, offset: 0 }]
+		? [
+				{
+					percentage:
+						poll.totalResponders > 0
+							? (poll.totalResponses / poll.totalResponders) * 100
+							: 0,
+					offset: 0,
+				},
+			]
 		: poll.responses.map((answer, index) => ({
-			percentage: segmentBase > 0 ? (answer.responses / segmentBase) * 100 : 0,
-			offset: segmentBase > 0
-				? poll.responses.slice(0, index).reduce(
-					(acc, current) => acc + (current.responses / segmentBase) * 100,
-					0,
-				)
-				: 0,
-		}));
+				percentage:
+					segmentBase > 0
+						? (answer.responses / segmentBase) * 100
+						: 0,
+				offset:
+					segmentBase > 0
+						? poll.responses
+								.slice(0, index)
+								.reduce(
+									(acc, current) =>
+										acc +
+										(current.responses / segmentBase) * 100,
+									0,
+								)
+						: 0,
+			}));
 	const segmentTargetKey = segmentTargets
 		.map(({ percentage, offset }) => `${percentage}:${offset}`)
 		.join("|");
@@ -198,20 +218,31 @@ export default function FullCircularPoll({
 		const startSegments = animatedSegmentsRef.current;
 		const startTime = performance.now();
 		const animateSegments = (currentTime: number) => {
-			const progress = Math.min((currentTime - startTime) / segmentAnimationDuration, 1);
+			const progress = Math.min(
+				(currentTime - startTime) / segmentAnimationDuration,
+				1,
+			);
 			const easedProgress = 1 - Math.pow(1 - progress, 3);
 			const nextSegments = segmentTargets.map((target, index) => {
-				const start = startSegments[index] ?? { percentage: 0, offset: 0 };
+				const start = startSegments[index] ?? {
+					percentage: 0,
+					offset: 0,
+				};
 				return {
-					percentage: start.percentage + (target.percentage - start.percentage) * easedProgress,
-					offset: start.offset + (target.offset - start.offset) * easedProgress,
+					percentage:
+						start.percentage +
+						(target.percentage - start.percentage) * easedProgress,
+					offset:
+						start.offset +
+						(target.offset - start.offset) * easedProgress,
 				};
 			});
 
 			animatedSegmentsRef.current = nextSegments;
 			setAnimatedSegments(nextSegments);
 			if (progress < 1) {
-				animationFrameRef.current = requestAnimationFrame(animateSegments);
+				animationFrameRef.current =
+					requestAnimationFrame(animateSegments);
 			} else {
 				animationFrameRef.current = null;
 			}
@@ -258,9 +289,7 @@ export default function FullCircularPoll({
 					? response.responses
 					: 0;
 			const responsePercentage =
-				responseCount === 0
-					? 0
-					: (responseCount / segmentBase) * 100;
+				responseCount === 0 ? 0 : (responseCount / segmentBase) * 100;
 			if (responsePercentage <= 0) {
 				continue;
 			}
@@ -269,14 +298,18 @@ export default function FullCircularPoll({
 			if (percentageFromAngle <= cumulativePercentage) {
 				return {
 					answer: response.answer,
-					color: accessiblePollColor(response.color, settings.accessibility.colorVisionMode, index),
+					color: accessiblePollColor(
+						response.color,
+						settings.accessibility.colorVisionMode,
+						index,
+					),
 				};
 			}
 		}
 
 		return null;
 	};
-    
+
 	return (
 		<div
 			style={{
@@ -285,117 +318,131 @@ export default function FullCircularPoll({
 				height: onlyTimer ? `${size / 2}px` : `${size}px`,
 			}}
 		>
-				<div
+			<div
+				style={{
+					position: "absolute",
+					inset: 0,
+					zIndex: 5,
+					cursor: "default",
+				}}
+				onMouseMove={(event) => {
+					const segment = getHoveredAnswerFromEvent(event);
+					setHoveredSegment(segment);
+					const rect = event.currentTarget.getBoundingClientRect();
+					setHoverPosition({
+						x: event.clientX - rect.left,
+						y: event.clientY - rect.top,
+					});
+				}}
+				onMouseLeave={() => {
+					setHoveredSegment(null);
+					setHoverPosition(null);
+				}}
+			/>
+			{/* Timer */}
+			{timer.duration > 0 && (
+				<Progress
 					style={{
 						position: "absolute",
-						inset: 0,
-						zIndex: 5,
-						cursor: "default",
+						pointerEvents: "none",
+						left: "50%",
+						top: "50%",
+						transform: "translate(-50%, -50%)",
 					}}
-					onMouseMove={(event) => {
-						const segment = getHoveredAnswerFromEvent(event);
-						setHoveredSegment(segment);
-						const rect = event.currentTarget.getBoundingClientRect();
-						setHoverPosition({
-							x: event.clientX - rect.left,
-							y: event.clientY - rect.top,
-						});
+					type="dashboard"
+					percent={Math.round(timer.current)}
+
+					format={() => `${formatTime(timer.remainingSeconds)}`}
+					strokeColor={{
+						"0%": "rgb(94, 158, 230)",
+						"100%": "rgba(41, 96, 167, 0.9)",
 					}}
-					onMouseLeave={() => {
-						setHoveredSegment(null);
-						setHoverPosition(null);
-					}}
+					strokeWidth={15}
+					gapDegree={50}
+					size={size / 2}
 				/>
-            {/* Timer */}
-            {
-                timer.duration > 0 && (
-                    <Progress
-                        style={{
-                            position: 'absolute',
-                            pointerEvents: 'none',
-                            left: '50%',
-                            top: '50%',
-                            transform: 'translate(-50%, -50%)',
-                        }}
-                        type="dashboard"
-                        percent={Math.round(timer.current)}
-                        
-                        format={() => `${formatTime(timer.remainingSeconds)}`}
-                        strokeColor={{
-                            '0%': 'rgb(94, 158, 230)',
-                            '100%': 'rgba(41, 96, 167, 0.9)',
-                        }}
-                        strokeWidth={15}
-                        gapDegree={50}
-                        size={size / 2}
-                    />
-                )
-            }
-            {
-                !onlyTimer && (
-                    <>
-						<Progress
-							style={{
-								position: "absolute" as "absolute",
-								pointerEvents: "none",
-								left: "50%",
-								top: "50%",
-								transform: "translate(-50%, -50%)",
-							}}
-							type="circle"
-							percent={100}
-							strokeColor={isDark ? {
-								"0%": "rgba(255, 255, 255, 0.38)",
-								"100%": "rgba(255, 255, 255, 0.1)",
-							} : {
-								"0%": "#e6e6e6",
-								"100%": "#bfbfbf",
-							}}
-							size={size}
-							strokeWidth={ringStrokeWidth}
-							railColor="transparent"
-							showInfo={false}
-							strokeLinecap="butt"
-							styles={{
-								root: {
-									filter: "drop-shadow(0 0 5px #0004)",
-								},
-							}}
-						/>
-						<CircularPollCanvas
-							segments={animatedSegments}
-							colors={poll.blind
+			)}
+			{!onlyTimer && (
+				<>
+					<Progress
+						style={{
+							position: "absolute" as "absolute",
+							pointerEvents: "none",
+							left: "50%",
+							top: "50%",
+							transform: "translate(-50%, -50%)",
+						}}
+						type="circle"
+						percent={100}
+						strokeColor={
+							isDark
+								? {
+										"0%": "rgba(255, 255, 255, 0.38)",
+										"100%": "rgba(255, 255, 255, 0.1)",
+									}
+								: {
+										"0%": "#e6e6e6",
+										"100%": "#bfbfbf",
+									}
+						}
+						size={size}
+						strokeWidth={ringStrokeWidth}
+						railColor="transparent"
+						showInfo={false}
+						strokeLinecap="butt"
+						styles={{
+							root: {
+								filter: "drop-shadow(0 0 5px #0004)",
+							},
+						}}
+					/>
+					<CircularPollCanvas
+						segments={animatedSegments}
+						colors={
+							poll.blind
 								? ["#ff9f22"]
-								: poll.responses.map((answer, index) =>
-									accessiblePollColor(answer.color, settings.accessibility.colorVisionMode, index) ?? "#1890ff",
-								)}
-							size={size}
-							strokeWidth={ringStrokeWidth}
-						/>
-                        {!poll.blind && hoveredSegment && hoverPosition ? (
-                            <div
-                                style={{
-                                    position: "absolute",
-                                    left: hoverPosition.x,
-                                    top: hoverPosition.y - 20,
-                                    transform: "translate(-50%, -50%)",
-                                    zIndex: 10,
-                                    pointerEvents: "none",
-                                    backgroundColor: hoveredSegment.color || "rgba(0, 0, 0, 0.78)",
-                                    border: `1px solid #000`,
-                                    color: textColorForBackground(hoveredSegment.color || "rgba(0, 0, 0, 0.78)"),
-                                    padding: "4px 8px",
-                                    borderRadius: 6,
-                                    fontSize: 12,
-                                    whiteSpace: "nowrap",
-                                }}
-                            >
-                                {hoveredSegment.answer} - {`${poll.responses.find((e) => e.answer === hoveredSegment.answer)?.responses} Vote${poll.responses.find((e) => e.answer === hoveredSegment.answer)?.responses === 1 ? "" : "s"}`}
-                            </div>
-                        ) : null}
-                    </>
-                )
-            }
+								: poll.responses.map(
+										(answer, index) =>
+											accessiblePollColor(
+												answer.color,
+												settings.accessibility
+													.colorVisionMode,
+												index,
+											) ?? "#1890ff",
+									)
+						}
+						size={size}
+						strokeWidth={ringStrokeWidth}
+					/>
+					{!poll.blind && hoveredSegment && hoverPosition ? (
+						<div
+							style={{
+								position: "absolute",
+								left: hoverPosition.x,
+								top: hoverPosition.y - 20,
+								transform: "translate(-50%, -50%)",
+								zIndex: 10,
+								pointerEvents: "none",
+								backgroundColor:
+									hoveredSegment.color ||
+									"rgba(0, 0, 0, 0.78)",
+								border: `1px solid #000`,
+								color: textColorForBackground(
+									hoveredSegment.color ||
+										"rgba(0, 0, 0, 0.78)",
+								),
+								padding: "4px 8px",
+								borderRadius: 6,
+								fontSize: 12,
+								whiteSpace: "nowrap",
+							}}
+						>
+							{hoveredSegment.answer} -{" "}
+							{`${poll.responses.find((e) => e.answer === hoveredSegment.answer)?.responses} Vote${poll.responses.find((e) => e.answer === hoveredSegment.answer)?.responses === 1 ? "" : "s"}`}
+						</div>
+					) : null}
+				</>
+			)}
 		</div>
 	);
 }

@@ -30,15 +30,23 @@ function buildAuthorizeQuery(params: OAuthAuthorizeParams) {
 	return query;
 }
 
-export async function getOAuthAuthorizationMetadata(params: OAuthAuthorizeParams): Promise<OAuthAuthorizationMetadata> {
-	const response = await http(`/oauth/authorize/metadata?${buildAuthorizeQuery(params).toString()}`, "GET", {
-		Accept: "application/json",
-	});
+export async function getOAuthAuthorizationMetadata(
+	params: OAuthAuthorizeParams,
+): Promise<OAuthAuthorizationMetadata> {
+	const response = await http(
+		`/oauth/authorize/metadata?${buildAuthorizeQuery(params).toString()}`,
+		"GET",
+		{
+			Accept: "application/json",
+		},
+	);
 
 	return response.data;
 }
 
-export async function authorizeOAuthApp(params: OAuthAuthorizeParams): Promise<string> {
+export async function authorizeOAuthApp(
+	params: OAuthAuthorizeParams,
+): Promise<string> {
 	const query = buildAuthorizeQuery(params);
 	query.set("response_mode", "json");
 
@@ -48,7 +56,9 @@ export async function authorizeOAuthApp(params: OAuthAuthorizeParams): Promise<s
 
 	const redirectUrl = response?.data?.redirectUrl;
 	if (typeof redirectUrl !== "string" || !redirectUrl) {
-		const error = new Error("OAuth authorization did not return a redirect URL.");
+		const error = new Error(
+			"OAuth authorization did not return a redirect URL.",
+		);
 		reportApiError(error, "OAuth authorization failed.");
 		throw error;
 	}

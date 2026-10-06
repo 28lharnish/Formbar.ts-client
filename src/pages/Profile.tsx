@@ -9,7 +9,7 @@ import {
 	Input,
 	message,
 	Modal,
-    Space,
+	Space,
 	InputNumber,
 	Tooltip,
 } from "antd";
@@ -19,15 +19,22 @@ import * as IonIcons from "ionicons/icons";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useUserData, useSettings, useMobileDetect, useTheme } from "@/main";
-import CountUp from 'react-countup';
-import { getMe, getUser, regenerateUserApiKey, requestUserPinReset, updateUserPin, verifyUserPin } from "@api/userApi";
+import CountUp from "react-countup";
+import {
+	getMe,
+	getUser,
+	regenerateUserApiKey,
+	requestUserPinReset,
+	updateUserPin,
+	verifyUserPin,
+} from "@api/userApi";
 import { transferDigipogs } from "@/api/digipogApi";
 import { currentUserHasScope } from "@/utils/scopeUtils";
 import { useGlobalMessage } from "@/components/providers/GlobalMessageProvider";
 import { messageTemplates } from "@utils/messageTemplates";
 
 export default function Profile() {
-    const { settings } = useSettings();
+	const { settings } = useSettings();
 	const { isHighContrast } = useTheme();
 	const { userData } = useUserData();
 	const globalMessageAPI = useGlobalMessage();
@@ -43,7 +50,8 @@ export default function Profile() {
 	const [transferDigipog, setTransferDigipog] = useState(0);
 	const [transferDigipogPin, setTransferDigipogPin] = useState("");
 	const [transferDigipogReason, setTransferDigipogReason] = useState("");
-	const [transferDigipogModalOpen, setTransferDigipogModalOpen] = useState(false);
+	const [transferDigipogModalOpen, setTransferDigipogModalOpen] =
+		useState(false);
 
 	const [enteredPin, setEnteredPin] = useState("");
 	const [firstPin, setFirstPin] = useState("");
@@ -61,7 +69,7 @@ export default function Profile() {
 	const [pinLoading, setPinLoading] = useState(false);
 	const [pinResetLoading, setPinResetLoading] = useState(false);
 	const [pinVerifyLoading, setPinVerifyLoading] = useState(false);
-    const isMobile = useMobileDetect();
+	const isMobile = useMobileDetect();
 
 	const { id } = useParams<{ id?: string }>();
 	const isOwnProfile = !id || String(id) === String(userData?.id);
@@ -69,25 +77,31 @@ export default function Profile() {
 	const showGuestActions = !isGuestProfile;
 	const showSensitiveSection = isOwnProfile && !isGuestProfile;
 
-	const canTransferDigipogs = !isGuestProfile && currentUserHasScope(userData, "global.digipogs.transfer");
+	const canTransferDigipogs =
+		!isGuestProfile &&
+		currentUserHasScope(userData, "global.digipogs.transfer");
 
 	const getErrorMessage = (response: unknown, fallback: string) => {
 		const errorResponse = response as {
 			error?: string | { message?: string };
 		};
-		if (typeof errorResponse?.error === "string") return errorResponse.error;
+		if (typeof errorResponse?.error === "string")
+			return errorResponse.error;
 		if (errorResponse?.error?.message) return errorResponse.error.message;
 		return fallback;
 	};
 
-    const fakeApiKey = () => {
-        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        let result = "";
-        for (let i = 0; i < 80; i++) {
-            result += letters.charAt(Math.floor(Math.random() * letters.length));
-        }
-        return result;
-    }
+	const fakeApiKey = () => {
+		const letters =
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+		let result = "";
+		for (let i = 0; i < 80; i++) {
+			result += letters.charAt(
+				Math.floor(Math.random() * letters.length),
+			);
+		}
+		return result;
+	};
 
 	const regenerateApiKey = async () => {
 		if (!userData?.id || !isOwnProfile) return;
@@ -123,7 +137,10 @@ export default function Profile() {
 
 		setPinLoading(true);
 		try {
-			const response = await updateUserPin(String(userData.id), { oldPin: oldPin || undefined, pin: newPin });
+			const response = await updateUserPin(String(userData.id), {
+				oldPin: oldPin || undefined,
+				pin: newPin,
+			});
 			if (!response.ok || response?.error) {
 				throw new Error(
 					getErrorMessage(response, "Failed to update PIN."),
@@ -147,7 +164,7 @@ export default function Profile() {
 		if (!userData?.id || !isOwnProfile) return;
 		setPinResetLoading(true);
 		try {
-            const data = await requestUserPinReset(String(userData.id));
+			const data = await requestUserPinReset(String(userData.id));
 			if (!data.ok || data?.error) {
 				throw new Error(
 					getErrorMessage(data, "Failed to request PIN reset."),
@@ -183,7 +200,7 @@ export default function Profile() {
 
 		setPinVerifyLoading(true);
 		try {
-            await verifyUserPin(String(userData.id), { pin: enteredPin });
+			await verifyUserPin(String(userData.id), { pin: enteredPin });
 
 			setShowSensitiveInfo(true);
 			setSensitiveActiveKeys(["1"]);
@@ -193,12 +210,13 @@ export default function Profile() {
 			let message = "Failed to verify PIN.";
 			if (err instanceof Error) {
 				try {
-					message = JSON.parse(err.message).error?.message || err.message;
+					message =
+						JSON.parse(err.message).error?.message || err.message;
 				} catch {
 					message = err.message || message;
 				}
 			}
-			
+
 			if (message.toLowerCase().includes("no pin is set")) {
 				setHasPin(false);
 				setSensModalOpen(false);
@@ -209,9 +227,7 @@ export default function Profile() {
 				return;
 			}
 
-			messageApi.error(
-				message
-			);
+			messageApi.error(message);
 		} finally {
 			setPinVerifyLoading(false);
 		}
@@ -226,11 +242,11 @@ export default function Profile() {
 
 		setPinLoading(true);
 		try {
-            const data = await updateUserPin(String(userData.id), { pin: firstPin });
+			const data = await updateUserPin(String(userData.id), {
+				pin: firstPin,
+			});
 			if (!data.ok || data?.error) {
-				throw new Error(
-					getErrorMessage(data, "Failed to update PIN."),
-				);
+				throw new Error(getErrorMessage(data, "Failed to update PIN."));
 			}
 
 			setFirstPin("");
@@ -251,8 +267,8 @@ export default function Profile() {
 	useEffect(() => {
 		if (!userData?.id && !id) return;
 
-        const loadProfile = async () => {
-            const response = isGuestProfile
+		const loadProfile = async () => {
+			const response = isGuestProfile
 				? await getMe()
 				: await getUser(id ? String(id) : String(userData?.id));
 
@@ -274,16 +290,15 @@ export default function Profile() {
 			setProfileProps({
 				"Display Name": data.displayName || "N/A",
 				Email: isGuestProfile ? "N/A" : data.email || "N/A",
-				"Digipogs":
-					!isGuestProfile ? data.digipogs || data.digipogs == 0
+				Digipogs: !isGuestProfile
+					? data.digipogs || data.digipogs == 0
 						? data.digipogs
-						: "N/A" : "N/A",
+						: "N/A"
+					: "N/A",
 				ID: data.id || "N/A",
 
 				"Pog Meter":
-					data.pogMeter && data.pogMeter > 0
-						? data.pogMeter / 5
-						: 0,
+					data.pogMeter && data.pogMeter > 0 ? data.pogMeter / 5 : 0,
 			});
 			setHasPin(
 				isGuestProfile
@@ -295,56 +310,82 @@ export default function Profile() {
 			setError(null);
 		};
 
-        loadProfile().catch((err) => {
-				Log({
-					message: "Error fetching profile data",
-					data: err,
-					level: "error",
-				});
-				setHasPin(null);
-				setError("Error fetching profile data");
+		loadProfile().catch((err) => {
+			Log({
+				message: "Error fetching profile data",
+				data: err,
+				level: "error",
 			});
+			setHasPin(null);
+			setError("Error fetching profile data");
+		});
 	}, [userData, id, isGuestProfile]);
 
 	const mobileButtonStyle = {
 		border: "none",
 		padding: "0 0",
 		height: 48,
-        aspectRatio: 1,
+		aspectRatio: 1,
 		fontSize: 24,
 		boxShadow: "0 2px 0px rgba(0,0,0,0.2)",
-        borderRadius: "8px"
-	}
+		borderRadius: "8px",
+	};
 
 	return (
 		<>
 			{contextHolder}
 			<FormbarHeader />
 
-			{
-				Number(profileProps["Pog Meter"]) > 0 &&(
-					<div style={{
-						position: 'fixed',
+			{Number(profileProps["Pog Meter"]) > 0 && (
+				<div
+					style={{
+						position: "fixed",
 						bottom: -10,
-						width: '100%',
-						height: `calc(${Number(profileProps["Pog Meter"]) / 100 * 88}% + 10px)`,
-						animation: settings.accessibility.disableAnimations ? '' : '1s pogMeterBop forwards infinite',
-						background: isHighContrast ? "white" : 'linear-gradient(180deg, rgba(16, 143, 233, 0.5) 0%, rgba(170, 104, 208, 0.5) 100%)',
-						pointerEvents: 'none',
-						display: 'flex',
-						flexDirection: 'column',
-						alignItems: 'start',
-						justifyContent: 'end',
-					}}>
-						<Title
-							style={{marginLeft: '20px', fontStyle: 'italic', opacity: 1, color: isHighContrast ? 'black' : settings.appearance.theme == 'dark' ? 'black' : 'white', zIndex: 2}}
-						>Pog Meter</Title>
-						<div className={settings.accessibility.disableAnimations ? "pogMeterWave" : "pogMeterWave pogMeterMove"}
-							style={{height:'50px', ...(settings.accessibility.highContrast ? {background: 'white'} : null)}}
-						></div>
-					</div>
-				)
-			}
+						width: "100%",
+						height: `calc(${(Number(profileProps["Pog Meter"]) / 100) * 88}% + 10px)`,
+						animation: settings.accessibility.disableAnimations
+							? ""
+							: "1s pogMeterBop forwards infinite",
+						background: isHighContrast
+							? "white"
+							: "linear-gradient(180deg, rgba(16, 143, 233, 0.5) 0%, rgba(170, 104, 208, 0.5) 100%)",
+						pointerEvents: "none",
+						display: "flex",
+						flexDirection: "column",
+						alignItems: "start",
+						justifyContent: "end",
+					}}
+				>
+					<Title
+						style={{
+							marginLeft: "20px",
+							fontStyle: "italic",
+							opacity: 1,
+							color: isHighContrast
+								? "black"
+								: settings.appearance.theme == "dark"
+									? "black"
+									: "white",
+							zIndex: 2,
+						}}
+					>
+						Pog Meter
+					</Title>
+					<div
+						className={
+							settings.accessibility.disableAnimations
+								? "pogMeterWave"
+								: "pogMeterWave pogMeterMove"
+						}
+						style={{
+							height: "50px",
+							...(settings.accessibility.highContrast
+								? { background: "white" }
+								: null),
+						}}
+					></div>
+				</div>
+			)}
 
 			<Flex
 				align="center"
@@ -352,7 +393,10 @@ export default function Profile() {
 				style={{ padding: "20px", height: "100%", width: "100%" }}
 			>
 				<Card
-					style={{ margin: "20px", ...(isMobile ? {width:600} : {minWidth:600}) }}
+					style={{
+						margin: "20px",
+						...(isMobile ? { width: 600 } : { minWidth: 600 }),
+					}}
 					loading={error === null && !profileProps["Display Name"]}
 				>
 					<Flex
@@ -379,12 +423,21 @@ export default function Profile() {
 						{!error && (
 							<h2
 								style={{
-									textAlign: 'center',
+									textAlign: "center",
 									width: "100%",
 								}}
 							>
 								{
-									<span style={{textAlign:'center', ...(isMobile && {width: '100%'})}}>{isOwnProfile && !isMobile ? "Your Profile" : "Profile"}</span>
+									<span
+										style={{
+											textAlign: "center",
+											...(isMobile && { width: "100%" }),
+										}}
+									>
+										{isOwnProfile && !isMobile
+											? "Your Profile"
+											: "Profile"}
+									</span>
 								}
 							</h2>
 						)}
@@ -397,110 +450,188 @@ export default function Profile() {
 									width: "100%",
 								}}
 							>
-                                {
-                                    showGuestActions && (
-										<Tooltip title={isMobile ? "Transactions" : ""}>
-											<Button
-												variant="solid"
-														type="primary"
-												onClick={() => {
-													navigate(
-														id
-															? `/profile/${id}/transactions`
-															: "/profile/transactions",
-													);
-												}}
-												style={isMobile ? mobileButtonStyle : { width: "100%" }}
-											>
-												{isMobile ? <IonIcon icon={IonIcons.cashOutline}/> : "Transactions"}
-											</Button>
-										</Tooltip>
-                                    )
-                                }
-								{
-									showGuestActions &&(
-										<Tooltip title={isMobile ? "Inventory" : ""}>
-											<Button
-												variant="solid"
-														type="primary"
-												onClick={() => {
-													navigate(
-														id
-															? `/profile/${id}/inventory`
-															: "/profile/inventory",
-													);
-												}}
-												style={isMobile ? mobileButtonStyle : { width: "100%" }}
-											>
-												{isMobile ? <IonIcon icon={IonIcons.bagOutline}/> : "Inventory"}
-											</Button>
-										</Tooltip>
-									)
-								}
-                                {
-                                    isOwnProfile && showGuestActions && (
-										<Tooltip title={isMobile ? "Pog Pools" : ""}>
-											<Button
-												variant="solid"
-														type="primary"
-												onClick={() => navigate("/pools")}
-												style={isMobile ? mobileButtonStyle : { width: "100%" }}
-											>
-												{isMobile ? <IonIcon icon={IonIcons.peopleCircleOutline}/> : "Pog Pools"}
-											</Button>
-										</Tooltip>
-                                    )   
-                                }
-                                {
-                                    !isOwnProfile && canTransferDigipogs && showGuestActions && (
-										<Tooltip title={isMobile ? "Transfer Digipogs" : ""}>
+								{showGuestActions && (
+									<Tooltip
+										title={isMobile ? "Transactions" : ""}
+									>
+										<Button
+											variant="solid"
+											type="primary"
+											onClick={() => {
+												navigate(
+													id
+														? `/profile/${id}/transactions`
+														: "/profile/transactions",
+												);
+											}}
+											style={
+												isMobile
+													? mobileButtonStyle
+													: { width: "100%" }
+											}
+										>
+											{isMobile ? (
+												<IonIcon
+													icon={IonIcons.cashOutline}
+												/>
+											) : (
+												"Transactions"
+											)}
+										</Button>
+									</Tooltip>
+								)}
+								{showGuestActions && (
+									<Tooltip
+										title={isMobile ? "Inventory" : ""}
+									>
+										<Button
+											variant="solid"
+											type="primary"
+											onClick={() => {
+												navigate(
+													id
+														? `/profile/${id}/inventory`
+														: "/profile/inventory",
+												);
+											}}
+											style={
+												isMobile
+													? mobileButtonStyle
+													: { width: "100%" }
+											}
+										>
+											{isMobile ? (
+												<IonIcon
+													icon={IonIcons.bagOutline}
+												/>
+											) : (
+												"Inventory"
+											)}
+										</Button>
+									</Tooltip>
+								)}
+								{isOwnProfile && showGuestActions && (
+									<Tooltip
+										title={isMobile ? "Pog Pools" : ""}
+									>
+										<Button
+											variant="solid"
+											type="primary"
+											onClick={() => navigate("/pools")}
+											style={
+												isMobile
+													? mobileButtonStyle
+													: { width: "100%" }
+											}
+										>
+											{isMobile ? (
+												<IonIcon
+													icon={
+														IonIcons.peopleCircleOutline
+													}
+												/>
+											) : (
+												"Pog Pools"
+											)}
+										</Button>
+									</Tooltip>
+								)}
+								{!isOwnProfile &&
+									canTransferDigipogs &&
+									showGuestActions && (
+										<Tooltip
+											title={
+												isMobile
+													? "Transfer Digipogs"
+													: ""
+											}
+										>
 											<Button
 												variant="solid"
 												color="green"
-												onClick={()=>setTransferDigipogModalOpen(true)}
-												style={isMobile ? mobileButtonStyle : { width: "100%" }}
+												onClick={() =>
+													setTransferDigipogModalOpen(
+														true,
+													)
+												}
+												style={
+													isMobile
+														? mobileButtonStyle
+														: { width: "100%" }
+												}
 											>
-												{isMobile ? <IonIcon icon={IonIcons.cardOutline}/> : "Transfer Digipogs"}
+												{isMobile ? (
+													<IonIcon
+														icon={
+															IonIcons.cardOutline
+														}
+													/>
+												) : (
+													"Transfer Digipogs"
+												)}
 											</Button>
 										</Tooltip>
-                                    )   
-                                }
-								
+									)}
 							</Flex>
 						)}
 
 						{!error && isGuestProfile && (
-							<Text type="secondary" style={{ textAlign: "center" }}>
-								Guest accounts are temporary. Profile details are
-								limited, and account features like API keys, PINs,
-								transactions, and pools are unavailable.
+							<Text
+								type="secondary"
+								style={{ textAlign: "center" }}
+							>
+								Guest accounts are temporary. Profile details
+								are limited, and account features like API keys,
+								PINs, transactions, and pools are unavailable.
 							</Text>
 						)}
 
-                        <Flex vertical gap={10} style={isMobile ? {
-                            height: sensitiveActiveKeys.includes("1") ? '0' : '120px',
-                            width: '100%',
-                            overflow: 'hidden',
-                            transition: 'height 0.3s ease',
-                        } : {
-                            width:'100%',
-                        }}>
-                            {!error &&
-                                Object.entries(profileProps).map(([key, value]) =>
-                                    key == "Pog Meter" || value == "N/A" ? 
-                                    null : key == "Digipogs" && settings.accessibility.disableAnimations === false ? (
-                                        <p key={key} style={infoStyle}>
-                                            <strong>{key}:</strong>
-                                            {<CountUp end={Number(value)} separator={''} duration={1} />}
-                                        </p>
-                                    )  : (
-                                        <p key={key} style={infoStyle}>
-                                            <strong>{key}:</strong>
-                                            {value}
-                                        </p>
-                                    ),
-                            )}
-                        </Flex>
+						<Flex
+							vertical
+							gap={10}
+							style={
+								isMobile
+									? {
+											height: sensitiveActiveKeys.includes(
+												"1",
+											)
+												? "0"
+												: "120px",
+											width: "100%",
+											overflow: "hidden",
+											transition: "height 0.3s ease",
+										}
+									: {
+											width: "100%",
+										}
+							}
+						>
+							{!error &&
+								Object.entries(profileProps).map(
+									([key, value]) =>
+										key == "Pog Meter" ||
+										value == "N/A" ? null : key ==
+												"Digipogs" &&
+										  settings.accessibility
+												.disableAnimations === false ? (
+											<p key={key} style={infoStyle}>
+												<strong>{key}:</strong>
+												{
+													<CountUp
+														end={Number(value)}
+														separator={""}
+														duration={1}
+													/>
+												}
+											</p>
+										) : (
+											<p key={key} style={infoStyle}>
+												<strong>{key}:</strong>
+												{value}
+											</p>
+										),
+								)}
+						</Flex>
 
 						{!error && !isOwnProfile && (
 							<>
@@ -516,19 +647,50 @@ export default function Profile() {
 										setTransferDigipogReason("");
 									}}
 									onOk={() => {
-										if (!transferDigipog || transferDigipog <= 0 || !canTransferDigipogs || !userData) {
+										if (
+											!transferDigipog ||
+											transferDigipog <= 0 ||
+											!canTransferDigipogs ||
+											!userData
+										) {
 											return;
 										}
-										transferDigipogs({from: userData.id, to: Number(profileProps.ID), amount: transferDigipog, pin: transferDigipogPin, reason: transferDigipogReason}).then((response) => {
-											if (response?.success === false || response?.error) return;
-											globalMessageAPI.success(messageTemplates["profile.digipogs.transfer.success"]);
-											setTransferDigipogModalOpen(false);
-											setTransferDigipog(0);
-											setTransferDigipogPin("");
-											setTransferDigipogReason("");
-										}).catch((error) => Log({ message: "Error transferring digipogs", data: error, level: "error" }));
+										transferDigipogs({
+											from: userData.id,
+											to: Number(profileProps.ID),
+											amount: transferDigipog,
+											pin: transferDigipogPin,
+											reason: transferDigipogReason,
+										})
+											.then((response) => {
+												if (
+													response?.success ===
+														false ||
+													response?.error
+												)
+													return;
+												globalMessageAPI.success(
+													messageTemplates.profile_digipogs_transfer_success,
+												);
+												setTransferDigipogModalOpen(
+													false,
+												);
+												setTransferDigipog(0);
+												setTransferDigipogPin("");
+												setTransferDigipogReason("");
+											})
+											.catch((error) =>
+												Log({
+													message:
+														"Error transferring digipogs",
+													data: error,
+													level: "error",
+												}),
+											);
 									}}
-									closeIcon={<IonIcon icon={IonIcons.close} />}
+									closeIcon={
+										<IonIcon icon={IonIcons.close} />
+									}
 								>
 									<Flex
 										vertical
@@ -536,25 +698,36 @@ export default function Profile() {
 										justify="start"
 										align="start"
 									>
-										<Text>Transfers digipogs from your account to {profileProps['Display Name']}</Text>
+										<Text>
+											Transfers digipogs from your account
+											to {profileProps["Display Name"]}
+										</Text>
 										<InputNumber
-											style={{width:'100%'}}
+											style={{ width: "100%" }}
 											placeholder="Amount"
 											value={transferDigipog}
-											onChange={(value) => setTransferDigipog(value || 0)}
+											onChange={(value) =>
+												setTransferDigipog(value || 0)
+											}
 											min={0}
-											
-
 										/>
 										<Input
 											placeholder="Reason"
 											value={transferDigipogReason}
-											onChange={(e) => setTransferDigipogReason(e.target.value)}
+											onChange={(e) =>
+												setTransferDigipogReason(
+													e.target.value,
+												)
+											}
 										/>
 										<Input.Password
 											placeholder="PIN"
 											value={transferDigipogPin}
-											onChange={(e) => setTransferDigipogPin(e.target.value)}
+											onChange={(e) =>
+												setTransferDigipogPin(
+													e.target.value,
+												)
+											}
 										/>
 									</Flex>
 								</Modal>
@@ -594,7 +767,11 @@ export default function Profile() {
 											}
 										/>
 									)}
-									collapsible={showSensitiveInfo ? "header" : "disabled"}
+									collapsible={
+										showSensitiveInfo
+											? "header"
+											: "disabled"
+									}
 									size="small"
 									items={[
 										{
@@ -615,38 +792,73 @@ export default function Profile() {
 																	vertical
 																	gap={8}
 																>
-                                                                    <Flex justify="space-between" align="center">
-                                                                        <Text
-                                                                            strong
-                                                                        >
-                                                                            API{!isMobile && " Key"}
-                                                                        </Text>
-                                                                        <Button
-                                                                            type="primary"
-                                                                            onClick={
-                                                                                regenerateApiKey
-                                                                            }
-                                                                            loading={
-                                                                                apiKeyLoading
-                                                                            }
-                                                                        >
-                                                                            Regenerate
-                                                                            API Key
-                                                                        </Button>
-                                                                    </Flex>
-                                                                    {
-                                                                        apiKey ? (
-                                                                            <Space.Compact style={{height:40}}>
-                                                                                <Input disabled value={apiKey}/>
-                                                                                <Button style={{height:'100%'}} variant="solid" type="primary" onClick={() => {
-                                                                                    window.navigator.clipboard.writeText(apiKey);
-                                                                                    messageApi.success("API key copied to clipboard.");
-                                                                                }}>Copy</Button>
-                                                                            </Space.Compact>
-                                                                        ) : (
-                                                                            <Input disabled value={fakeApiKey()} style={{height:40, filter:'blur(3px)', pointerEvents:"none"}}/>
-                                                                        )
-                                                                    }
+																	<Flex
+																		justify="space-between"
+																		align="center"
+																	>
+																		<Text
+																			strong
+																		>
+																			API
+																			{!isMobile &&
+																				" Key"}
+																		</Text>
+																		<Button
+																			type="primary"
+																			onClick={
+																				regenerateApiKey
+																			}
+																			loading={
+																				apiKeyLoading
+																			}
+																		>
+																			Regenerate
+																			API
+																			Key
+																		</Button>
+																	</Flex>
+																	{apiKey ? (
+																		<Space.Compact
+																			style={{
+																				height: 40,
+																			}}
+																		>
+																			<Input
+																				disabled
+																				value={
+																					apiKey
+																				}
+																			/>
+																			<Button
+																				style={{
+																					height: "100%",
+																				}}
+																				variant="solid"
+																				type="primary"
+																				onClick={() => {
+																					window.navigator.clipboard.writeText(
+																						apiKey,
+																					);
+																					messageApi.success(
+																						"API key copied to clipboard.",
+																					);
+																				}}
+																			>
+																				Copy
+																			</Button>
+																		</Space.Compact>
+																	) : (
+																		<Input
+																			disabled
+																			value={fakeApiKey()}
+																			style={{
+																				height: 40,
+																				filter: "blur(3px)",
+																				pointerEvents:
+																					"none",
+																			}}
+																		/>
+																	)}
 																</Flex>
 															)}
 
@@ -697,62 +909,71 @@ export default function Profile() {
 																			Update
 																			PIN
 																		</Text>
-                                                                        <Flex gap={10} align="center">
-                                                                            <Input.Password
-                                                                                placeholder="Current PIN"
-                                                                                value={
-                                                                                    oldPin
-                                                                                }
-                                                                                onChange={(
-                                                                                    e,
-                                                                                ) =>
-                                                                                    setOldPin(
-                                                                                        e
-                                                                                            .target
-                                                                                            .value,
-                                                                                    )
-                                                                                }
-                                                                            />
-                                                                            <Input.Password
-                                                                                placeholder="New PIN"
-                                                                                value={
-                                                                                    newPin
-                                                                                }
-                                                                                onChange={(
-                                                                                    e,
-                                                                                ) =>
-                                                                                    setNewPin(
-                                                                                        e
-                                                                                            .target
-                                                                                            .value,
-                                                                                    )
-                                                                                }
-                                                                            />
-                                                                            { !isMobile && (<Button
-                                                                                type="primary"
-                                                                                onClick={
-                                                                                    updatePin
-                                                                                }
-                                                                                loading={
-                                                                                    pinLoading
-                                                                                }
-                                                                            >
-                                                                                Update
-                                                                                PIN
-                                                                            </Button>)}
-                                                                        </Flex>
-                                                                        { isMobile && (<Button
-                                                                            type="primary"
-                                                                            onClick={
-                                                                                updatePin
-                                                                            }
-                                                                            loading={
-                                                                                pinLoading
-                                                                            }
-                                                                        >
-                                                                            Update
-                                                                            PIN
-                                                                        </Button>)}
+																		<Flex
+																			gap={
+																				10
+																			}
+																			align="center"
+																		>
+																			<Input.Password
+																				placeholder="Current PIN"
+																				value={
+																					oldPin
+																				}
+																				onChange={(
+																					e,
+																				) =>
+																					setOldPin(
+																						e
+																							.target
+																							.value,
+																					)
+																				}
+																			/>
+																			<Input.Password
+																				placeholder="New PIN"
+																				value={
+																					newPin
+																				}
+																				onChange={(
+																					e,
+																				) =>
+																					setNewPin(
+																						e
+																							.target
+																							.value,
+																					)
+																				}
+																			/>
+																			{!isMobile && (
+																				<Button
+																					type="primary"
+																					onClick={
+																						updatePin
+																					}
+																					loading={
+																						pinLoading
+																					}
+																				>
+																					Update
+																					PIN
+																				</Button>
+																			)}
+																		</Flex>
+																		{isMobile && (
+																			<Button
+																				type="primary"
+																				onClick={
+																					updatePin
+																				}
+																				loading={
+																					pinLoading
+																				}
+																			>
+																				Update
+																				PIN
+																			</Button>
+																		)}
 																	</>
 																)}
 																<Button

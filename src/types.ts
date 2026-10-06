@@ -30,7 +30,11 @@ export type CurrentUserData = {
 	ownedPolls: any[];
 	permissions: number;
 	pogMeter: number;
-	pollRes: { buttonRes: string | string[]; textRes: string; time: number | null };
+	pollRes: {
+		buttonRes: string | string[];
+		textRes: string;
+		time: number | null;
+	};
 	sharedPolls: any[];
 	verified?: number;
 };
@@ -61,12 +65,13 @@ export type ClassData = {
 		blind: boolean;
 		excludedRespondents: any[];
 		prompt: string;
-        responses: any[];
-        status: boolean;
-        totalResponders: number;
-        totalResponses: number;
-        startTime: number;
-        weight: number;
+		promptMD?: string;
+		responses: any[];
+		status: boolean;
+		totalResponders: number;
+		totalResponses: number;
+		startTime: number;
+		weight: number;
 		blindUntilEnded: boolean;
 		autoEndTimer: number | null;
 		autoEndThreshold: number | null;
@@ -87,7 +92,7 @@ export type ClassData = {
 		color: string;
 		name: string;
 		scopes: string[];
-	}>
+	}>;
 	key: string;
 	settings: {
 		mute: boolean;
@@ -130,14 +135,14 @@ export type Transaction = {
 };
 
 export type PogPool = {
-	id: number,
-	name: string,
-	description: string,
-	amount: number,
-	share_item: number,
-	members: any[],
-	owners: any[]
-}
+	id: number;
+	name: string;
+	description: string;
+	amount: number;
+	share_item: number;
+	members: any[];
+	owners: any[];
+};
 
 export type Class = {
 	id: string;
@@ -158,7 +163,7 @@ export type Student = {
 	help: any;
 	break: boolean;
 	pollRes: any;
-    isGuest: boolean;
+	isGuest: boolean;
 	isOffline: boolean;
 	id: number;
 	email: string;
@@ -180,10 +185,10 @@ export type Poll = {
 	blind: boolean;
 	allowTextResponses: boolean;
 	allowMultipleResponses: boolean;
-    allowVoteChanges: boolean;
-    status: boolean;
-    totalResponders: number;
-    totalResponses: number;
+	allowVoteChanges: boolean;
+	status: boolean;
+	totalResponders: number;
+	totalResponses: number;
 	blindUntilEnded: boolean;
 	autoEndTimer: number | null;
 	autoEndThreshold: number | null;
@@ -194,126 +199,294 @@ export const SCOPES = {
 		CLASS: {
 			title: "Class",
 			actions: {
-				CREATE: { key: "global.class.create", label: "Create", description: "Create classes" },
-				DELETE: { key: "global.class.delete", label: "Delete", description: "Delete classes" },
+				CREATE: {
+					key: "global.class.create",
+					label: "Create",
+					description: "Create classes",
+				},
+				DELETE: {
+					key: "global.class.delete",
+					label: "Delete",
+					description: "Delete classes",
+				},
 			},
 		},
 		USERS: {
 			title: "Users",
 			actions: {
-				MANAGE: { key: "global.users.manage", label: "Manage", description: "Manage users" },
+				MANAGE: {
+					key: "global.users.manage",
+					label: "Manage",
+					description: "Manage users",
+				},
 			},
 		},
 		DIGIPOGS: {
 			title: "Digipogs",
 			actions: {
-				AWARD: { key: "global.digipogs.award", label: "Award", description: "Award digipogs globally" },
-				TRANSFER: { key: "global.digipogs.transfer", label: "Transfer", description: "Transfer digipogs globally" },
+				AWARD: {
+					key: "global.digipogs.award",
+					label: "Award",
+					description: "Award digipogs globally",
+				},
+				TRANSFER: {
+					key: "global.digipogs.transfer",
+					label: "Transfer",
+					description: "Transfer digipogs globally",
+				},
 			},
 		},
 		POOLS: {
 			title: "Pools",
 			actions: {
-				MANAGE: { key: "global.pools.manage", label: "Manage", description: "Manage pools" },
+				MANAGE: {
+					key: "global.pools.manage",
+					label: "Manage",
+					description: "Manage pools",
+				},
 			},
 		},
 		SYSTEM: {
 			title: "System",
 			actions: {
-				ADMIN: { key: "global.system.admin", label: "Admin", description: "Full system administration" },
-				MODERATE: { key: "global.system.moderate", label: "Moderate", description: "Moderate system features" },
-				BLOCKED: { key: "global.system.blocked", label: "Blocked", description: "Blocked from system usage" },
+				ADMIN: {
+					key: "global.system.admin",
+					label: "Admin",
+					description: "Full system administration",
+				},
+				MODERATE: {
+					key: "global.system.moderate",
+					label: "Moderate",
+					description: "Moderate system features",
+				},
+				BLOCKED: {
+					key: "global.system.blocked",
+					label: "Blocked",
+					description: "Blocked from system usage",
+				},
 			},
 		},
 	},
 	CLASS: {
-        SYSTEM: {
-			title: 'System',
+		SYSTEM: {
+			title: "System",
 			actions: {
-				ADMIN: { key: "class.system.admin", label: "Admin", description: "Overrides all other permissions." },
-				PANEL_ACCESS: { key: "class.system.panel_access", label: "Panel Access", description: "Access to the teacher control panel." },
-				CAN_DELETE_CLASS: { key: "class.system.can_delete_class", label: "Delete Class", description: "Can delete the class" },
-				CAN_RENAME_CLASS: { key: "class.system.can_rename_class", label: "Rename Class", description: "Can rename the class" },
+				ADMIN: {
+					key: "class.system.admin",
+					label: "Admin",
+					description: "Overrides all other permissions.",
+				},
+				PANEL_ACCESS: {
+					key: "class.system.panel_access",
+					label: "Panel Access",
+					description: "Access to the teacher control panel.",
+				},
+				CAN_DELETE_CLASS: {
+					key: "class.system.can_delete_class",
+					label: "Delete Class",
+					description: "Can delete the class",
+				},
+				CAN_RENAME_CLASS: {
+					key: "class.system.can_rename_class",
+					label: "Rename Class",
+					description: "Can rename the class",
+				},
 				// BLOCKED: { key: "class.system.blocked", label: "Blocked", description: "Blocked from system usage" },
-			}
-        },
+			},
+		},
 		POLL: {
 			title: "Polls",
 			actions: {
-				READ: { key: "class.poll.read", label: "Read", description: "View and see polls" },
-				VOTE: { key: "class.poll.vote", label: "Vote", description: "Submit poll responses" },
-				CREATE: { key: "class.poll.create", label: "Create", description: "Create new polls" },
-				END: { key: "class.poll.end", label: "End", description: "End active polls" },
-				DELETE: { key: "class.poll.delete", label: "Delete", description: "Delete polls" },
-				SHARE: { key: "class.poll.share", label: "Share", description: "Share polls with others" },
-				READ_CORRECT_ANSWERS: { key: "class.poll.read_correct_answers", label: "Read Correct Answers", description: "View correct poll answers" },
+				READ: {
+					key: "class.poll.read",
+					label: "Read",
+					description: "View and see polls",
+				},
+				VOTE: {
+					key: "class.poll.vote",
+					label: "Vote",
+					description: "Submit poll responses",
+				},
+				CREATE: {
+					key: "class.poll.create",
+					label: "Create",
+					description: "Create new polls",
+				},
+				END: {
+					key: "class.poll.end",
+					label: "End",
+					description: "End active polls",
+				},
+				DELETE: {
+					key: "class.poll.delete",
+					label: "Delete",
+					description: "Delete polls",
+				},
+				SHARE: {
+					key: "class.poll.share",
+					label: "Share",
+					description: "Share polls with others",
+				},
+				READ_CORRECT_ANSWERS: {
+					key: "class.poll.read_correct_answers",
+					label: "Read Correct Answers",
+					description: "View correct poll answers",
+				},
 			},
 		},
 		ROLES: {
 			title: "Roles",
 			actions: {
-				ASSIGN: { key: "class.roles.assign", label: "Assign", description: "Assign roles to students" },
-				READ: { key: "class.roles.read", label: "Read", description: "View roles and their permissions" },
-				MANAGE: { key: "class.roles.manage", label: "Manage", description: "Create and manage roles" },
+				ASSIGN: {
+					key: "class.roles.assign",
+					label: "Assign",
+					description: "Assign roles to students",
+				},
+				READ: {
+					key: "class.roles.read",
+					label: "Read",
+					description: "View roles and their permissions",
+				},
+				MANAGE: {
+					key: "class.roles.manage",
+					label: "Manage",
+					description: "Create and manage roles",
+				},
 			},
 		},
 		STUDENTS: {
 			title: "Students",
 			actions: {
-				READ: { key: "class.students.read", label: "Read", description: "View student information" },
-				KICK: { key: "class.students.kick", label: "Kick", description: "Remove students from class" },
-				BAN: { key: "class.students.ban", label: "Ban", description: "Ban students from class" },
+				READ: {
+					key: "class.students.read",
+					label: "Read",
+					description: "View student information",
+				},
+				KICK: {
+					key: "class.students.kick",
+					label: "Kick",
+					description: "Remove students from class",
+				},
+				BAN: {
+					key: "class.students.ban",
+					label: "Ban",
+					description: "Ban students from class",
+				},
 			},
 		},
 		SESSION: {
 			title: "Session",
 			actions: {
-				START: { key: "class.session.start", label: "Start", description: "Start a class session" },
-				END: { key: "class.session.end", label: "End", description: "End a class session" },
-				RENAME: { key: "class.session.rename", label: "Rename", description: "Rename the session" },
-				SETTINGS: { key: "class.session.settings", label: "Settings", description: "Modify session settings" },
-				REGENERATE_CODE: { key: "class.session.regenerate_code", label: "Regenerate Code", description: "Generate a new join code" },
+				START: {
+					key: "class.session.start",
+					label: "Start",
+					description: "Start a class session",
+				},
+				END: {
+					key: "class.session.end",
+					label: "End",
+					description: "End a class session",
+				},
+				RENAME: {
+					key: "class.session.rename",
+					label: "Rename",
+					description: "Rename the session",
+				},
+				SETTINGS: {
+					key: "class.session.settings",
+					label: "Settings",
+					description: "Modify session settings",
+				},
+				REGENERATE_CODE: {
+					key: "class.session.regenerate_code",
+					label: "Regenerate Code",
+					description: "Generate a new join code",
+				},
 			},
 		},
 		BREAK: {
 			title: "Break",
 			actions: {
-				REQUEST: { key: "class.break.request", label: "Request", description: "Request a break" },
-				APPROVE: { key: "class.break.approve", label: "Approve", description: "Approve break requests" },
-				END: { key: "class.break.end", label: "End", description: "End other user's break" },
+				REQUEST: {
+					key: "class.break.request",
+					label: "Request",
+					description: "Request a break",
+				},
+				APPROVE: {
+					key: "class.break.approve",
+					label: "Approve",
+					description: "Approve break requests",
+				},
+				END: {
+					key: "class.break.end",
+					label: "End",
+					description: "End other user's break",
+				},
 			},
 		},
 		HELP: {
 			title: "Help",
 			actions: {
-				REQUEST: { key: "class.help.request", label: "Request", description: "Request help" },
-				APPROVE: { key: "class.help.approve", label: "Approve", description: "Approve help requests" },
+				REQUEST: {
+					key: "class.help.request",
+					label: "Request",
+					description: "Request help",
+				},
+				APPROVE: {
+					key: "class.help.approve",
+					label: "Approve",
+					description: "Approve help requests",
+				},
 			},
 		},
 		TIMER: {
 			title: "Timer",
 			actions: {
-				READ: { key: "class.timer.read", label: "Read", description: "View timer status" },
-				CONTROL: { key: "class.timer.control", label: "Control", description: "Control the class timer" },
+				READ: {
+					key: "class.timer.read",
+					label: "Read",
+					description: "View timer status",
+				},
+				CONTROL: {
+					key: "class.timer.control",
+					label: "Control",
+					description: "Control the class timer",
+				},
 			},
 		},
 		AUXILIARY: {
 			title: "Auxiliary",
 			actions: {
-				CONTROL: { key: "class.auxiliary.control", label: "Control", description: "Control auxiliary features" },
+				CONTROL: {
+					key: "class.auxiliary.control",
+					label: "Control",
+					description: "Control auxiliary features",
+				},
 			},
 		},
 		DIGIPOGS: {
 			title: "Digipogs",
 			actions: {
-				AWARD: { key: "class.digipogs.award", label: "Award Digipogs", description: "Award digipogs to students" },
+				AWARD: {
+					key: "class.digipogs.award",
+					label: "Award Digipogs",
+					description: "Award digipogs to students",
+				},
 			},
 		},
 		LINKS: {
 			title: "Links",
 			actions: {
-				READ: { key: "class.links.read", label: "Read", description: "View class links" },
-				MANAGE: { key: "class.links.manage", label: "Manage", description: "Create and manage links" },
+				READ: {
+					key: "class.links.read",
+					label: "Read",
+					description: "View class links",
+				},
+				MANAGE: {
+					key: "class.links.manage",
+					label: "Manage",
+					description: "Create and manage links",
+				},
 			},
 		},
 	},
@@ -328,18 +501,64 @@ type ExtractScopeKey<T> = T extends { key: infer K extends string }
 export type ScopeKey = ExtractScopeKey<typeof SCOPES>;
 
 export const AppScopes = {
-	PROFILE_READ: { key: "app.profile.read", label: "Read Profile", description: "Read public basic information (display name, account ID)" },
-	EMAIL_READ: { key: "app.email.read", label: "Read Email Address", description: "Access the user's email address" },
-	DIGIPOGS_READ: { key: "app.digipogs.read", label: "Read Digipogs", description: "View the user's Digipog balance and transaction history" },
-	DIGIPOGS_TRANSFER: { key: "app.digipogs.transfer", label: "Transfer Digipogs", description: "Send Digipogs to other users on this user's behalf" },
-	CLASSES_READ: { key: "app.classes.read", label: "Read Classes", description: "View the classes the user is enrolled in or managing" },
-	CLASSES_SESSION_READ: { key: "app.classes.session.read", label: "Read Class Sessions", description: "View active session status, timers, and current class activities" },
-	POLLS_READ: { key: "app.polls.read", label: "Read Polls", description: "Read past poll responses for the user" },
-	POLLS_VOTE: { key: "app.polls.vote", label: "Vote on Polls", description: "Submit poll answers on behalf of the user" },
-	INVENTORY_GIVE_ITEM: { key: "app.inventory.give_item", label: "Give Inventory Items", description: "Add app-created items to inventories" },
-	NOTIFICATIONS_SEND: { key: "app.notifications.send", label: "Send Notifications", description: "Allow the third-party app to send notifications to the user inside Formbar" },
-	NOTIFICATIONS_READ: { key: "app.notifications.read", label: "Read Notifications", description: "Read the user's Formbar notifications" },
-}
+	PROFILE_READ: {
+		key: "app.profile.read",
+		label: "Read Profile",
+		description: "Read public basic information (display name, account ID)",
+	},
+	EMAIL_READ: {
+		key: "app.email.read",
+		label: "Read Email Address",
+		description: "Access the user's email address",
+	},
+	DIGIPOGS_READ: {
+		key: "app.digipogs.read",
+		label: "Read Digipogs",
+		description: "View the user's Digipog balance and transaction history",
+	},
+	DIGIPOGS_TRANSFER: {
+		key: "app.digipogs.transfer",
+		label: "Transfer Digipogs",
+		description: "Send Digipogs to other users on this user's behalf",
+	},
+	CLASSES_READ: {
+		key: "app.classes.read",
+		label: "Read Classes",
+		description: "View the classes the user is enrolled in or managing",
+	},
+	CLASSES_SESSION_READ: {
+		key: "app.classes.session.read",
+		label: "Read Class Sessions",
+		description:
+			"View active session status, timers, and current class activities",
+	},
+	POLLS_READ: {
+		key: "app.polls.read",
+		label: "Read Polls",
+		description: "Read past poll responses for the user",
+	},
+	POLLS_VOTE: {
+		key: "app.polls.vote",
+		label: "Vote on Polls",
+		description: "Submit poll answers on behalf of the user",
+	},
+	INVENTORY_GIVE_ITEM: {
+		key: "app.inventory.give_item",
+		label: "Give Inventory Items",
+		description: "Add app-created items to inventories",
+	},
+	NOTIFICATIONS_SEND: {
+		key: "app.notifications.send",
+		label: "Send Notifications",
+		description:
+			"Allow the third-party app to send notifications to the user inside Formbar",
+	},
+	NOTIFICATIONS_READ: {
+		key: "app.notifications.read",
+		label: "Read Notifications",
+		description: "Read the user's Formbar notifications",
+	},
+};
 
 type ExtractAppScopeKey<T> = T extends { key: infer K extends string }
 	? K
@@ -350,28 +569,28 @@ type ExtractAppScopeKey<T> = T extends { key: infer K extends string }
 export type AppScopeKey = ExtractAppScopeKey<typeof AppScopes>;
 
 export type SavedPollTemplateBody = {
-    name: string,
-    prompt: string,
-    answers: any[],
-    allowTextResponses: boolean,
-    blind: boolean,
-    allowVoteChanges: boolean,
-    allowMultipleResponses: boolean,
-    weight: number,
-    public?: boolean | number,
+	name: string;
+	prompt: string;
+	answers: any[];
+	allowTextResponses: boolean;
+	blind: boolean;
+	allowVoteChanges: boolean;
+	allowMultipleResponses: boolean;
+	weight: number;
+	public?: boolean | number;
 };
 
 export type SavedPollTemplate = SavedPollTemplateBody & {
-    id: number,
-    owner: number | null,
-    public: boolean,
+	id: number;
+	owner: number | null;
+	public: boolean;
 };
 
 export type InventoryItem = {
-	description: string
-	id: number
-	image_url: string | null
-	name: string
-	quantity: number
-	stack_size: number
-}
+	description: string;
+	id: number;
+	image_url: string | null;
+	name: string;
+	quantity: number;
+	stack_size: number;
+};

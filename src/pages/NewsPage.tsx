@@ -9,15 +9,15 @@ import { useEffect } from "react";
 
 export default function NewsPage() {
 	const isMobileView = useMobileDetect();
-    const { userData } = useUserData();
-    const navigate = useNavigate();
-    const { settings } = useSettings();
+	const { userData } = useUserData();
+	const navigate = useNavigate();
+	const { settings } = useSettings();
 
-    useEffect(() => {
-        if(!userData) {
-            navigate("/login");
-        }
-    }, [userData, navigate]);
+	useEffect(() => {
+		if (!userData) {
+			navigate("/login");
+		}
+	}, [userData, navigate]);
 
 	return (
 		<>
@@ -44,7 +44,10 @@ export default function NewsPage() {
 							Version 3.0.0
 						</Title>
 					}
-                    style={getAppearAnimation(settings.accessibility.disableAnimations, 0)}
+					style={getAppearAnimation(
+						settings.accessibility.disableAnimations,
+						0,
+					)}
 				>
 					<ul style={{ marginBottom: 0, listStyle: "none" }}>
 						<li>
@@ -74,7 +77,10 @@ export default function NewsPage() {
 							Version 2.0.0
 						</Title>
 					}
-                    style={getAppearAnimation(settings.accessibility.disableAnimations, 1)}
+					style={getAppearAnimation(
+						settings.accessibility.disableAnimations,
+						1,
+					)}
 				>
 					<ul style={{ marginBottom: 0, listStyle: "none" }}>
 						<li>
@@ -104,7 +110,10 @@ export default function NewsPage() {
 							Version 1.1.0
 						</Title>
 					}
-                    style={getAppearAnimation(settings.accessibility.disableAnimations, 2)}
+					style={getAppearAnimation(
+						settings.accessibility.disableAnimations,
+						2,
+					)}
 				>
 					<ul style={{ marginBottom: 0, listStyle: "none" }}>
 						<li>

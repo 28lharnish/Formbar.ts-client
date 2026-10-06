@@ -18,8 +18,8 @@ export const themeColors = {
 			background: "#fff3",
 		},
 		roleTag: {
-			background: "#0003"
-		}
+			background: "#0003",
+		},
 	},
 	light: {
 		body: {
@@ -39,29 +39,29 @@ export const themeColors = {
 			background: "#0002",
 		},
 		roleTag: {
-			background: "#0002"
-		}
+			background: "#0002",
+		},
 	},
 };
 
 const consistentValues = {
-    token: {
-        fontFamily: "Outfit, sans-serif",
-        fontSize: 20,
-        fontSizeLG: 24,
-    },
-    components: {
-        Segmented: {
-            controlHeight: 48,
-            controlPaddingHorizontal: 16,
-        },
-        Input: {
-            controlHeight: 42,
-        },
-        Select: {
-            controlHeight: 42,
-        },
-    },
+	token: {
+		fontFamily: "Outfit, sans-serif",
+		fontSize: 20,
+		fontSizeLG: 24,
+	},
+	components: {
+		Segmented: {
+			controlHeight: 48,
+			controlPaddingHorizontal: 16,
+		},
+		Input: {
+			controlHeight: 42,
+		},
+		Select: {
+			controlHeight: 42,
+		},
+	},
 };
 
 export const darkMode = {
@@ -76,7 +76,8 @@ export const darkMode = {
 			trackBg: "#000a",
 			itemSelectedBg: "#1769dc",
 			controlHeight: consistentValues.components.Segmented.controlHeight,
-			controlPaddingHorizontal: consistentValues.components.Segmented.controlPaddingHorizontal,
+			controlPaddingHorizontal:
+				consistentValues.components.Segmented.controlPaddingHorizontal,
 		},
 		Input: {
 			controlHeight: consistentValues.components.Input.controlHeight,
@@ -92,8 +93,8 @@ export const darkMode = {
 			colorBorder: "#ff0000",
 		},
 		Tag: {
-			defaultBg: "#0003"
-		}
+			defaultBg: "#0003",
+		},
 	},
 };
 
@@ -113,7 +114,8 @@ export const lightMode = {
 			trackBg: "#fffa",
 			itemSelectedBg: "#1c67cf49",
 			controlHeight: consistentValues.components.Segmented.controlHeight,
-			controlPaddingHorizontal: consistentValues.components.Segmented.controlPaddingHorizontal,
+			controlPaddingHorizontal:
+				consistentValues.components.Segmented.controlPaddingHorizontal,
 		},
 		Input: {
 			controlHeight: consistentValues.components.Input.controlHeight,
@@ -183,14 +185,23 @@ export const highContrastMode = {
 			primaryShadow: "none",
 			defaultShadow: "none",
 		},
-		Input: { controlHeight: consistentValues.components.Input.controlHeight, colorBgContainer: "#000000", colorBorder: "#ffffff" },
-		Select: { controlHeight: consistentValues.components.Select.controlHeight, colorBgContainer: "#000000", colorBorder: "#ffffff" },
+		Input: {
+			controlHeight: consistentValues.components.Input.controlHeight,
+			colorBgContainer: "#000000",
+			colorBorder: "#ffffff",
+		},
+		Select: {
+			controlHeight: consistentValues.components.Select.controlHeight,
+			colorBgContainer: "#000000",
+			colorBorder: "#ffffff",
+		},
 		Segmented: {
 			trackBg: "#000000",
 			itemSelectedBg: "#ffffff",
 			itemSelectedColor: "#000000",
 			controlHeight: consistentValues.components.Segmented.controlHeight,
-			controlPaddingHorizontal: consistentValues.components.Segmented.controlPaddingHorizontal,
+			controlPaddingHorizontal:
+				consistentValues.components.Segmented.controlPaddingHorizontal,
 		},
 	},
 };

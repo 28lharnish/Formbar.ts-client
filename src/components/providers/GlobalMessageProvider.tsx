@@ -16,7 +16,7 @@ const GlobalMessageContext = createContext<GlobalMessageFunctions | null>(null);
 
 export function GlobalMessageProvider({ children }: { children: ReactNode }) {
 	const [messageApi, contextHolder] = message.useMessage({
-		maxCount: 3
+		maxCount: 3,
 	});
 	const functions: GlobalMessageFunctions = {
 		success: messageApi.success,
@@ -40,7 +40,9 @@ export function useGlobalMessage(): GlobalMessageFunctions {
 	const functions = useContext(GlobalMessageContext);
 
 	if (!functions) {
-		throw new Error("useGlobalMessage must be used within GlobalMessageProvider");
+		throw new Error(
+			"useGlobalMessage must be used within GlobalMessageProvider",
+		);
 	}
 
 	return functions;

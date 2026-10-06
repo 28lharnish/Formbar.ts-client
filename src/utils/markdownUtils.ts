@@ -7,7 +7,7 @@ import {
 function registerTagCommand(
 	name: string,
 	tag: string,
-	shortcuts: string
+	shortcuts: string,
 ): ICommand {
 	return {
 		name,
@@ -66,9 +66,7 @@ function registerTagCommand(
 				end,
 			});
 
-			api.replaceSelection(
-				`${openTag}${selectedText}${closeTag}`,
-			);
+			api.replaceSelection(`${openTag}${selectedText}${closeTag}`);
 
 			api.setSelectionRange({
 				start: start + openTag.length,
@@ -79,7 +77,11 @@ function registerTagCommand(
 }
 
 const underlineCommand = registerTagCommand("underline", "u", "ctrl+y");
-const superscriptCommand = registerTagCommand("superscript", "sup", "ctrl+shift+<");
+const superscriptCommand = registerTagCommand(
+	"superscript",
+	"sup",
+	"ctrl+shift+<",
+);
 const subscriptCommand = registerTagCommand("subscript", "sub", "ctrl+shift+>");
 
 const commandArray = [underlineCommand, superscriptCommand, subscriptCommand];

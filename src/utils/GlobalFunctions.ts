@@ -19,20 +19,24 @@ export function toEpochMs(value: unknown): number | null {
 }
 
 export function formatTime(seconds: number): string {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    if(mins > 0) {
-        return `${mins}:${secs.toString().padStart(2, "0")}`;
-    }
-    return `${secs}`;
+	const mins = Math.floor(seconds / 60);
+	const secs = seconds % 60;
+	if (mins > 0) {
+		return `${mins}:${secs.toString().padStart(2, "0")}`;
+	}
+	return `${secs}`;
 }
 
 export function millisecondsToSeconds(value: number | null) {
-	return typeof value === "number" && Number.isFinite(value) ? Math.max(1, Math.round(value / 1000)) : null;
+	return typeof value === "number" && Number.isFinite(value)
+		? Math.max(1, Math.round(value / 1000))
+		: null;
 }
 
 export function secondsToMilliseconds(value: number | null) {
-	return typeof value === "number" && Number.isFinite(value) && value > 0 ? value * 1000 : null;
+	return typeof value === "number" && Number.isFinite(value) && value > 0
+		? value * 1000
+		: null;
 }
 
 export function textColorForBackground(bgColor: string) {

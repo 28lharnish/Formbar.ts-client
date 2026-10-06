@@ -1,4 +1,12 @@
-import { Button, Flex, Input, Modal, Switch, Typography, ColorPicker } from "antd";
+import {
+	Button,
+	Flex,
+	Input,
+	Modal,
+	Switch,
+	Typography,
+	ColorPicker,
+} from "antd";
 const { Text } = Typography;
 import { textColorForBackground } from "@utils/GlobalFunctions";
 import { IonIcon } from "@ionic/react";
@@ -18,6 +26,7 @@ export interface PollModalProps {
 	open: boolean;
 	onCancel: () => void;
 	prompt: string;
+	promptMD?: string;
 	onPromptChange?: (value: string) => void;
 	answers: Answer[];
 	onAnswersChange?: (answers: Answer[]) => void;
@@ -49,6 +58,7 @@ export interface PollModalProps {
 export default function PollModal({
 	open,
 	onCancel,
+	promptMD,
 	prompt,
 	onPromptChange,
 	answers,
@@ -64,10 +74,14 @@ export default function PollModal({
 	readOnly = false,
 }: PollModalProps) {
 	const { settings } = useSettings();
-	const handleAnswerChange = (index: number, field: keyof Answer, value: any) => {
+	const handleAnswerChange = (
+		index: number,
+		field: keyof Answer,
+		value: any,
+	) => {
 		if (readOnly || !onAnswersChange) return;
 		const newAnswers = answers.map((a, i) =>
-			i === index ? { ...a, [field]: value } : a
+			i === index ? { ...a, [field]: value } : a,
 		);
 		onAnswersChange(newAnswers);
 	};
@@ -91,21 +105,39 @@ export default function PollModal({
 	return (
 		<Modal
 			centered
-			title={
-				<SanitizedMDView source={prompt} />
-			}
+			title={<SanitizedMDView source={promptMD ? promptMD : prompt} />}
 			open={open}
 			onCancel={onCancel}
 			destroyOnHidden
 			footer={
 				footerButton ? (
-					<div style={{ display: "flex", justifyContent: "center", gap: 8, width: "100%" }}>
+					<div
+						style={{
+							display: "flex",
+							justifyContent: "center",
+							gap: 8,
+							width: "100%",
+						}}
+					>
 						{secondaryFooterButton && (
-							<Button onClick={secondaryFooterButton.onClick} color="gold" type="default" variant="solid">
+							<Button
+								onClick={secondaryFooterButton.onClick}
+								color="gold"
+								type="default"
+								variant="solid"
+							>
 								{secondaryFooterButton.label}
 							</Button>
 						)}
-						<Button type="primary" onClick={footerButton.onClick} disabled={answers.length === 0 || answers.some(a => a.answer.trim() === "") || prompt.trim() === ""}>
+						<Button
+							type="primary"
+							onClick={footerButton.onClick}
+							disabled={
+								answers.length === 0 ||
+								answers.some((a) => a.answer.trim() === "") ||
+								prompt.trim() === ""
+							}
+						>
 							{footerButton.label}
 						</Button>
 					</div>
@@ -113,60 +145,91 @@ export default function PollModal({
 			}
 		>
 			{answers.map((answer, index) => {
-				const answerColor = accessiblePollColor(answer.color, settings.accessibility.colorVisionMode, index) || answer.color;
+				const answerColor =
+					accessiblePollColor(
+						answer.color,
+						settings.accessibility.colorVisionMode,
+						index,
+					) || answer.color;
 				return (
-				<Flex key={index} gap={8} align="center" style={{ marginTop: "5px" }}>
-					<Button
-						style={{
-							backgroundColor: answerColor,
-							color: textColorForBackground(answerColor),
-							flex: 1,
-						}}
+					<Flex
+						key={index}
+						gap={8}
+						align="center"
+						style={{ marginTop: "5px" }}
 					>
-						{readOnly ? (
-										<Text strong style={{ color: textColorForBackground(answerColor)}}>
-								{answer.answer}
-								{answer.responses !== undefined &&
-									` - ${answer.responses} vote${answer.responses !== 1 ? "s" : ""}`}
-							</Text>
-						) : (
-							<Input
-								key={`${index}-${answer.color}`}
-								value={answer.answer}
-								variant="borderless"
-								placeholder="Answer"
-								onChange={(e) => handleAnswerChange(index, "answer", e.target.value)}
-								style={{
-															color: textColorForBackground(answerColor),
-								}}
-							/>
-						)}
-					</Button>
-					{!readOnly && (
-						<>
-							<ColorPicker disabledAlpha value={answer.color} styles={{
-								root: {
-									height: '100%',  
-									minWidth: 'unset',
-									width: 'unset',
-									aspectRatio: 1,
-								},
-								
-							}} 
-							onChange={(color) =>
-								handleAnswerChange(index, "color", color.toHexString())
-							}
-							/>
+						<Button
+							style={{
+								backgroundColor: answerColor,
+								color: textColorForBackground(answerColor),
+								flex: 1,
+							}}
+						>
+							{readOnly ? (
+								<Text
+									strong
+									style={{
+										color: textColorForBackground(
+											answerColor,
+										),
+									}}
+								>
+									{answer.answer}
+									{answer.responses !== undefined &&
+										` - ${answer.responses} vote${answer.responses !== 1 ? "s" : ""}`}
+								</Text>
+							) : (
+								<Input
+									key={`${index}-${answer.color}`}
+									value={answer.answer}
+									variant="borderless"
+									placeholder="Answer"
+									onChange={(e) =>
+										handleAnswerChange(
+											index,
+											"answer",
+											e.target.value,
+										)
+									}
+									style={{
+										color: textColorForBackground(
+											answerColor,
+										),
+									}}
+								/>
+							)}
+						</Button>
+						{!readOnly && (
+							<>
+								<ColorPicker
+									disabledAlpha
+									value={answer.color}
+									styles={{
+										root: {
+											height: "100%",
+											minWidth: "unset",
+											width: "unset",
+											aspectRatio: 1,
+										},
+									}}
+									onChange={(color) =>
+										handleAnswerChange(
+											index,
+											"color",
+											color.toHexString(),
+										)
+									}
+								/>
 
-							<Button
-								type="text"
-								danger
-								icon={<IonIcon icon={IonIcons.trash} />}
-								onClick={() => handleRemoveAnswer(index)}
-							/>
-						</>
-					)}
-				</Flex>
+								<Button
+									type="text"
+									danger
+									icon={<IonIcon icon={IonIcons.trash} />}
+									onClick={() => handleRemoveAnswer(index)}
+								/>
+							</>
+						)}
+					</Flex>
 				);
 			})}
 			{!readOnly && (
@@ -187,7 +250,9 @@ export default function PollModal({
 					<Switch
 						disabled={readOnly}
 						checked={allowVoteChanges}
-						onChange={(checked) => onAllowVoteChangesChange?.(checked)}
+						onChange={(checked) =>
+							onAllowVoteChangesChange?.(checked)
+						}
 					/>
 				</Flex>
 
@@ -196,7 +261,9 @@ export default function PollModal({
 					<Switch
 						disabled={readOnly}
 						checked={allowTextResponses}
-						onChange={(checked) => onAllowTextResponsesChange?.(checked)}
+						onChange={(checked) =>
+							onAllowTextResponsesChange?.(checked)
+						}
 					/>
 				</Flex>
 
@@ -205,7 +272,9 @@ export default function PollModal({
 					<Switch
 						disabled={readOnly}
 						checked={allowMultipleResponses}
-						onChange={(checked) => onAllowMultipleResponsesChange?.(checked)}
+						onChange={(checked) =>
+							onAllowMultipleResponsesChange?.(checked)
+						}
 					/>
 				</Flex>
 			</Flex>

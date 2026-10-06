@@ -18,7 +18,12 @@ import { formbarUrl } from "@utils/socket";
 import { useNavigate, useLocation } from "react-router-dom";
 
 import { useTheme } from "@/main";
-import { authLogin, guestLogin, registerUser, setRefreshToken } from "@api/authApi";
+import {
+	authLogin,
+	guestLogin,
+	registerUser,
+	setRefreshToken,
+} from "@api/authApi";
 import { getServerConfig } from "@api/systemApi";
 import { wasApiErrorReported } from "@api/HTTPApi";
 import { useGlobalMessage } from "@/components/providers/GlobalMessageProvider";
@@ -51,8 +56,6 @@ export default function LoginPage() {
 	// Sign Up mode only
 	const [confirmPassword, setConfirmPassword] = useState("");
 
-	
-
 	const getErrorMessage = (
 		err: unknown,
 		fallback = "Something went wrong. Please try again.",
@@ -73,91 +76,100 @@ export default function LoginPage() {
 		e?.preventDefault();
 		setIsSubmitting(true);
 		try {
-		// Handle form submission based on mode
-		switch (mode) {
-			case "Login": {
-				Log({ message: "Logging in", data: { email, password } });
+			// Handle form submission based on mode
+			switch (mode) {
+				case "Login": {
+					Log({ message: "Logging in" });
 
-				// Store credentials in sessionStorage (cleared on browser close)
-				sessionStorage.setItem("formbarLoginCreds", JSON.stringify([email, password]));
+					const loginResponse = await authLogin(email, password);
+					const { data } = loginResponse;
+					const {
+						accessToken: loginAccessToken,
+						refreshToken: loginRefreshToken,
+						legacyToken: loginLegacyToken,
+					} = data;
+					Log({ message: "Login successful" });
 
-				const loginResponse = await authLogin(email, password);
-				const { data } = loginResponse;
-				const {
-					accessToken: loginAccessToken,
-					refreshToken: loginRefreshToken,
-					legacyToken: loginLegacyToken,
-				} = data;
-				Log({ message: "Login successful", data: loginResponse });
+					// If we were sent here by a third-party app redirect back to it.
+					// On the /oauth path use the legacy token (includes permissions) so that
+					// older apps like Jukebar that read tokenData.permissions still work.
+					if (redirectURL) {
+						const target = new URL(redirectURL);
+						const tokenForRedirect =
+							location.pathname === "/oauth" && loginLegacyToken
+								? loginLegacyToken
+								: loginAccessToken;
+						target.searchParams.set("token", tokenForRedirect);
+						window.location.href = target.toString();
+						break;
+					}
 
-				// If we were sent here by a third-party app redirect back to it.
-				// On the /oauth path use the legacy token (includes permissions) so that
-				// older apps like Jukebar that read tokenData.permissions still work.
-				if (redirectURL) {
-					const target = new URL(redirectURL);
-					const tokenForRedirect = location.pathname === "/oauth" && loginLegacyToken
-						? loginLegacyToken
-						: loginAccessToken;
-					target.searchParams.set("token", tokenForRedirect);
-					window.location.href = target.toString();
+					// Establish the socket session. onConnect in main.tsx will fetch
+					// user data and navigate away from the login page.
+					setRefreshToken(loginRefreshToken);
+					socketLogin(loginRefreshToken);
+					break;
+				}
+				case "Sign Up": {
+					Log({
+						message: "Signing up",
+						data: { displayName, email },
+					});
+
+					if (displayName.length < 5)
+						throw new Error(
+							"display name must be at least 5 characters long",
+						);
+					if (!emailRegex.test(email))
+						throw new Error("Invalid email format");
+					if (password !== confirmPassword)
+						throw new Error("Passwords do not match");
+
+					const signupResponse = await registerUser({
+						email,
+						password,
+						displayName,
+					});
+					const { data: signupData } = signupResponse;
+					Log({ message: "Signup successful" });
+
+					// Establish the socket session. onConnect in main.tsx will fetch
+					// user data and navigate away from the login page.
+					setRefreshToken(signupData.refreshToken);
+					socketLogin(signupData.refreshToken);
 					break;
 				}
 
-				// Establish the socket session. onConnect in main.tsx will fetch
-				// user data and navigate away from the login page.
-				setRefreshToken(loginRefreshToken);
-				socketLogin(loginRefreshToken);
-				break;
-			}
-			case "Sign Up": {
-				Log({
-					message: "Signing up",
-					data: { displayName, email, password, confirmPassword },
-				});
+				case "Guest": {
+					Log({
+						message: "Continuing as guest",
+						data: { displayName },
+					});
 
-				if (displayName.length < 5)
-					throw new Error(
-						"display name must be at least 5 characters long",
-					);
-				if (!emailRegex.test(email))
-					throw new Error("Invalid email format");
-				if (password !== confirmPassword)
-					throw new Error("Passwords do not match");
+					const guestResponse = await guestLogin(displayName);
+					const { data: guestData } = guestResponse;
+					Log({
+						message: "Guest login successful",
+						data: guestResponse,
+					});
 
-				const signupResponse = await registerUser({ email, password, displayName });
-				const { data: signupData } = signupResponse;
-				Log({ message: "Signup successful", data: signupResponse });
+					if (redirectURL) {
+						const target = new URL(redirectURL);
+						target.searchParams.set("token", guestData.accessToken);
+						window.location.href = target.toString();
+						break;
+					}
 
-				// Store credentials in sessionStorage (cleared on browser close)
-				sessionStorage.setItem("formbarLoginCreds", JSON.stringify([email, password]));
-
-				// Establish the socket session. onConnect in main.tsx will fetch
-				// user data and navigate away from the login page.
-				setRefreshToken(signupData.refreshToken);
-				socketLogin(signupData.refreshToken);
-				break;
-			}
-
-			case "Guest": {
-				Log({ message: "Continuing as guest", data: { displayName } });
-
-				const guestResponse = await guestLogin(displayName);
-				const { data: guestData } = guestResponse;
-				Log({ message: "Guest login successful", data: guestResponse });
-
-				if (redirectURL) {
-					const target = new URL(redirectURL);
-					target.searchParams.set("token", guestData.accessToken);
-					window.location.href = target.toString();
+					socketLogin(guestData.accessToken, "access");
 					break;
 				}
-
-				socketLogin(guestData.accessToken, "access");
-				break;
 			}
-		}
 		} catch (err) {
-			Log({ message: "Form submission error", data: err, level: "error" });
+			Log({
+				message: "Form submission error",
+				data: err,
+				level: "error",
+			});
 			if (!wasApiErrorReported(err)) {
 				globalMessageAPI.error(getErrorMessage(err));
 			}
@@ -171,7 +183,8 @@ export default function LoginPage() {
 		getServerConfig()
 			.then((payload) => {
 				setOidcProviders(payload?.data?.oidcProviders || []);
-			}).catch(() => {});
+			})
+			.catch(() => {});
 	}, []);
 
 	// Handle the Google OAuth redirect callback.
@@ -180,7 +193,10 @@ export default function LoginPage() {
 		const params = new URLSearchParams(location.search);
 		const oauthRefreshToken = params.get("refreshToken");
 		if (oauthRefreshToken) {
-			Log({ message: "Google OAuth callback - logging in via token", data: {} });
+			Log({
+				message: "Google OAuth callback - logging in via token",
+				data: {},
+			});
 
 			// Wipe tokens from the URL immediately while staying on the same route
 			params.delete("accessToken");
@@ -220,7 +236,10 @@ export default function LoginPage() {
 			// For all other cases (including /oauth without a redirectURL),
 			// only bounce away from /login — stay on /oauth so the user can
 			// still interact with the page.
-			if (location.pathname === "/login" || location.pathname === "/oauth") {
+			if (
+				location.pathname === "/login" ||
+				location.pathname === "/oauth"
+			) {
 				navigate("/");
 			}
 		}
@@ -273,11 +292,7 @@ export default function LoginPage() {
 					)}
 
 					<Segmented
-						options={[
-							"Login",
-							"Sign Up",
-							'Guest'
-						]}
+						options={["Login", "Sign Up", "Guest"]}
 						onChange={setMode}
 						value={mode}
 					/>
@@ -294,7 +309,8 @@ export default function LoginPage() {
 												marginBottom: "10px",
 												color:
 													displayName.length > 4
-														? isHighContrast || isDark
+														? isHighContrast ||
+															isDark
 															? "white"
 															: "black"
 														: "red",
@@ -316,7 +332,8 @@ export default function LoginPage() {
 														emailRegex.test(
 															email,
 														) || email.length === 0
-															? isHighContrast || isDark
+															? isHighContrast ||
+																isDark
 																? "white"
 																: "black"
 															: "red",
@@ -332,7 +349,8 @@ export default function LoginPage() {
 													marginBottom: "10px",
 													color:
 														password.length >= 5
-															? isHighContrast || isDark
+															? isHighContrast ||
+																isDark
 																? "white"
 																: "black"
 															: "red",
@@ -357,7 +375,8 @@ export default function LoginPage() {
 															confirmPassword &&
 														confirmPassword.length >=
 															5
-															? isHighContrast || isDark
+															? isHighContrast ||
+																isDark
 																? "white"
 																: "black"
 															: "red",
@@ -379,8 +398,8 @@ export default function LoginPage() {
 								loading={isSubmitting}
 								style={{ marginTop: "10px", width: "100%" }}
 								disabled={
-									isSubmitting || (
-									mode === "Login"
+									isSubmitting ||
+									(mode === "Login"
 										? !(
 												email &&
 												password &&
@@ -405,8 +424,7 @@ export default function LoginPage() {
 														displayName &&
 														displayName.length > 3
 													)
-												: true
-									)
+												: true)
 								}
 							>
 								{mode === "Guest" ? "Continue as Guest" : mode}
@@ -423,7 +441,11 @@ export default function LoginPage() {
 									<img
 										src="https://www.google.com/favicon.ico"
 										alt="Google"
-										style={{ width: 16, height: 16, verticalAlign: "middle" }}
+										style={{
+											width: 16,
+											height: 16,
+											verticalAlign: "middle",
+										}}
 									/>
 								}
 								onClick={() => {
@@ -440,10 +462,14 @@ export default function LoginPage() {
 							<Button
 								style={{ width: "100%" }}
 								icon={
-									<img 
-										src="https://www.microsoft.com/favicon.ico" 
-										alt="Microsoft" 
-										style={{ width: 16, height: 16, verticalAlign: "middle" }} 
+									<img
+										src="https://www.microsoft.com/favicon.ico"
+										alt="Microsoft"
+										style={{
+											width: 16,
+											height: 16,
+											verticalAlign: "middle",
+										}}
 									/>
 								}
 								onClick={() => {

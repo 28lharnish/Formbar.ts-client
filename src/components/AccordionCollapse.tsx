@@ -6,8 +6,15 @@ import { IonIcon } from "@ionic/react";
 import * as IonIcons from "ionicons/icons";
 import { useClassData, useTheme, useUserData } from "@/main";
 
-import { awardDigipogs as awardDigipogAPI }  from "@api/digipogApi";
-import { approveStudentBreak, banClassStudent, deleteHelpRequest, denyStudentBreak, endStudentBreak, kickClassStudent } from "@api/classApi";
+import { awardDigipogs as awardDigipogAPI } from "@api/digipogApi";
+import {
+	approveStudentBreak,
+	banClassStudent,
+	deleteHelpRequest,
+	denyStudentBreak,
+	endStudentBreak,
+	kickClassStudent,
+} from "@api/classApi";
 import { addRoleToStudent, removeRoleFromStudent } from "@api/rolesApi";
 import { currentUserHasScope } from "@utils/scopeUtils";
 import { themeColors } from "@/themes/ThemeConfig";
@@ -32,11 +39,15 @@ export default function AccordionCollapse({
 	const [expanded, setExpanded] = useState<boolean>(false);
 	const wasOpenRef = useRef(false);
 
-	const firstEnabledIndex = categories.findIndex((category) => category.enabled);
+	const firstEnabledIndex = categories.findIndex(
+		(category) => category.enabled,
+	);
 
 	useEffect(() => {
 		if (isOpen && (!wasOpenRef.current || currentIndex === null)) {
-			setCurrentIndex(firstEnabledIndex === -1 ? null : firstEnabledIndex);
+			setCurrentIndex(
+				firstEnabledIndex === -1 ? null : firstEnabledIndex,
+			);
 			setExpanded(firstEnabledIndex !== -1);
 		}
 
@@ -180,7 +191,7 @@ export default function AccordionCollapse({
 					{categories &&
 						categories.map((category, index) => (
 							<Tooltip
-                                mouseEnterDelay={0.5}
+								mouseEnterDelay={0.5}
 								key={index}
 								title={category.name}
 								color={colorIndex(index)}
@@ -275,7 +286,13 @@ export default function AccordionCollapse({
 	);
 }
 
-export function StudentAccordion({ studentData, isOpen = false }: { studentData: Student; isOpen?: boolean }) {
+export function StudentAccordion({
+	studentData,
+	isOpen = false,
+}: {
+	studentData: Student;
+	isOpen?: boolean;
+}) {
 	const { classData } = useClassData();
 	const { userData } = useUserData();
 	const { isDark } = useTheme();
@@ -285,19 +302,24 @@ export function StudentAccordion({ studentData, isOpen = false }: { studentData:
 	const [studentRoleIds, setStudentRoleIds] = useState<number[]>([]);
 	const [isUpdatingRoles, setIsUpdatingRoles] = useState<boolean>(false);
 
-	
-    const [modal, contextHolderModal] = Modal.useModal();
+	const [modal, contextHolderModal] = Modal.useModal();
 
 	useEffect(() => {
-		setStudentRoleIds((studentData.roles?.class || []).map((role) => Number(role.id)));
+		setStudentRoleIds(
+			(studentData.roles?.class || []).map((role) => Number(role.id)),
+		);
 	}, [studentData]);
 
 	async function handleStudentRolesChange(nextRoleIds: number[]) {
 		if (!classData) return;
 
 		const previousRoleIds = studentRoleIds;
-		const rolesToAdd = nextRoleIds.filter((id) => !previousRoleIds.includes(id));
-		const rolesToRemove = previousRoleIds.filter((id) => !nextRoleIds.includes(id));
+		const rolesToAdd = nextRoleIds.filter(
+			(id) => !previousRoleIds.includes(id),
+		);
+		const rolesToRemove = previousRoleIds.filter(
+			(id) => !nextRoleIds.includes(id),
+		);
 
 		setStudentRoleIds(nextRoleIds);
 		setIsUpdatingRoles(true);
@@ -315,14 +337,19 @@ export function StudentAccordion({ studentData, isOpen = false }: { studentData:
 			studentData.roles = studentData.roles || { global: [], class: [] };
 			studentData.roles.class = nextRoleIds
 				.map((roleId) => {
-					const classRole = classData.roles.find((role) => role.id === Number(roleId));
+					const classRole = classData.roles.find(
+						(role) => role.id === Number(roleId),
+					);
 					if (!classRole) return null;
 					return {
 						id: Number(classRole.id),
 						name: classRole.name,
 					};
 				})
-				.filter((role): role is { id: number; name: string } => role !== null);
+				.filter(
+					(role): role is { id: number; name: string } =>
+						role !== null,
+				);
 		} catch {
 			setStudentRoleIds(previousRoleIds);
 		} finally {
@@ -341,301 +368,413 @@ export function StudentAccordion({ studentData, isOpen = false }: { studentData:
 	const canEndBreaks = currentUserHasScope(userData, "class.break.end");
 
 	const canAssignRoles = currentUserHasScope(userData, "class.roles.assign");
-	
-	const canAwardDigipogs = currentUserHasScope(userData, "class.digipogs.award");
+
+	const canAwardDigipogs = currentUserHasScope(
+		userData,
+		"class.digipogs.award",
+	);
 
 	const canKick = currentUserHasScope(userData, "class.students.kick");
 	const canBan = currentUserHasScope(userData, "class.students.ban");
 
 	return (
 		<>
-		<AccordionCollapse
-			isOpen={isOpen}
-			categories={[
-				{
-					name: "Help",
-					icon: IonIcons.handRightOutline,
-					content: (
-						<Flex
-							vertical
-							justify="center"
-							align="center"
-							style={{ width: "100%", height: "100%" }}
-							gap={10}
-						>
-							<p>
-								{studentData.help.reason
-									? studentData.help.reason
-									: ""}
-							</p>
-							<Button
-								variant="solid"
-								color="red"
-								onClick={async () => {
-									if (!canManageHelp) return;
-									const response = await deleteHelpRequest(classData?.id!, studentData.id);
-									if (response?.success === false || response?.error) {
-										globalMessageAPI.error(messageTemplates["user.helpTicket.delete.failed"]);
-										return;
-									}
-									globalMessageAPI.success(messageTemplates["user.helpTicket.deleted.success"]);
-								}}
+			<AccordionCollapse
+				isOpen={isOpen}
+				categories={[
+					{
+						name: "Help",
+						icon: IonIcons.handRightOutline,
+						content: (
+							<Flex
+								vertical
+								justify="center"
+								align="center"
+								style={{ width: "100%", height: "100%" }}
+								gap={10}
 							>
-								Delete
-							</Button>
-						</Flex>
-					),
-					enabled:
-						typeof studentData.help === "object" ? true : false && canManageHelp,
-				},
-				{
-					name: "Break",
-					icon: IonIcons.umbrellaOutline,
-					content: (
-						<Flex
-							vertical
-							justify="center"
-							align="center"
-							style={{ width: "100%", height: "100%" }}
-							gap={10}
-						>
-							{typeof studentData.break === "string" ? (
-								<>
-									<p>"{studentData.break}"</p>
-									<Flex gap={10}>
-										<Button
-											variant="solid"
-											color="green"
-											style={{ width: "120px" }}
-											onClick={async () => {
-												if (!canManageBreak) return;
-												const response = await approveStudentBreak(classData?.id!, studentData.id);
-												if (response?.success === false || response?.error) {
-													globalMessageAPI.error(messageTemplates["user.break.approve.failed"]);
-													return;
-												}
-												globalMessageAPI.success(messageTemplates["user.break.approved.success"]);
-											}}
-										>
-											Approve
-										</Button>
-										<Button
-											variant="solid"
-											color="red"
-											style={{ width: "120px" }}
-											onClick={async () => {
-												if (!canManageBreak) return;
-												const response = await denyStudentBreak(classData?.id!, studentData.id);
-												if (response?.success === false || response?.error) {
-													globalMessageAPI.error(messageTemplates["user.break.deny.failed"]);
-													return;
-												}
-												globalMessageAPI.success(messageTemplates["user.break.denied.success"]);
-											}}
-										>
-											Deny
-										</Button>
-									</Flex>
-								</>
-							) : (
+								<p>
+									{studentData.help.reason
+										? studentData.help.reason
+										: ""}
+								</p>
+								<Button
+									variant="solid"
+									color="red"
+									onClick={async () => {
+										if (!canManageHelp) return;
+										const response =
+											await deleteHelpRequest(
+												classData?.id!,
+												studentData.id,
+											);
+										if (
+											response?.success === false ||
+											response?.error
+										) {
+											globalMessageAPI.error(
+												messageTemplates.user_helpTicket_delete_failed,
+											);
+											return;
+										}
+										globalMessageAPI.success(
+											messageTemplates.user_helpTicket_deleted_success,
+										);
+									}}
+								>
+									Delete
+								</Button>
+							</Flex>
+						),
+						enabled:
+							typeof studentData.help === "object"
+								? true
+								: false && canManageHelp,
+					},
+					{
+						name: "Break",
+						icon: IonIcons.umbrellaOutline,
+						content: (
+							<Flex
+								vertical
+								justify="center"
+								align="center"
+								style={{ width: "100%", height: "100%" }}
+								gap={10}
+							>
+								{typeof studentData.break === "string" ? (
+									<>
+										<p>"{studentData.break}"</p>
+										<Flex gap={10}>
+											<Button
+												variant="solid"
+												color="green"
+												style={{ width: "120px" }}
+												onClick={async () => {
+													if (!canManageBreak) return;
+													const response =
+														await approveStudentBreak(
+															classData?.id!,
+															studentData.id,
+														);
+													if (
+														response?.success ===
+															false ||
+														response?.error
+													) {
+														globalMessageAPI.error(
+															messageTemplates.user_break_approve_failed,
+														);
+														return;
+													}
+													globalMessageAPI.success(
+														messageTemplates.user_break_approved_success,
+													);
+												}}
+											>
+												Approve
+											</Button>
+											<Button
+												variant="solid"
+												color="red"
+												style={{ width: "120px" }}
+												onClick={async () => {
+													if (!canManageBreak) return;
+													const response =
+														await denyStudentBreak(
+															classData?.id!,
+															studentData.id,
+														);
+													if (
+														response?.success ===
+															false ||
+														response?.error
+													) {
+														globalMessageAPI.error(
+															messageTemplates.user_break_deny_failed,
+														);
+														return;
+													}
+													globalMessageAPI.success(
+														messageTemplates.user_break_denied_success,
+													);
+												}}
+											>
+												Deny
+											</Button>
+										</Flex>
+									</>
+								) : (
+									<Button
+										variant="solid"
+										color="red"
+										style={{ width: "120px" }}
+										onClick={async () => {
+											if (!canEndBreaks) return;
+											const response =
+												await endStudentBreak(
+													classData?.id!,
+													studentData.id,
+												);
+											if (
+												response?.success === false ||
+												response?.error
+											) {
+												globalMessageAPI.error(
+													messageTemplates.user_break_end_failed,
+												);
+												return;
+											}
+											globalMessageAPI.success(
+												messageTemplates.user_break_ended_success,
+											);
+										}}
+									>
+										End Break
+									</Button>
+								)}
+							</Flex>
+						),
+						enabled: studentData.break !== false && canManageBreak,
+					},
+					{
+						name: "Text Response",
+						icon: IonIcons.textOutline,
+						content: <p>{studentData.pollRes.textRes}</p>,
+						enabled:
+							studentData.pollRes.textRes &&
+							classData?.poll.allowTextResponses,
+					},
+					{
+						name: "Digipogs",
+						icon: IonIcons.cashOutline,
+						content: (
+							<Flex
+								justify="center"
+								align="center"
+								style={{ width: "100%", height: "100%" }}
+								gap={10}
+							>
+								<InputNumber
+									placeholder="Digipogs"
+									style={{ width: "120px" }}
+									onInput={(e) => {
+										if (e !== null)
+											setAwardDigipogs(
+												parseInt(e.toString()),
+											);
+									}}
+								/>
+								<Button
+									variant="solid"
+									color="blue"
+									style={{ width: "120px" }}
+									onClick={async () => {
+										const response = await awardDigipogAPI({
+											studentId: studentData.id,
+											amount: awardDigipogs,
+										});
+										if (
+											response?.success === false ||
+											response?.error
+										) {
+											globalMessageAPI.error(
+												messageTemplates.user_digipogs_award_failed,
+											);
+											return;
+										}
+										globalMessageAPI.success(
+											messageTemplates.user_digipogs_awarded_success(
+												awardDigipogs,
+											),
+										);
+									}}
+								>
+									Award
+								</Button>
+							</Flex>
+						),
+						enabled: canAwardDigipogs,
+					},
+					{
+						name: "Roles",
+						icon: IonIcons.lockClosedOutline,
+						content: (
+							<Flex
+								justify="center"
+								align="center"
+								style={{ width: "100%", height: "100%" }}
+								gap={10}
+							>
+								<Select
+									mode="multiple"
+									style={{ width: "100%", maxWidth: "420px" }}
+									styles={{
+										suffix: {
+											pointerEvents: "none",
+										},
+									}}
+									placeholder="Add or remove roles"
+									suffix={null}
+
+									value={studentRoleIds}
+									loading={isUpdatingRoles}
+									disabled={
+										isUpdatingRoles ||
+										availableRoles.length === 0
+									}
+									onChange={handleStudentRolesChange}
+									options={roleOptions}
+									showSearch={{
+										optionFilterProp: "label",
+									}}
+									tagRender={(props) => {
+										const role = availableRoles.find(
+											(availableRole) =>
+												availableRole.id ===
+												Number(props.value),
+										);
+										const roleColor =
+											role?.color || "#666666";
+										return (
+											<Tag
+												color={roleColor}
+												style={{
+													marginInlineEnd: 4,
+													color: roleColor,
+													borderColor: "transparent",
+													background:
+														themeColors[
+															isDark
+																? "dark"
+																: "light"
+														].roleTag.background,
+												}}
+												closable={props.closable}
+												onClose={props.onClose}
+												onMouseDown={(event) => {
+													event.preventDefault();
+													event.stopPropagation();
+												}}
+											>
+												{role?.name || props.value}
+											</Tag>
+										);
+									}}
+									optionRender={(option) => (
+										<Flex align="center" gap={8}>
+											<span
+												style={{
+													width: 10,
+													height: 10,
+													borderRadius: "50%",
+													display: "inline-block",
+													backgroundColor:
+														option.data.color,
+												}}
+											/>
+											<span
+												style={{
+													color: option.data.color,
+													fontWeight: 500,
+												}}
+											>
+												{option.data.label}
+											</span>
+										</Flex>
+									)}
+								/>
+							</Flex>
+						),
+						enabled: canAssignRoles,
+					},
+					{
+						name: "Miscellaneous",
+						icon: IonIcons.banOutline,
+						content: (
+							<Flex
+								justify="center"
+								align="center"
+								style={{ width: "100%", height: "100%" }}
+								gap={10}
+							>
 								<Button
 									variant="solid"
 									color="red"
 									style={{ width: "120px" }}
+									onClick={() => {
+										if (!canBan) return;
+										modal.warning({
+											title: "Ban User",
+											content:
+												"Are you sure you want to ban this user?",
+											okText: "Ban",
+											centered: true,
+											onOk: async () => {
+												if (!canBan) return;
+												const response =
+													await banClassStudent(
+														classData?.id!,
+														studentData.id,
+													);
+												if (
+													response?.success ===
+														false ||
+													response?.error
+												) {
+													globalMessageAPI.error(
+														messageTemplates.user_ban_failed,
+													);
+													return;
+												}
+												globalMessageAPI.success(
+													messageTemplates.user_ban_success(
+														studentData.id,
+													),
+												);
+											},
+										});
+									}}
+									disabled={!canBan}
+								>
+									Ban User
+								</Button>
+								<Button
+									variant="solid"
+									color="red"
+									style={{ width: "120px" }}
+									disabled={!canKick}
 									onClick={async () => {
-										if (!canEndBreaks) return;
-										const response = await endStudentBreak(classData?.id!, studentData.id);
-										if (response?.success === false || response?.error) {
-											globalMessageAPI.error(messageTemplates["user.break.end.failed"]);
+										if (!canKick) return;
+										const response = await kickClassStudent(
+											classData?.id!,
+											studentData.id,
+										);
+										if (
+											response?.success === false ||
+											response?.error
+										) {
+											globalMessageAPI.error(
+												messageTemplates.user_kick_failed,
+											);
 											return;
 										}
-										globalMessageAPI.success(messageTemplates["user.break.ended.success"]);
+										globalMessageAPI.success(
+											messageTemplates.user_kick_success(
+												studentData.id,
+											),
+										);
 									}}
 								>
-									End Break
+									Kick User
 								</Button>
-							)}
-						</Flex>
-					),
-					enabled: studentData.break !== false && canManageBreak,
-				},
-				{
-					name: "Text Response",
-					icon: IonIcons.textOutline,
-					content: <p>{studentData.pollRes.textRes}</p>,
-					enabled: studentData.pollRes.textRes && classData?.poll.allowTextResponses,
-				},
-				{
-					name: "Digipogs",
-					icon: IonIcons.cashOutline,
-					content: (
-						<Flex
-							justify="center"
-							align="center"
-							style={{ width: "100%", height: "100%" }}
-							gap={10}
-						>
-							<InputNumber
-								placeholder="Digipogs"
-								style={{ width: "120px" }}
-								onInput={(e) => {
-									if (e !== null)
-										setAwardDigipogs(
-											parseInt(e.toString()),
-										);
-								}}
-							/>
-							<Button
-								variant="solid"
-								color="blue"
-								style={{ width: "120px" }}
-								onClick={async () => {
-									const response = await awardDigipogAPI({studentId: studentData.id, amount: awardDigipogs});
-									if (response?.success === false || response?.error) {
-										globalMessageAPI.error(messageTemplates["user.digipogs.award.failed"]);
-										return;
-									}
-									globalMessageAPI.success(messageTemplates["user.digipogs.awarded.success"](awardDigipogs));
-								}}
-							>
-								Award
-							</Button>
-						</Flex>
-					),
-					enabled: canAwardDigipogs,
-				},
-				{
-					name: "Roles",
-					icon: IonIcons.lockClosedOutline,
-					content: (
-						<Flex
-							justify="center"
-							align="center"
-							style={{ width: "100%", height: "100%" }}
-							gap={10}
-						>
-							<Select
-								mode="multiple"
-								style={{ width: "100%", maxWidth: "420px" }}
-								styles={{
-									suffix: {
-										pointerEvents: "none",
-									}
-								}}
-								placeholder="Add or remove roles"
-								suffix={null}
-
-								value={studentRoleIds}
-								loading={isUpdatingRoles}
-								disabled={isUpdatingRoles || availableRoles.length === 0}
-								onChange={handleStudentRolesChange}
-								options={roleOptions}
-								showSearch={
-									{
-										optionFilterProp: "label",
-									}
-								}
-								tagRender={(props) => {
-									const role = availableRoles.find(
-										(availableRole) => availableRole.id === Number(props.value),
-									);
-									const roleColor = role?.color || "#666666";
-									return (
-										<Tag 
-											color={roleColor}
-											style={{ marginInlineEnd: 4, color: roleColor, borderColor: "transparent", background: themeColors[isDark ? "dark" : "light"].roleTag.background }}
-											closable={props.closable}
-											onClose={props.onClose}
-											onMouseDown={(event) => {
-												event.preventDefault();
-												event.stopPropagation();
-											}}
-										>
-											{role?.name || props.value}
-										</Tag>
-									);
-								}}
-								optionRender={(option) => (
-									<Flex align="center" gap={8}>
-										<span
-											style={{
-												width: 10,
-												height: 10,
-												borderRadius: "50%",
-												display: "inline-block",
-												backgroundColor: option.data.color,
-											}}
-										/>
-										<span style={{ color: option.data.color, fontWeight: 500 }}>
-											{option.data.label}
-										</span>
-									</Flex>
-								)}
-							/>
-						</Flex>
-					),
-					enabled: canAssignRoles,
-				},
-				{
-					name: "Miscellaneous",
-					icon: IonIcons.banOutline,
-					content: (
-						<Flex
-							justify="center"
-							align="center"
-							style={{ width: "100%", height: "100%" }}
-							gap={10}
-						>
-							<Button
-								variant="solid"
-								color="red"
-								style={{ width: "120px" }}
-                                onClick={() => {
-									if(!canBan) return;
-                                    modal.warning({
-                                        title: "Ban User",
-                                        content: "Are you sure you want to ban this user?",
-                                        okText: "Ban",
-                                        centered: true,
-										 onOk: async () => {
-											if(!canBan) return;
-											const response = await banClassStudent(classData?.id!, studentData.id);
-											if (response?.success === false || response?.error) {
-													globalMessageAPI.error(messageTemplates["user.ban.failed"]);
-												return;
-											}
-											globalMessageAPI.success(messageTemplates["user.ban.success"](studentData.id));
-                                        }
-                                    });
-                                }}
-								disabled={!canBan}
-							>
-								Ban User
-							</Button>
-							<Button
-								variant="solid"
-								color="red"
-								style={{ width: "120px" }}
-								disabled={!canKick}
-								onClick={async () => {
-									if(!canKick) return;
-									const response = await kickClassStudent(classData?.id!, studentData.id);
-									if (response?.success === false || response?.error) {
-										globalMessageAPI.error(messageTemplates["user.kick.failed"]);
-										return;
-									}
-									globalMessageAPI.success(messageTemplates["user.kick.success"](studentData.id));
-								}}
-							>
-								Kick User
-							</Button>
-						</Flex>
-					),
-					enabled: canBan || canKick,
-				},
-			]}
-		/>
-        {contextHolderModal}
-        </>
+							</Flex>
+						),
+						enabled: canBan || canKick,
+					},
+				]}
+			/>
+			{contextHolderModal}
+		</>
 	);
 }

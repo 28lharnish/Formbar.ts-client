@@ -37,10 +37,12 @@ export default function PinResetPage() {
 
 		setLoading(true);
 		try {
-            const response = await resetPinWithToken(pin, token);
+			const response = await resetPinWithToken(pin, token);
 			if (!response.ok || response?.error) {
 				throw new Error(
-					response?.error?.message || response?.error || "PIN reset failed.",
+					response?.error?.message ||
+						response?.error ||
+						"PIN reset failed.",
 				);
 			}
 

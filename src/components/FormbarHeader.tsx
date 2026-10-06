@@ -18,77 +18,85 @@ export default function FormbarHeader() {
 	const isMobileView = useMobileDetect();
 	const { userData } = useUserData();
 	const { settings } = useSettings();
-	const canTeacherPanel = currentUserHasScope(userData, "class.system.panel_access");
+	const canTeacherPanel = currentUserHasScope(
+		userData,
+		"class.system.panel_access",
+	);
 	const canStudentPanel = Boolean(userData?.activeClass) && !canTeacherPanel;
-	const canOpenManagerPanel = currentUserHasScope(userData, 'global.users.manage');
+	const canOpenManagerPanel = currentUserHasScope(
+		userData,
+		"global.users.manage",
+	);
 
-    const [settingsOpen, setSettingsOpen] = useState(false);
-    const [leaveClassModalOpen, setLeaveClassModalOpen] = useState(false);
+	const [settingsOpen, setSettingsOpen] = useState(false);
+	const [leaveClassModalOpen, setLeaveClassModalOpen] = useState(false);
 
 	const headerStyles = {
 		...styles.formbarHeader,
 		background: isHighContrast
 			? "#000000"
-			: (isDark ? themeColors.dark.header.background : themeColors.light.header.background),
-		borderBottom: isHighContrast
-			? "2px solid #ffffff"
-			: undefined,
-        padding: isMobileView ? "0 16px" : "0 32px",
+			: isDark
+				? themeColors.dark.header.background
+				: themeColors.light.header.background,
+		borderBottom: isHighContrast ? "2px solid #ffffff" : undefined,
+		padding: isMobileView ? "0 16px" : "0 32px",
 	};
 
 	const primaryTextColor = isHighContrast
-		? "#ffffff" : isDark
-		? themeColors.dark.text.primary
-		: themeColors.light.text.primary;
+		? "#ffffff"
+		: isDark
+			? themeColors.dark.text.primary
+			: themeColors.light.text.primary;
 
 	// Badge style that adapts to dark / light themes for better contrast
 	const badgeStyle: React.CSSProperties = isHighContrast
 		? {
-			marginLeft: 10,
-			backgroundColor: "black",
-			border: `2px solid white`,
-			padding: "2px 8px",
-			borderRadius: 0,
-			fontWeight: 700,
-			color: "white",
-			display: "flex",
-			alignItems: "center",
-			justifyContent: "center",
-		}
+				marginLeft: 10,
+				backgroundColor: "black",
+				border: `2px solid white`,
+				padding: "2px 8px",
+				borderRadius: 0,
+				fontWeight: 700,
+				color: "white",
+				display: "flex",
+				alignItems: "center",
+				justifyContent: "center",
+			}
 		: isDark
-		? {
-			marginLeft: 10,
-			backgroundColor: "transparent",
-			border: "1px solid rgba(0,200,255,0.95)",
-			boxShadow:
-				"0 0 10px rgba(0,200,255,0.95), inset 0 0 6px rgba(0,200,255,0.06)",
-			padding: "2px 8px",
-			borderRadius: "999px",
-			fontWeight: 700,
-			background: "linear-gradient(90deg,#dffcff,#66e0ff,#bff5ff)",
-			WebkitBackgroundClip: "text",
-			WebkitTextFillColor: "transparent",
-			color: "#e6fbff",
-			textShadow: "0 0 10px rgba(0,200,255,0.9)",
-			display: "flex",
-			alignItems: "center",
-			justifyContent: "center",
-		}
-		: {
-			marginLeft: 10,
-			// Give a subtle translucent backdrop in light mode for legibility
-			backgroundColor: "rgba(255,255,255,0.14)",
-			border: "1px solid rgba(0,120,200,0.25)",
-			boxShadow: "0 2px 8px rgba(0,170,255,0.12)",
-			padding: "4px 10px",
-			borderRadius: "999px",
-			fontWeight: 700,
-			color: "#003e6b",
-			textShadow: "0 0 6px rgba(0,120,200,0.18)",
-			display: "flex",
-			alignItems: "center",
-			justifyContent: "center",
-		}
+			? {
+					marginLeft: 10,
+					backgroundColor: "transparent",
+					border: "1px solid rgba(0,200,255,0.95)",
+					boxShadow:
+						"0 0 10px rgba(0,200,255,0.95), inset 0 0 6px rgba(0,200,255,0.06)",
+					padding: "2px 8px",
+					borderRadius: "999px",
+					fontWeight: 700,
+					background:
+						"linear-gradient(90deg,#dffcff,#66e0ff,#bff5ff)",
+					WebkitBackgroundClip: "text",
+					WebkitTextFillColor: "transparent",
+					color: "#e6fbff",
+					textShadow: "0 0 10px rgba(0,200,255,0.9)",
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+				}
+			: {
+					marginLeft: 10,
+					// Give a subtle translucent backdrop in light mode for legibility
+					backgroundColor: "rgba(255,255,255,0.14)",
+					border: "1px solid rgba(0,120,200,0.25)",
+					boxShadow: "0 2px 8px rgba(0,170,255,0.12)",
+					padding: "4px 10px",
+					borderRadius: "999px",
+					fontWeight: 700,
+					color: "#003e6b",
+					textShadow: "0 0 6px rgba(0,120,200,0.18)",
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+				};
 
 	function leaveClass() {
 		if (!userData || !userData.activeClass) {
@@ -111,33 +119,30 @@ export default function FormbarHeader() {
 			});
 	}
 
-
-    
 	return (
 		<Flex
 			style={headerStyles}
 			align="center"
 			className="formbarHeader"
-			justify={isMobileView ? "center": "space-between"}
+			justify={isMobileView ? "center" : "space-between"}
 			gap="16"
 		>
 			{!isMobileView && (
-                <>
-				<h1
-					style={{
-						...styles.formbarHeader.text,
-						color: primaryTextColor,
-						cursor: "pointer",
-					}}
-					onClick={() => navigate("/")}
-				>
-					Formbar
-					<Badge count={"v3"} style={badgeStyle} />
-				</h1>
-                </>
-
+				<>
+					<h1
+						style={{
+							...styles.formbarHeader.text,
+							color: primaryTextColor,
+							cursor: "pointer",
+						}}
+						onClick={() => navigate("/")}
+					>
+						Formbar
+						<Badge count={"v3"} style={badgeStyle} />
+					</h1>
+				</>
 			)}
-{/* 			
+			{/* 			
 			<Badge count={1} size="small" styles={{root: { marginRight: 'auto'}}}>
 				<Button style={{marginLeft: 10}} type="primary" shape="square" variant="solid" color="default" size="large"
 					onClick={() => navigate("/profile")}
@@ -147,12 +152,9 @@ export default function FormbarHeader() {
 			</Badge> */}
 
 			<Flex align="center" justify="center" gap={10}>
-
-				{userData &&
-				userData.activeClass &&
-				canStudentPanel ? (
+				{userData && userData.activeClass && canStudentPanel ? (
 					<Tooltip
-                        mouseEnterDelay={0.5}
+						mouseEnterDelay={0.5}
 						placement="bottomRight"
 						title={"Back to Class"}
 						arrow={{ pointAtCenter: true }}
@@ -169,11 +171,9 @@ export default function FormbarHeader() {
 							<IonIcon icon={IonIcons.pieChart} size="large" />
 						</Button>
 					</Tooltip>
-				) : userData &&
-				  userData.activeClass &&
-				  canTeacherPanel ? (
+				) : userData && userData.activeClass && canTeacherPanel ? (
 					<Tooltip
-                        mouseEnterDelay={0.5}
+						mouseEnterDelay={0.5}
 						placement="bottomRight"
 						title={"Teacher Panel"}
 						arrow={{ pointAtCenter: true }}
@@ -192,10 +192,9 @@ export default function FormbarHeader() {
 					</Tooltip>
 				) : null}
 
-				{userData &&
-				userData.activeClass && (
+				{userData && userData.activeClass && (
 					<Tooltip
-                        mouseEnterDelay={0.5}
+						mouseEnterDelay={0.5}
 						placement="bottomRight"
 						title={"Links"}
 						arrow={{ pointAtCenter: true }}
@@ -212,126 +211,149 @@ export default function FormbarHeader() {
 							<IonIcon icon={IonIcons.link} size="large" />
 						</Button>
 					</Tooltip>
-				)
-			}
+				)}
 
-				{userData &&
-					canOpenManagerPanel && (
-						<Tooltip
-                            mouseEnterDelay={0.5}
-							placement="bottomRight"
-							title={"Manager Panel"}
-							arrow={{ pointAtCenter: true }}
-							color="cyan"
-						>
-							<Button
-								type="primary"
-								variant="solid"
-								color="cyan"
-								size="large"
-								style={styles.headerButton}
-								onClick={() => navigate("/manager")}
-							>
-								<IonIcon
-									icon={IonIcons.briefcase}
-									size="large"
-								/>
-							</Button>
-						</Tooltip>
-					)}
-
-				{userData && (<>
+				{userData && canOpenManagerPanel && (
 					<Tooltip
-                        mouseEnterDelay={0.5}
+						mouseEnterDelay={0.5}
 						placement="bottomRight"
-						title={"Classes"}
+						title={"Manager Panel"}
 						arrow={{ pointAtCenter: true }}
-						color="blue"
+						color="cyan"
 					>
 						<Button
 							type="primary"
 							variant="solid"
-							color="blue"
+							color="cyan"
 							size="large"
 							style={styles.headerButton}
-							onClick={() => userData.activeClass ? setLeaveClassModalOpen(true) : navigate("/classes")}
+							onClick={() => navigate("/manager")}
 						>
-							<IonIcon icon={IonIcons.easel} size="large" />
+							<IonIcon icon={IonIcons.briefcase} size="large" />
 						</Button>
 					</Tooltip>
+				)}
 
-                    <Modal title="Leave Class" centered open={leaveClassModalOpen} onCancel={() => setLeaveClassModalOpen(false)} onOk={() => {setLeaveClassModalOpen(false); leaveClass()}} okText="Leave" cancelText="Cancel">
-                        Are you sure you want to leave your current class session?
-                    </Modal>
+				{userData && (
+					<>
+						<Tooltip
+							mouseEnterDelay={0.5}
+							placement="bottomRight"
+							title={"Classes"}
+							arrow={{ pointAtCenter: true }}
+							color="blue"
+						>
+							<Button
+								type="primary"
+								variant="solid"
+								color="blue"
+								size="large"
+								style={styles.headerButton}
+								onClick={() =>
+									userData.activeClass
+										? setLeaveClassModalOpen(true)
+										: navigate("/classes")
+								}
+							>
+								<IonIcon icon={IonIcons.easel} size="large" />
+							</Button>
+						</Tooltip>
 
-				</>)}
+						<Modal
+							title="Leave Class"
+							centered
+							open={leaveClassModalOpen}
+							onCancel={() => setLeaveClassModalOpen(false)}
+							onOk={() => {
+								setLeaveClassModalOpen(false);
+								leaveClass();
+							}}
+							okText="Leave"
+							cancelText="Cancel"
+						>
+							Are you sure you want to leave your current class
+							session?
+						</Modal>
+					</>
+				)}
 
-                <Tooltip
-                    mouseEnterDelay={0.5}
-                    placement="bottomRight"
-                    title="Settings"
-                    arrow={{ pointAtCenter: true }}
-                    color="volcano"
-                >
-                    <Button
-                        type="primary"
-                        variant="solid"
-                        color="volcano"
-                        size="large"
-                        style={styles.headerButton}
-                        onClick={() => setSettingsOpen(true)}
-                    >
-                        <IonIcon icon={IonIcons.settings} size="large" />
-                    </Button>
-                </Tooltip>
+				<Tooltip
+					mouseEnterDelay={0.5}
+					placement="bottomRight"
+					title="Settings"
+					arrow={{ pointAtCenter: true }}
+					color="volcano"
+				>
+					<Button
+						type="primary"
+						variant="solid"
+						color="volcano"
+						size="large"
+						style={styles.headerButton}
+						onClick={() => setSettingsOpen(true)}
+					>
+						<IonIcon icon={IonIcons.settings} size="large" />
+					</Button>
+				</Tooltip>
 
-				{
-                
-                userData && (<div
-					style={{
-						borderRight: `2px solid ${isDark ? "#fff3" : "#0003"}`,
-						borderRadius: "999px",
-						height: "30px",
-					}}
-				/>)}
-				
+				{userData && (
+					<div
+						style={{
+							borderRight: `2px solid ${isDark ? "#fff3" : "#0003"}`,
+							borderRadius: "999px",
+							height: "30px",
+						}}
+					/>
+				)}
+
 				{userData && (
 					<Tooltip
-                        mouseEnterDelay={0.5}
+						mouseEnterDelay={0.5}
 						placement="bottomRight"
 						title="Profile"
 						arrow={{ pointAtCenter: true }}
 						color={settings.appearance.accentColor}
 					>
-						<Avatar size={36} style={{cursor: 'pointer', background: settings.appearance.accentColor}} icon={userData.displayName[0].toUpperCase()} onClick={() => { navigate('/profile') }} />
+						<Avatar
+							size={36}
+							style={{
+								cursor: "pointer",
+								background: settings.appearance.accentColor,
+							}}
+							icon={userData.displayName[0].toUpperCase()}
+							onClick={() => {
+								navigate("/profile");
+							}}
+						/>
 					</Tooltip>
 				)}
-
 			</Flex>
 
-            <Modal
-                children={<SettingsModal />}
-                open={settingsOpen}
-                closable={false}
-                onCancel={() => {setSettingsOpen(false)}}
-                footer={null}
-                height={'90%'}
-                width={'60%'}
-                styles={{
-                    wrapper: {
-                        overflow: "hidden",
-                    },
-                    container: {
-                        padding: 0,
-                        overflow: "hidden",
-                        height: "700px",
-                    },
-                    body: {
-                        padding: 0,
-                        height: "100%",
-                    }
-                }}
-            />
+			<Modal
+				children={<SettingsModal />}
+				open={settingsOpen}
+				closable={false}
+				onCancel={() => {
+					setSettingsOpen(false);
+				}}
+				footer={null}
+				height={"90%"}
+				width={"60%"}
+				styles={{
+					wrapper: {
+						overflow: "hidden",
+					},
+					container: {
+						padding: 0,
+						overflow: "hidden",
+						height: "700px",
+					},
+					body: {
+						padding: 0,
+						height: "100%",
+					},
+				}}
+			/>
 		</Flex>
 	);
 }
@@ -370,9 +392,9 @@ const styles = {
 	headerButton: {
 		border: "none",
 		padding: "0 0",
-        aspectRatio: 1,
+		aspectRatio: 1,
 		boxShadow: "0 2px 0px rgba(0,0,0,0.2)",
-        borderRadius: "12px",
+		borderRadius: "12px",
 	},
 
 	headerButtonHover: {

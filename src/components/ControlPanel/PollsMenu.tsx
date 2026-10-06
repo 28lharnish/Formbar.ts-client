@@ -1,4 +1,13 @@
-import { Button, Col, Divider, Flex, Pagination, Row, Spin, Typography } from "antd";
+import {
+	Button,
+	Col,
+	Divider,
+	Flex,
+	Pagination,
+	Row,
+	Spin,
+	Typography,
+} from "antd";
 const { Text, Title } = Typography;
 import { socket } from "@utils/socket";
 import { useClassData, useMobileDetect, useUserData } from "@/main";
@@ -95,14 +104,12 @@ const defaultPolls: DefaultPoll[] = [
 		blindUntilEnded: false,
 		autoEndTimer: null,
 		autoEndThreshold: null,
-        divider: true,
+		divider: true,
 	},
 	{
 		id: 5,
 		prompt: "Describe a...",
-		answers: [
-			{ answer: "Submit", weight: 1, color: "#00FF00" },
-		],
+		answers: [{ answer: "Submit", weight: 1, color: "#00FF00" }],
 
 		blind: false,
 		allowVoteChanges: false,
@@ -121,7 +128,10 @@ import { useEffect, useState } from "react";
 
 import { getPolls } from "@api/classApi";
 import { currentUserHasScope } from "@utils/scopeUtils";
-import { millisecondsToSeconds, secondsToMilliseconds } from "@utils/GlobalFunctions";
+import {
+	millisecondsToSeconds,
+	secondsToMilliseconds,
+} from "@utils/GlobalFunctions";
 import { useGlobalMessage } from "../providers/GlobalMessageProvider";
 import { messageTemplates } from "@utils/messageTemplates";
 
@@ -134,7 +144,13 @@ export default function PollsMenu({
 	setOpenModalId: React.Dispatch<React.SetStateAction<number | null>>;
 	onLoadPollIntoEditor: (poll: {
 		prompt: string;
-		answers: { answer: string; weight: number; color: string; isCorrect: boolean }[];
+		promptMD: string;
+		answers: {
+			answer: string;
+			weight: number;
+			color: string;
+			isCorrect: boolean;
+		}[];
 		allowVoteChanges: boolean;
 		allowTextResponses: boolean;
 		blind: boolean;
@@ -147,17 +163,23 @@ export default function PollsMenu({
 	const { userData } = useUserData();
 	const { classData } = useClassData();
 	const { isDark } = useTheme();
-    const isMobile = useMobileDetect();
+	const isMobile = useMobileDetect();
 
-    const [allowVoteChanges, setAllowVoteChanges] = useState<boolean>(false);
-    const [allowTextResponses, setAllowTextResponses] = useState<boolean>(false);
-    const [blind, setBlind] = useState<boolean>(false);
+	const [allowVoteChanges, setAllowVoteChanges] = useState<boolean>(false);
+	const [allowTextResponses, setAllowTextResponses] =
+		useState<boolean>(false);
+	const [blind, setBlind] = useState<boolean>(false);
 	const [blindUntilEnded, setBlindUntilEnded] = useState<boolean>(false);
-    const [allowMultipleResponses, setAllowMultipleResponses] = useState<boolean>(false);
+	const [allowMultipleResponses, setAllowMultipleResponses] =
+		useState<boolean>(false);
 	const [autoEndTimer, setAutoEndTimer] = useState<number | null>(null);
-	const [autoEndThreshold, setAutoEndThreshold] = useState<number | null>(null);
-    const [pollPrompt, setPollPrompt] = useState<string>("");
-    const [pollAnswers, setPollAnswers] = useState<{answer: string, weight: number, color: string}[]>([]);
+	const [autoEndThreshold, setAutoEndThreshold] = useState<number | null>(
+		null,
+	);
+	const [pollPrompt, setPollPrompt] = useState<string>("");
+	const [pollAnswers, setPollAnswers] = useState<
+		{ answer: string; weight: number; color: string }[]
+	>([]);
 
 	// Previous polls pagination state
 	const [previousPolls, setPreviousPolls] = useState<any[]>([]);
@@ -165,9 +187,14 @@ export default function PollsMenu({
 	const [pageSize, setPageSize] = useState(10);
 	const [totalPreviousPolls, setTotalPreviousPolls] = useState(0);
 	const [isPreviousPollsLoading, setIsPreviousPollsLoading] = useState(false);
-	const [openPreviousPollId, setOpenPreviousPollId] = useState<number | null>(null);
+	const [openPreviousPollId, setOpenPreviousPollId] = useState<number | null>(
+		null,
+	);
 	const [previousPollPrompt, setPreviousPollPrompt] = useState<string>("");
-	const [previousPollAnswers, setPreviousPollAnswers] = useState<{answer: string, weight: number, color: string}[]>([]);
+	const [previousPollPromptMD, setPreviousPollPromptMD] = useState<string>("");
+	const [previousPollAnswers, setPreviousPollAnswers] = useState<
+		{ answer: string; weight: number; color: string }[]
+	>([]);
 
 	const globalMessageAPI = useGlobalMessage();
 
@@ -176,7 +203,13 @@ export default function PollsMenu({
 
 	function seedPollEditor(poll: {
 		prompt: string;
-		answers: { answer: string; weight: number; color: string; isCorrect?: boolean }[];
+		promptMD?: string;
+		answers: {
+			answer: string;
+			weight: number;
+			color: string;
+			isCorrect?: boolean;
+		}[];
 		allowVoteChanges: boolean;
 		allowTextResponses: boolean;
 		blind: boolean;
@@ -187,6 +220,7 @@ export default function PollsMenu({
 	}) {
 		onLoadPollIntoEditor({
 			prompt: poll.prompt,
+			promptMD: poll.promptMD || '',
 			answers: poll.answers.map((answer) => ({
 				answer: answer.answer,
 				weight: answer.weight ?? 1,
@@ -204,20 +238,19 @@ export default function PollsMenu({
 	}
 
 	function startPoll(id: number) {
-
-        const poll: any = { ...defaultPolls.filter((e) => e.id == id)[0] };
-        poll.allowVoteChanges = allowVoteChanges;
-        poll.allowTextResponses = allowTextResponses;
-        poll.blind = blind;
+		const poll: any = { ...defaultPolls.filter((e) => e.id == id)[0] };
+		poll.allowVoteChanges = allowVoteChanges;
+		poll.allowTextResponses = allowTextResponses;
+		poll.blind = blind;
 		poll.blindUntilEnded = blindUntilEnded;
 		poll.autoEndTimer = secondsToMilliseconds(autoEndTimer);
 		poll.autoEndThreshold = autoEndThreshold;
-        poll.allowMultipleResponses = allowMultipleResponses;
-        poll.prompt = pollPrompt;
-        poll.answers = pollAnswers;
+		poll.allowMultipleResponses = allowMultipleResponses;
+		poll.prompt = pollPrompt;
+		poll.answers = pollAnswers;
 
 		if (!classData?.isActive) {
-			globalMessageAPI.error(messageTemplates["poll.class.inactive.error"]);
+			globalMessageAPI.error(messageTemplates.poll_class_inactive_error);
 			return;
 		}
 
@@ -226,7 +259,7 @@ export default function PollsMenu({
 	}
 
 	useEffect(() => {
-		if(!classData || !canSeePolls) return;
+		if (!classData || !canSeePolls) return;
 
 		setIsPreviousPollsLoading(true);
 		const offset = (currentPage - 1) * pageSize;
@@ -234,8 +267,15 @@ export default function PollsMenu({
 		getPolls(classData.id, pageSize, offset)
 			.then((data) => {
 				if (data.success) {
-					const pollsData = Array.isArray(data.data?.polls) ? data.data.polls : Array.isArray(data.data) ? data.data : [];
-					const total = typeof data.data?.pagination?.total === "number" ? data.data.pagination.total : pollsData.length;
+					const pollsData = Array.isArray(data.data?.polls)
+						? data.data.polls
+						: Array.isArray(data.data)
+							? data.data
+							: [];
+					const total =
+						typeof data.data?.pagination?.total === "number"
+							? data.data.pagination.total
+							: pollsData.length;
 					setPreviousPolls(pollsData);
 					setTotalPreviousPolls(total);
 				}
@@ -243,197 +283,412 @@ export default function PollsMenu({
 			.finally(() => {
 				setIsPreviousPollsLoading(false);
 			});
-	}, [classData, currentPage, pageSize])
+	}, [classData, currentPage, pageSize]);
 
 	return (
 		<>
-		<Flex align="stretch" justify="space-between" gap={30} style={{ height: "100%", minHeight: 0, padding: 20, paddingBottom: 0 }} vertical={isMobile}>
-			<Flex vertical align="center" justify="start" style={{ height: isMobile ? "min-content" : "100%", width: isMobile ? '100%' : '300px', flexShrink: 0 }}>
-				<Title level={isMobile ? 3 : 2}>Default Polls</Title>
-				{defaultPolls.map((poll) => {
-					return (
-                        <>
-                            <div
-                                key={poll.id}
-                                style={{ marginTop: "10px", width: "100%" }}
-                            >
-                                <Button
-                                    type="primary"
-                                    style={{ width: "100%", fontSize: "clamp(12px, 1.5vw, 16px)", overflow: "hidden", textOverflow: "ellipsis", display: "block", whiteSpace: "nowrap" }}
-                                    onClick={() => {
-                                        setOpenModalId(poll.id);
-                                        setAllowVoteChanges(poll.allowVoteChanges);
-                                        setAllowTextResponses(poll.allowTextResponses);
-                                        setBlind(poll.blind);
-										setBlindUntilEnded(Boolean((poll as any).blindUntilEnded ?? false));
-										setAutoEndTimer(millisecondsToSeconds((poll as any).autoEndTimer ?? null));
-										setAutoEndThreshold((poll as any).autoEndThreshold ?? null);
-                                        setAllowMultipleResponses(poll.allowMultipleResponses);
-                                        setPollPrompt(poll.prompt);
-                                        setPollAnswers(poll.answers.map(a => ({...a})));
-                                    }}
-                                >
-                                    <Text strong>{poll.prompt}</Text>
-                                </Button>
-                                <PollModal
-                                    open={openModalId === poll.id}
-                                    onCancel={() => setOpenModalId(null)}
-                                    prompt={pollPrompt}
-                                    onPromptChange={setPollPrompt}
-                                    answers={pollAnswers}
-                                    onAnswersChange={setPollAnswers}
-                                    allowVoteChanges={allowVoteChanges}
-                                    onAllowVoteChangesChange={setAllowVoteChanges}
-                                    allowTextResponses={allowTextResponses}
-                                    onAllowTextResponsesChange={setAllowTextResponses}
-                                    blind={blind}
-                                    onBlindChange={setBlind}
-									blindUntilEnded={blindUntilEnded}
-									onBlindUntilEndedChange={setBlindUntilEnded}
-									autoEndTimer={autoEndTimer}
-									onAutoEndTimerChange={setAutoEndTimer}
-									autoEndThreshold={autoEndThreshold}
-									onAutoEndThresholdChange={setAutoEndThreshold}
-                                    allowMultipleResponses={allowMultipleResponses}
-                                    onAllowMultipleResponsesChange={setAllowMultipleResponses}
-                                    footerButton={{
-                                        label: "Start Poll",
-                                        onClick: () => startPoll(poll.id),
-                                    }}
-                                    secondaryFooterButton={canCreatePolls ? {
-                                        label: "Load into Editor",
-                                        onClick: () => {
-                                            seedPollEditor({
-                                                prompt: pollPrompt,
-                                                answers: pollAnswers,
-                                                allowVoteChanges,
-                                                allowTextResponses,
-                                                blind,
-												blindUntilEnded,
-												autoEndTimer,
-												autoEndThreshold,
-                                                allowMultipleResponses,
-                                            });
-                                            setOpenModalId(null);
-                                        },
-                                    } : undefined}
-                                />
-                            </div>
-                            {poll.divider && <Divider style={{marginTop: '15px', marginBottom: '5px'}}/>}
-                        </>
-					);
-				})}
-			</Flex>
-			<Flex vertical align="center" justify="start" style={{ height: "100%", minHeight: 0, flex: 1, width: '100%', paddingBottom: 20, ...(isMobile ? {
-                borderTop: `2px solid ${isDark ? '#0002' : '#fff2'}`, paddingTop: "20px", overflowY:'scroll'} : {borderLeft: `2px solid ${isDark ? '#0002' : '#fff2'}`, paddingLeft: "20px", paddingRight: "20px",overflowY:'scroll'}) }}>
-				<Title level={isMobile ? 3 : 2}>Previous Polls</Title>
-			{isPreviousPollsLoading ? (
-				<Spin style={{ marginTop: "20px" }} />
-			) : previousPolls.length === 0 || !canSeePolls ? (
-				<Text type="secondary">No previous polls available</Text>
-			) : (
-				<>
-					<Row gutter={[16, 4]} style={{ width: "100%" }}>
-						{previousPolls.map((poll) => {
-							return (
-								<Col key={poll.globalPollId} xs={24} sm={12} lg={8}>
-									<div
-										style={{ marginTop: "10px", width: "100%" }}
+			<Flex
+				align="stretch"
+				justify="space-between"
+				gap={30}
+				style={{
+					height: "100%",
+					minHeight: 0,
+					padding: 20,
+					paddingBottom: 8,
+				}}
+				vertical={isMobile}
+			>
+				<Flex
+					vertical
+					align="center"
+					justify="start"
+					style={{
+						height: isMobile ? "min-content" : "100%",
+						width: isMobile ? "100%" : "300px",
+						flexShrink: 0,
+					}}
+				>
+					<Title level={isMobile ? 3 : 2}>Default Polls</Title>
+					{defaultPolls.map((poll) => {
+						return (
+							<>
+								<div
+									key={poll.id}
+									style={{ marginTop: "10px", width: "100%" }}
+								>
+									<Button
+										type="primary"
+										style={{
+											width: "100%",
+											fontSize:
+												"clamp(12px, 1.5vw, 16px)",
+											overflow: "hidden",
+											textOverflow: "ellipsis",
+											display: "block",
+											whiteSpace: "nowrap",
+										}}
+										onClick={() => {
+											setOpenModalId(poll.id);
+											setAllowVoteChanges(
+												poll.allowVoteChanges,
+											);
+											setAllowTextResponses(
+												poll.allowTextResponses,
+											);
+											setBlind(poll.blind);
+											setBlindUntilEnded(
+												Boolean(
+													(poll as any)
+														.blindUntilEnded ??
+													false,
+												),
+											);
+											setAutoEndTimer(
+												millisecondsToSeconds(
+													(poll as any)
+														.autoEndTimer ?? null,
+												),
+											);
+											setAutoEndThreshold(
+												(poll as any)
+													.autoEndThreshold ?? null,
+											);
+											setAllowMultipleResponses(
+												poll.allowMultipleResponses,
+											);
+											setPollPrompt(poll.prompt);
+											setPollAnswers(
+												poll.answers.map((a) => ({
+													...a,
+												})),
+											);
+										}}
 									>
-										<Button
-											type="primary"
-										style={{ width: "100%", fontSize: "clamp(12px, 1.5vw, 16px)", overflow: "hidden", textOverflow: "ellipsis", display: "block", whiteSpace: "nowrap" }}
-											onClick={() => {
-												setOpenPreviousPollId(poll.globalPollId);
-												setPreviousPollPrompt(poll.prompt);
-												setPreviousPollAnswers(poll.responses ? poll.responses.map((a: any) => ({
-													answer: a.answer || "",
-													weight: a.weight || 1,
-													color: a.color || "#000000"
-												})) : []);
-											}}
+										<Text strong>{poll.prompt}</Text>
+									</Button>
+									<PollModal
+										open={openModalId === poll.id}
+										onCancel={() => setOpenModalId(null)}
+										prompt={pollPrompt}
+										onPromptChange={setPollPrompt}
+										answers={pollAnswers}
+										onAnswersChange={setPollAnswers}
+										allowVoteChanges={allowVoteChanges}
+										onAllowVoteChangesChange={
+											setAllowVoteChanges
+										}
+										allowTextResponses={allowTextResponses}
+										onAllowTextResponsesChange={
+											setAllowTextResponses
+										}
+										blind={blind}
+										onBlindChange={setBlind}
+										blindUntilEnded={blindUntilEnded}
+										onBlindUntilEndedChange={
+											setBlindUntilEnded
+										}
+										autoEndTimer={autoEndTimer}
+										onAutoEndTimerChange={setAutoEndTimer}
+										autoEndThreshold={autoEndThreshold}
+										onAutoEndThresholdChange={
+											setAutoEndThreshold
+										}
+										allowMultipleResponses={
+											allowMultipleResponses
+										}
+										onAllowMultipleResponsesChange={
+											setAllowMultipleResponses
+										}
+										footerButton={{
+											label: "Start Poll",
+											onClick: () => startPoll(poll.id),
+										}}
+										secondaryFooterButton={
+											canCreatePolls
+												? {
+														label: "Load into Editor",
+														onClick: () => {
+															seedPollEditor({
+																prompt: pollPrompt,
+																answers:
+																	pollAnswers,
+																allowVoteChanges,
+																allowTextResponses,
+																blind,
+																blindUntilEnded,
+																autoEndTimer,
+																autoEndThreshold,
+																allowMultipleResponses,
+															});
+															setOpenModalId(
+																null,
+															);
+														},
+													}
+												: undefined
+										}
+									/>
+								</div>
+								{poll.divider && (
+									<Divider
+										style={{
+											marginTop: "15px",
+											marginBottom: "5px",
+										}}
+									/>
+								)}
+							</>
+						);
+					})}
+				</Flex>
+				<Flex
+					vertical
+					align="center"
+					justify="start"
+					style={{
+						height: "100%",
+						minHeight: 0,
+						flex: 1,
+						width: "100%",
+						paddingBottom: 20,
+						...(isMobile
+							? {
+									borderTop: `2px solid ${isDark ? "#0002" : "#fff2"}`,
+									paddingTop: "20px",
+									overflowY: "scroll",
+								}
+							: {
+									borderLeft: `2px solid ${isDark ? "#0002" : "#fff2"}`,
+									paddingLeft: "20px",
+									paddingRight: "20px",
+									overflowY: "scroll",
+								}),
+					}}
+				>
+					<Title level={isMobile ? 3 : 2}>Previous Polls</Title>
+					{isPreviousPollsLoading ? (
+						<Spin style={{ marginTop: "20px" }} />
+					) : previousPolls.length === 0 || !canSeePolls ? (
+						<Text type="secondary">
+							No previous polls available
+						</Text>
+					) : (
+						<>
+							<Row gutter={[16, 4]} style={{ width: "100%" }}>
+								{previousPolls.map((poll) => {
+									return (
+										<Col
+											key={poll.globalPollId}
+											xs={24}
+											sm={12}
+											lg={8}
 										>
-											<Text strong>{poll.prompt}</Text>
-										</Button>
-										<PollModal
-											open={openPreviousPollId === poll.globalPollId}
-											onCancel={() => setOpenPreviousPollId(null)}
-											prompt={previousPollPrompt}
-											onPromptChange={setPreviousPollPrompt}
-											answers={previousPollAnswers}
-											onAnswersChange={setPreviousPollAnswers}
-											allowVoteChanges={allowVoteChanges}
-											onAllowVoteChangesChange={setAllowVoteChanges}
-											allowTextResponses={allowTextResponses}
-											onAllowTextResponsesChange={setAllowTextResponses}
-											blind={blind}
-											onBlindChange={setBlind}
-											blindUntilEnded={blindUntilEnded}
-											onBlindUntilEndedChange={setBlindUntilEnded}
-											autoEndTimer={autoEndTimer}
-											onAutoEndTimerChange={setAutoEndTimer}
-											autoEndThreshold={autoEndThreshold}
-											onAutoEndThresholdChange={setAutoEndThreshold}
-											allowMultipleResponses={allowMultipleResponses}
-											onAllowMultipleResponsesChange={setAllowMultipleResponses}
-											footerButton={{
-												label: "Start Poll",
-												onClick: () => {
-													const editedPoll = {
-														...poll,
-														prompt: previousPollPrompt,
-														answers: previousPollAnswers,
-														allowVoteChanges: allowVoteChanges,
-														allowTextResponses: allowTextResponses,
-														blind: blind,
-														blindUntilEnded: blindUntilEnded,
-														autoEndTimer: secondsToMilliseconds(autoEndTimer),
-														autoEndThreshold: autoEndThreshold,
-														allowMultipleResponses: allowMultipleResponses
-													};
-													socket?.emit("startPoll", editedPoll);
-													setOpenPreviousPollId(null);
-												},
-											}}
-											secondaryFooterButton={canCreatePolls ? {
-												label: "Load into Editor",
-												onClick: () => {
-													seedPollEditor({
-														prompt: previousPollPrompt,
-														answers: previousPollAnswers,
-														allowVoteChanges,
-														allowTextResponses,
-														blind,
-														blindUntilEnded,
-														autoEndTimer,
-														autoEndThreshold,
-														allowMultipleResponses,
-													});
-													setOpenPreviousPollId(null);
-												},
-											} : undefined}
-										/>
-									</div>
-								</Col>
-							);
-						})}
-					</Row>
-					{totalPreviousPolls > 0 && (
-						<Flex style={{ margin: 0, position: 'absolute', bottom: 8 }}>
-							<Pagination
-								current={currentPage}
-								pageSize={pageSize}
-								total={totalPreviousPolls}
-								pageSizeOptions={[10, 20, 50, 100]}
+											<div
+												style={{
+													marginTop: "10px",
+													width: "100%",
+												}}
+											>
+												<Button
+													type="primary"
+													style={{
+														width: "100%",
+														fontSize:
+															"clamp(12px, 1.5vw, 16px)",
+														overflow: "hidden",
+														textOverflow:
+															"ellipsis",
+														display: "block",
+														whiteSpace: "nowrap",
+													}}
+													onClick={() => {
+														setOpenPreviousPollId(
+															poll.globalPollId,
+														);
+														setPreviousPollPrompt(
+															poll.prompt,
+														);
+														setPreviousPollPromptMD(
+															poll.promptMD,
+														);
+														setPreviousPollAnswers(
+															poll.responses
+																? poll.responses.map(
+																		(
+																			a: any,
+																		) => ({
+																			answer:
+																				a.answer ||
+																				"",
+																			weight:
+																				a.weight ||
+																				1,
+																			color:
+																				a.color ||
+																				"#000000",
+																		}),
+																	)
+																: [],
+														);
+													}}
+												>
+													<Text strong>
+														{poll.prompt}
+													</Text>
+												</Button>
+												<PollModal
+													open={
+														openPreviousPollId ===
+														poll.globalPollId
+													}
+													onCancel={() =>
+														setOpenPreviousPollId(
+															null,
+														)
+													}
+													prompt={previousPollPrompt}
+													promptMD={previousPollPromptMD}
+													onPromptChange={
+														setPreviousPollPrompt
+													}
+													answers={
+														previousPollAnswers
+													}
+													onAnswersChange={
+														setPreviousPollAnswers
+													}
+													allowVoteChanges={
+														allowVoteChanges
+													}
+													onAllowVoteChangesChange={
+														setAllowVoteChanges
+													}
+													allowTextResponses={
+														allowTextResponses
+													}
+													onAllowTextResponsesChange={
+														setAllowTextResponses
+													}
+													blind={blind}
+													onBlindChange={setBlind}
+													blindUntilEnded={
+														blindUntilEnded
+													}
+													onBlindUntilEndedChange={
+														setBlindUntilEnded
+													}
+													autoEndTimer={autoEndTimer}
+													onAutoEndTimerChange={
+														setAutoEndTimer
+													}
+													autoEndThreshold={
+														autoEndThreshold
+													}
+													onAutoEndThresholdChange={
+														setAutoEndThreshold
+													}
+													allowMultipleResponses={
+														allowMultipleResponses
+													}
+													onAllowMultipleResponsesChange={
+														setAllowMultipleResponses
+													}
+													footerButton={{
+														label: "Start Poll",
+														onClick: () => {
+															const editedPoll = {
+																...poll,
+																prompt: previousPollPrompt,
+																answers:
+																	previousPollAnswers,
+																allowVoteChanges:
+																	allowVoteChanges,
+																allowTextResponses:
+																	allowTextResponses,
+																blind: blind,
+																blindUntilEnded:
+																	blindUntilEnded,
+																autoEndTimer:
+																	secondsToMilliseconds(
+																		autoEndTimer,
+																	),
+																autoEndThreshold:
+																	autoEndThreshold,
+																allowMultipleResponses:
+																	allowMultipleResponses,
+															};
+															socket?.emit(
+																"startPoll",
+																editedPoll,
+															);
+															setOpenPreviousPollId(
+																null,
+															);
+														},
+													}}
+													secondaryFooterButton={
+														canCreatePolls
+															? {
+																	label: "Load into Editor",
+																	onClick:
+																		() => {
+																			seedPollEditor(
+																				{
+																					prompt: previousPollPrompt,
+																					answers:
+																						previousPollAnswers,
+																					allowVoteChanges,
+																					allowTextResponses,
+																					blind,
+																					blindUntilEnded,
+																					autoEndTimer,
+																					autoEndThreshold,
+																					allowMultipleResponses,
+																				},
+																			);
+																			setOpenPreviousPollId(
+																				null,
+																			);
+																		},
+																}
+															: undefined
+													}
+												/>
+											</div>
+										</Col>
+									);
+								})}
+							</Row>
+							{totalPreviousPolls > 0 && (
+								<Flex
+									style={{
+										margin: 0,
+										position: "absolute",
+										bottom: 8,
+									}}
+								>
+									<Pagination
+										current={currentPage}
+										pageSize={pageSize}
+										total={totalPreviousPolls}
+										pageSizeOptions={[10, 20, 50, 100]}
+										showTotal={(total, [start, end]) =>
+											`${start}-${end} of ${total}`
+										}
 
-								onChange={(page, size) => { setCurrentPage(page); setPageSize(size); }}
-								style={{ marginTop: "20px" }}
-							/>
-						</Flex>
+										onChange={(page, size) => {
+											setCurrentPage(page);
+											setPageSize(size);
+										}}
+										style={{ marginTop: "20px" }}
+									/>
+								</Flex>
+							)}
+						</>
 					)}
-				</>
-			)}
+				</Flex>
 			</Flex>
-		</Flex></>
+		</>
 	);
 }

@@ -30,17 +30,25 @@ export default function EmailVerifyPage() {
 		verifyUserEmail(code)
 			.then(async (res) => {
 				if (!res.ok || res?.error) {
-					throw new Error(res?.error?.message || "Email verification failed.");
+					throw new Error(
+						res?.error?.message || "Email verification failed.",
+					);
 				}
 
 				if (!isMounted) return;
 				setState("success");
-				setStatusMessage(res?.data?.message || "Email verified successfully.");
+				setStatusMessage(
+					res?.data?.message || "Email verified successfully.",
+				);
 			})
 			.catch((err) => {
 				if (!isMounted) return;
 				setState("error");
-				setStatusMessage(err instanceof Error ? err.message : "Email verification failed.");
+				setStatusMessage(
+					err instanceof Error
+						? err.message
+						: "Email verification failed.",
+				);
 			});
 
 		return () => {
@@ -51,20 +59,36 @@ export default function EmailVerifyPage() {
 	return (
 		<>
 			<FormbarHeader />
-			<Flex justify="center" align="center" style={{ minHeight: "calc(100vh - 60px)", padding: "24px" }}>
+			<Flex
+				justify="center"
+				align="center"
+				style={{ minHeight: "calc(100vh - 60px)", padding: "24px" }}
+			>
 				<Card style={{ width: "100%", maxWidth: 520 }}>
 					<Flex vertical gap={12}>
-						<Title level={3} style={{ marginBottom: 0, textAlign: "center" }}>
+						<Title
+							level={3}
+							style={{ marginBottom: 0, textAlign: "center" }}
+						>
 							Email Verification
 						</Title>
 						<Text
-							type={state === "error" ? "danger" : state === "success" ? "success" : undefined}
-                            style={{ textAlign: "center" }}
+							type={
+								state === "error"
+									? "danger"
+									: state === "success"
+										? "success"
+										: undefined
+							}
+							style={{ textAlign: "center" }}
 						>
 							{statusMessage || "Preparing verification..."}
 						</Text>
 						{state !== "loading" && (
-							<Button type="primary" onClick={() => navigate("/login")}>
+							<Button
+								type="primary"
+								onClick={() => navigate("/login")}
+							>
 								Go to Login
 							</Button>
 						)}

@@ -21,7 +21,9 @@ export default function Student() {
 	const navigate = useNavigate();
 	const { settings } = useSettings();
 	const { userData: initialUserData } = useUserData();
-    const [lastAnswer, setLastAnswer] = useState<string | string[] | null>(null);
+	const [lastAnswer, setLastAnswer] = useState<string | string[] | null>(
+		null,
+	);
 	const [userData, setUserData] = useState<any>(null);
 	const [classData, setClassData] = useState<any>(null);
 	// const [answerState, setAnswerState] = useState<any>([]);
@@ -30,8 +32,8 @@ export default function Student() {
 
 	const [textResponse, setTextResponse] = useState<string>("");
 	const [selectedResponses, setSelectedResponses] = useState<string[]>([]);
-    const [timerLerpPercent, setTimerLerpPercent] = useState<number>(0);
-    const [timerRemainingSeconds, setTimerRemainingSeconds] = useState(0);
+	const [timerLerpPercent, setTimerLerpPercent] = useState<number>(0);
+	const [timerRemainingSeconds, setTimerRemainingSeconds] = useState(0);
 	const lastPollDataRef = useRef<any>(null);
 
 	const [pollWidth, setPollWidth] = useState<number>(
@@ -45,29 +47,39 @@ export default function Student() {
 			? textResponse.trim()
 			: "";
 
-        if (!classData || !classData.id) {
-            Log({
-                message: "Attempted to respond to poll before classData was available.",
-                level: "warn",
-            });
-            return;
-        }
-		
-        submitPollResponse(classData.id, {
-            response: response,
-            textRes: classData.poll.allowTextResponses ? resTextResponse : undefined,
-        })
-        .then((res) => {
-            if (!res.ok || res.error || res.success === false) {
-                throw new Error(res.error?.message || res.message || "Failed to send poll response");
-            }
-            Log({ message: "Poll response sent successfully.", data: res });
-            setLastAnswer(response);
-        })
-        .catch((err) => {
-            Log({ message: "Error sending poll response:", data: err, level: "error" });
-        });
-        
+		if (!classData || !classData.id) {
+			Log({
+				message:
+					"Attempted to respond to poll before classData was available.",
+				level: "warn",
+			});
+			return;
+		}
+
+		submitPollResponse(classData.id, {
+			response: response,
+			textRes: classData.poll.allowTextResponses
+				? resTextResponse
+				: undefined,
+		})
+			.then((res) => {
+				if (!res.ok || res.error || res.success === false) {
+					throw new Error(
+						res.error?.message ||
+							res.message ||
+							"Failed to send poll response",
+					);
+				}
+				Log({ message: "Poll response sent successfully.", data: res });
+				setLastAnswer(response);
+			})
+			.catch((err) => {
+				Log({
+					message: "Error sending poll response:",
+					data: err,
+					level: "error",
+				});
+			});
 
 		Log({ message: `Responded with: ${response}`, level: "info" });
 		// socket.emit("classUpdate", ""); // Request updated class data after responding
@@ -102,7 +114,7 @@ export default function Student() {
 	useEffect(() => {
 		if (!initialUserData) return;
 
-		if(initialUserData.activeClass === null) navigate('/classes');
+		if (initialUserData.activeClass === null) navigate("/classes");
 	}, [initialUserData]);
 
 	useEffect(() => {
@@ -124,16 +136,19 @@ export default function Student() {
 						message: "Last poll data ref",
 						data: lastPollDataRef.current,
 					});
-					if(Object.hasOwn(classData, 'poll') && currentUserHasScope(userData, 'class.poll.read')) {
+					if (
+						Object.hasOwn(classData, "poll") &&
+						currentUserHasScope(userData, "class.poll.read")
+					) {
 						if (
-							classData.poll.startTime !== lastPollDataRef.current?.startTime
+							classData.poll.startTime !==
+							lastPollDataRef.current?.startTime
 						) {
 							setLastAnswer(null);
 							setTextResponse("");
 							setSelectedResponses([]);
 						}
 					}
-					
 
 					setClassData(classData);
 					lastPollDataRef.current = classData.poll;
@@ -174,30 +189,38 @@ export default function Student() {
 			navigate("/panel");
 		}
 	}, [userData, classData, navigate]);
-    
-    useEffect(() => {
-        if (!classData?.timer?.startTime || classData.timer.startTime <= 0) return;
 
-        const timerActive = !!classData?.timer?.active;
+	useEffect(() => {
+		if (!classData?.timer?.startTime || classData.timer.startTime <= 0)
+			return;
 
-        const startMs = toEpochMs(classData.timer.startTime);
-        const endMs = toEpochMs(classData.timer.endTime);
+		const timerActive = !!classData?.timer?.active;
 
-        if (startMs === null || endMs === null || endMs <= startMs) {
-            return;
-        }
+		const startMs = toEpochMs(classData.timer.startTime);
+		const endMs = toEpochMs(classData.timer.endTime);
+
+		if (startMs === null || endMs === null || endMs <= startMs) {
+			return;
+		}
 
 		const totalMs = endMs - startMs;
 
 		const updateTimerState = () => {
-            const now = Date.now();
+			const now = Date.now();
 			const clampedNow = Math.min(Math.max(now, startMs), endMs);
 			const percent = ((clampedNow - startMs) / totalMs) * 100;
-            const remainingSeconds = Math.max(0, Math.ceil((endMs - clampedNow) / 1000));
+			const remainingSeconds = Math.max(
+				0,
+				Math.ceil((endMs - clampedNow) / 1000),
+			);
 
-			setTimerLerpPercent((prev) => (Math.abs(prev - percent) >= 0.5 ? percent : prev));
-            setTimerRemainingSeconds((prev) => (prev !== remainingSeconds ? remainingSeconds : prev));
-        };
+			setTimerLerpPercent((prev) =>
+				Math.abs(prev - percent) >= 0.5 ? percent : prev,
+			);
+			setTimerRemainingSeconds((prev) =>
+				prev !== remainingSeconds ? remainingSeconds : prev,
+			);
+		};
 
 		updateTimerState();
 
@@ -207,65 +230,75 @@ export default function Student() {
 
 		const intervalId = window.setInterval(updateTimerState, 250);
 
-        return () => {
+		return () => {
 			window.clearInterval(intervalId);
-        };
-    }, [classData?.timer?.startTime, classData?.timer?.endTime, classData?.timer?.active]);
+		};
+	}, [
+		classData?.timer?.startTime,
+		classData?.timer?.endTime,
+		classData?.timer?.active,
+	]);
 
 	const timerStartMs = toEpochMs(classData?.timer?.startTime);
 	const timerEndMs = toEpochMs(classData?.timer?.endTime);
 	const timerDurationMs =
-		timerStartMs !== null && timerEndMs !== null && timerEndMs > timerStartMs
+		timerStartMs !== null &&
+		timerEndMs !== null &&
+		timerEndMs > timerStartMs
 			? timerEndMs - timerStartMs
 			: 0;
 
-	const canReadPoll = currentUserHasScope(userData, 'class.poll.read');
-	const canVote = currentUserHasScope(userData, 'class.poll.vote');
+	const canReadPoll = currentUserHasScope(userData, "class.poll.read");
+	const canVote = currentUserHasScope(userData, "class.poll.vote");
 
 	function checkPollPrompt(): "Basic" | "MD" | "HTML" | undefined {
-		if(!classData) return;
+		if (!classData) return;
 
-		if(classData?.poll?.promptMD) return "MD";
-		if(classData?.poll?.promptHTML) return "HTML";
-		return "Basic"
-
+		if (classData?.poll?.promptMD) return "MD";
+		if (classData?.poll?.promptHTML) return "HTML";
+		return "Basic";
 	}
 
 	return (
 		<>
 			<FormbarHeader />
 
-			{
-				checkPollPrompt() == "Basic" ? (
-					<Text
-						style={{
-							position: "absolute",
-							transform: "translate(-50%)",
-							left: "50%",
-							top: "64px",
-							width: "100%",
-							background: 'transparent',
-							fontSize: 36,
-							textAlign: "center",
-						}}>
-						{canReadPoll && userData?.break !== true ? classData?.poll.prompt : null}
-					</Text>
-				) : (
-					<SanitizedMDView
-						style={{
-							position: "absolute",
-							transform: "translate(-50%)",
-							left: "50%",
-							top: "64px",
-							width: "100%",
-							background: 'transparent',
-							fontSize: 36,
-							textAlign: "center",
-						}}
-						source={canReadPoll && userData?.break !== true ? classData?.poll.promptMD : null}
-					></SanitizedMDView>
-				)
-			}
+			{checkPollPrompt() == "Basic" ? (
+				<Text
+					style={{
+						position: "absolute",
+						transform: "translate(-50%)",
+						left: "50%",
+						top: "64px",
+						width: "100%",
+						background: "transparent",
+						fontSize: 36,
+						textAlign: "center",
+					}}
+				>
+					{canReadPoll && userData?.break !== true
+						? classData?.poll.prompt
+						: null}
+				</Text>
+			) : (
+				<SanitizedMDView
+					style={{
+						position: "absolute",
+						transform: "translate(-50%)",
+						left: "50%",
+						top: "64px",
+						width: "100%",
+						background: "transparent",
+						fontSize: 36,
+						textAlign: "center",
+					}}
+					source={
+						canReadPoll && userData?.break !== true
+							? classData?.poll.promptMD
+							: null
+					}
+				></SanitizedMDView>
+			)}
 
 			{userData?.break !== true && canReadPoll ? (
 				<>
@@ -281,7 +314,8 @@ export default function Student() {
 						align="center"
 						vertical={isMobileView || !classData?.poll.status}
 					>
-						{classData?.poll.responses.length > 0 || (classData?.timer && classData?.timer.startTime > 0) ? (
+						{classData?.poll.responses.length > 0 ||
+						(classData?.timer && classData?.timer.startTime > 0) ? (
 							<Flex
 								justify="center"
 								align="center"
@@ -305,17 +339,26 @@ export default function Student() {
 									poll={classData.poll}
 									size={pollWidth}
 									timer={{
-										active: classData?.timer?.active ?? false,
+										active:
+											classData?.timer?.active ?? false,
 										current: timerLerpPercent,
 										duration: timerDurationMs,
-                                        remainingSeconds: timerRemainingSeconds,
+										remainingSeconds: timerRemainingSeconds,
 									}}
-                                    onlyTimer={!!classData?.timer?.startTime && (!classData?.poll?.status && classData.poll.responses.length === 0)}
+									onlyTimer={
+										!!classData?.timer?.startTime &&
+										!classData?.poll?.status &&
+										classData.poll.responses.length === 0
+									}
 								/>
 							</Flex>
 						) : null}
 
-						{classData?.poll.status && canVote && !classData.poll.excludedRespondents.includes(Number(userData?.id)) ? (
+						{classData?.poll.status &&
+						canVote &&
+						!classData.poll.excludedRespondents.includes(
+							Number(userData?.id),
+						) ? (
 							<Flex
 								justify="center"
 								align="center"
@@ -347,72 +390,112 @@ export default function Student() {
 									style={{ width: "100%" }}
 									justify="center"
 									align="center"
-                                    wrap
+									wrap
 								>
 									{classData?.poll.responses.map(
 										(resp: any, index: number) => (
 											<PollButton
-                                                wasLastAnswer={lastAnswer !== null && (typeof lastAnswer === "string" ? lastAnswer === resp.answer : Array.isArray(lastAnswer) && lastAnswer.includes(resp.answer))}
+												wasLastAnswer={
+													lastAnswer !== null &&
+													(typeof lastAnswer ===
+													"string"
+														? lastAnswer ===
+															resp.answer
+														: Array.isArray(
+																lastAnswer,
+															) &&
+															lastAnswer.includes(
+																resp.answer,
+															))
+												}
 												key={index}
 												answerData={{
 													answer: resp.answer,
-													color: accessiblePollColor(resp.color, settings.accessibility.colorVisionMode, index) || resp.color,
+													color:
+														accessiblePollColor(
+															resp.color,
+															settings
+																.accessibility
+																.colorVisionMode,
+															index,
+														) || resp.color,
 												}}
 												Respond={Respond}
-												allowMultipleResponses={classData?.poll?.allowMultipleResponses}
-												selected={selectedResponses.includes(resp.answer)}
-												onSelectToggle={(answer, nextSelected) => {
-													setSelectedResponses((prev) => {
-														if (nextSelected) {
-															return prev.includes(answer)
-																? prev
-																: [...prev, answer];
-														}
-														return prev.filter(
-															(selectedAnswer) =>
-																selectedAnswer !== answer,
-														);
-													});
+												allowMultipleResponses={
+													classData?.poll
+														?.allowMultipleResponses
+												}
+												selected={selectedResponses.includes(
+													resp.answer,
+												)}
+												onSelectToggle={(
+													answer,
+													nextSelected,
+												) => {
+													setSelectedResponses(
+														(prev) => {
+															if (nextSelected) {
+																return prev.includes(
+																	answer,
+																)
+																	? prev
+																	: [
+																			...prev,
+																			answer,
+																		];
+															}
+															return prev.filter(
+																(
+																	selectedAnswer,
+																) =>
+																	selectedAnswer !==
+																	answer,
+															);
+														},
+													);
 												}}
 											/>
 										),
 									)}
 								</Flex>
-                                <Flex gap={10}>
-								{classData?.poll.allowMultipleResponses ? (
-									<PollButton
-										answerData={{
-											answer: "Submit",
-											color: "#7dfc9f",
-										}}
-											Respond={() => Respond(selectedResponses)}
-									/>
-								) : null}
-								{classData?.poll.allowVoteChanges ? (
-									<PollButton
-										answerData={{
-											answer: "remove",
-											color: "#f3655b",
-										}}
-										Respond={Respond}
-									/>
-								) : null}
-                                </Flex>
+								<Flex gap={10}>
+									{classData?.poll.allowMultipleResponses ? (
+										<PollButton
+											answerData={{
+												answer: "Submit",
+												color: "#7dfc9f",
+											}}
+											Respond={() =>
+												Respond(selectedResponses)
+											}
+										/>
+									) : null}
+									{classData?.poll.allowVoteChanges ? (
+										<PollButton
+											answerData={{
+												answer: "remove",
+												color: "#f3655b",
+											}}
+											Respond={Respond}
+										/>
+									) : null}
+								</Flex>
 							</Flex>
-						) : classData.poll.excludedRespondents.includes(Number(userData?.id)) ? (
-							<Title style={{textAlign:'center'}} level={4}>
+						) : classData.poll.excludedRespondents.includes(
+								Number(userData?.id),
+						  ) ? (
+							<Title style={{ textAlign: "center" }} level={4}>
 								You have been excluded from voting in this poll.
 							</Title>
-						) : !classData?.poll.prompt && !classData?.timer?.startTime ? (
-							<Title style={{textAlign:'center'}} level={4}>
+						) : !classData?.poll.prompt &&
+						  !classData?.timer?.startTime ? (
+							<Title style={{ textAlign: "center" }} level={4}>
 								There is no current poll.
 							</Title>
-						) : (
-                            null
-						)}
+						) : null}
 
 						{!classData?.isActive ? (
-							<Title style={{textAlign:'center'}} level={4}>
+							<Title style={{ textAlign: "center" }} level={4}>
 								Class is not active.
 							</Title>
 						) : null}
@@ -432,23 +515,32 @@ export default function Student() {
 					}}
 				>
 					<Title>
-						{
-							!currentUserHasScope(userData, 'class.poll.read') ? "You do not have permission to view polls."
-							: userData?.break === true ? "You are currently on a break." : null
-						}
+						{!currentUserHasScope(userData, "class.poll.read")
+							? "You do not have permission to view polls."
+							: userData?.break === true
+								? "You are currently on a break."
+								: null}
 					</Title>
-					{
-						userData?.break === true && (
-							<>
+					{userData?.break === true && (
+						<>
 							<Text>
-								Please wait until your break is over to participate in
-								polls.
+								Please wait until your break is over to
+								participate in polls.
 							</Text>
 							<Button
 								onClick={() => {
 									endBreak(classData.id).then((res: any) => {
-										if (res?.error || res?.success === false || res?.ok === false) throw new Error(res?.error?.message || res?.message || "Failed to end break.");
-									})
+										if (
+											res?.error ||
+											res?.success === false ||
+											res?.ok === false
+										)
+											throw new Error(
+												res?.error?.message ||
+													res?.message ||
+													"Failed to end break.",
+											);
+									});
 								}}
 								type="primary"
 								variant="solid"
@@ -456,9 +548,8 @@ export default function Student() {
 							>
 								End Break
 							</Button>
-							</>
-						)
-					}
+						</>
+					)}
 				</Flex>
 			)}
 		</>

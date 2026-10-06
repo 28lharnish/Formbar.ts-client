@@ -64,13 +64,13 @@ type ClassDataContextType = {
 
 export type AppSettings = {
 	general: {
-        sfxVolume: number;
+		sfxVolume: number;
 		muteSfx: boolean;
-    };
+	};
 	appearance: {
-        theme: "light" | "dark";
+		theme: "light" | "dark";
 		accentColor: string;
-    };
+	};
 	accessibility: {
 		disableAnimations: boolean;
 		largeText: number;
@@ -86,13 +86,13 @@ type SettingsContextType = {
 
 const defaultSettings: AppSettings = {
 	general: {
-        sfxVolume: 50,
+		sfxVolume: 50,
 		muteSfx: false,
-    },
+	},
 	appearance: {
-        theme: "light",
+		theme: "light",
 		accentColor: "#1677ff",
-    },
+	},
 	accessibility: {
 		disableAnimations: false,
 		largeText: 100,
@@ -193,7 +193,8 @@ export const getAppearAnimation = (
 	return {
 		opacity: 0,
 		animation: "appear 0.3s ease-in-out forwards",
-		animationDelay: delayIndex !== undefined ? `${delayIndex * 0.05}s` : undefined,
+		animationDelay:
+			delayIndex !== undefined ? `${delayIndex * 0.05}s` : undefined,
 	};
 };
 
@@ -201,18 +202,27 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
 	const { settings, updateSettings } = useSettings();
 	const isDark = settings.appearance.theme === "dark";
 	const isHighContrast = settings.accessibility.highContrast;
-	const activeTheme = isHighContrast ? highContrastMode : isDark ? darkMode : lightMode;
+	const activeTheme = isHighContrast
+		? highContrastMode
+		: isDark
+			? darkMode
+			: lightMode;
 
 	useEffect(() => {
 		const bodyColor = isHighContrast
 			? "#000000"
-			: (isDark ? themeColors.dark.body.background : themeColors.light.body.background);
+			: isDark
+				? themeColors.dark.body.background
+				: themeColors.light.body.background;
 		const bodyTextColor = isHighContrast
 			? "#ffffff"
-			: isDark ? themeColors.dark.body.color : themeColors.light.body.color;
+			: isDark
+				? themeColors.dark.body.color
+				: themeColors.light.body.color;
 		document.body.style.background = bodyColor;
 		document.body.style.color = bodyTextColor;
-		document.documentElement.dataset.colorVision = settings.accessibility.colorVisionMode;
+		document.documentElement.dataset.colorVision =
+			settings.accessibility.colorVisionMode;
 		if (settings.accessibility.disableAnimations) {
 			document.documentElement.dataset.disableAnimations = "true";
 		} else {
@@ -223,8 +233,17 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
 		} else {
 			delete document.documentElement.dataset.highContrast;
 		}
-		document.documentElement.style.setProperty("--formbar-accent", settings.appearance.accentColor);
-	}, [isDark, isHighContrast, settings.accessibility.colorVisionMode, settings.accessibility.disableAnimations, settings.appearance.accentColor]);
+		document.documentElement.style.setProperty(
+			"--formbar-accent",
+			settings.appearance.accentColor,
+		);
+	}, [
+		isDark,
+		isHighContrast,
+		settings.accessibility.colorVisionMode,
+		settings.accessibility.disableAnimations,
+		settings.appearance.accentColor,
+	]);
 
 	const toggleTheme = () => {
 		updateSettings({
@@ -237,38 +256,49 @@ const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
 	return (
 		<ThemeContext.Provider value={{ isDark, isHighContrast, toggleTheme }}>
-			<ConfigProvider theme={{
-				...activeTheme,
-				components: {
-					...activeTheme.components,
-					Segmented: {
-						...activeTheme.components.Segmented,
-						...(isHighContrast ? {} : {
-							itemSelectedBg: settings.appearance.accentColor,
-							itemSelectedColor: "#ffffff",
-						}),
+			<ConfigProvider
+				theme={{
+					...activeTheme,
+					components: {
+						...activeTheme.components,
+						Segmented: {
+							...activeTheme.components.Segmented,
+							...(isHighContrast
+								? {}
+								: {
+										itemSelectedBg:
+											settings.appearance.accentColor,
+										itemSelectedColor: "#ffffff",
+									}),
+						},
 					},
-				},
-				token: {
-					...activeTheme.token,
-					fontSize: 20 * settings.accessibility.largeText / 100,
-					fontSizeLG: 24 * settings.accessibility.largeText / 100,
-					...(isHighContrast ? {} : {
-						colorPrimary: settings.appearance.accentColor,
-						colorLink: settings.appearance.accentColor,
-						colorInfo: settings.appearance.accentColor,
-					}),
-					...(settings.accessibility.disableAnimations ? {
-						motionDurationMid: '0',
-						motionDurationSlow: '0',
-					}: {}),
-				},
-			}}>
+					token: {
+						...activeTheme.token,
+						fontSize: (20 * settings.accessibility.largeText) / 100,
+						fontSizeLG:
+							(24 * settings.accessibility.largeText) / 100,
+						...(isHighContrast
+							? {}
+							: {
+									colorPrimary:
+										settings.appearance.accentColor,
+									colorLink: settings.appearance.accentColor,
+									colorInfo: settings.appearance.accentColor,
+								}),
+						...(settings.accessibility.disableAnimations
+							? {
+									motionDurationMid: "0",
+									motionDurationSlow: "0",
+								}
+							: {}),
+					},
+				}}
+			>
 				{children}
 			</ConfigProvider>
 		</ThemeContext.Provider>
 	);
-}
+};
 
 const UserDataProvider = ({ children }: { children: ReactNode }) => {
 	const [userData, setUserData] = useState<CurrentUserData | null>(null);
@@ -295,17 +325,27 @@ const SettingsProvider = ({ children }: { children: ReactNode }) => {
 			const saved = localStorage.getItem("formbar-settings");
 			const parsed = saved ? JSON.parse(saved) : {};
 			const savedLargeText = parsed.accessibility?.largeText;
-			const largeText = typeof savedLargeText === "boolean"
-				? (savedLargeText ? 120 : 100)
-				: typeof savedLargeText === "number"
+			const largeText =
+				typeof savedLargeText === "boolean"
 					? savedLargeText
-					: defaultSettings.accessibility.largeText;
+						? 120
+						: 100
+					: typeof savedLargeText === "number"
+						? savedLargeText
+						: defaultSettings.accessibility.largeText;
 			return {
 				...defaultSettings,
 				...parsed,
 				general: { ...defaultSettings.general, ...parsed.general },
-				appearance: { ...defaultSettings.appearance, ...parsed.appearance },
-				accessibility: { ...defaultSettings.accessibility, ...parsed.accessibility, largeText },
+				appearance: {
+					...defaultSettings.appearance,
+					...parsed.appearance,
+				},
+				accessibility: {
+					...defaultSettings.accessibility,
+					...parsed.accessibility,
+					largeText,
+				},
 			};
 		} catch {
 			return defaultSettings;
@@ -352,7 +392,13 @@ const AppContent = () => {
 	const [verificationRequestLoading, setVerificationRequestLoading] =
 		useState(false);
 	const { userData, setUserData } = useUserData();
-	const publicRoutes = ["/login", "/oauth", "/user/me/pin", "/user/me/password", "/user/verify/email"];
+	const publicRoutes = [
+		"/login",
+		"/oauth",
+		"/user/me/pin",
+		"/user/me/password",
+		"/user/verify/email",
+	];
 	const isVerificationRequired =
 		Boolean(config?.emailEnabled) && Number(userData?.verified) === 0;
 	const buildLoginPath = () => {
@@ -400,14 +446,14 @@ const AppContent = () => {
 					level: "info",
 				});
 				setUserData(data);
-            }
+			}
 
 			if (isGuestUser) {
 				return;
 			}
 
 			const userDetailResponse = await getUser(data.id);
-            
+
 			const verified = Number(userDetailResponse?.data?.verified);
 
 			if (!Number.isNaN(verified)) {
@@ -433,7 +479,6 @@ const AppContent = () => {
 
 	const handleLogout = () => {
 		clearAuthTokens();
-		sessionStorage.removeItem("formbarLoginCreds");
 		socket?.disconnect();
 		setUserData(null);
 		navigate("/login");
@@ -444,7 +489,9 @@ const AppContent = () => {
 
 		setVerificationRequestLoading(true);
 		try {
-			const response = await requestUserVerificationEmail(String(userData.id));
+			const response = await requestUserVerificationEmail(
+				String(userData.id),
+			);
 			if (!response.ok || response?.error) {
 				throw new Error(
 					response?.error?.message ||
@@ -494,7 +541,7 @@ const AppContent = () => {
 			setHttpErrorCount(attempts - 1);
 
 			await getPublicKey()
-				.then(({success}) => {
+				.then(({ success }) => {
 					if (success) {
 						Log({
 							message: "Ping successful.",
@@ -531,7 +578,9 @@ const AppContent = () => {
 	}, []);
 
 	useEffect(() => {
-		const hasStoredRefreshToken = Boolean(localStorage.getItem("refreshToken"));
+		const hasStoredRefreshToken = Boolean(
+			localStorage.getItem("refreshToken"),
+		);
 		const guestAccessToken = getGuestAccessToken();
 
 		if (!socket?.connected && hasStoredRefreshToken) {
@@ -550,7 +599,9 @@ const AppContent = () => {
 			Log({ message: "Connected to server.", level: "info" });
 
 			fetchUserData().then(() => {
-				const returnURL = new URLSearchParams(window.location.search).get("returnURL");
+				const returnURL = new URLSearchParams(
+					window.location.search,
+				).get("returnURL");
 				if (window.location.pathname === "/login" && !returnURL) {
 					navigate("/");
 				}
@@ -559,7 +610,10 @@ const AppContent = () => {
 		}
 
 		function onSetClass(classID: number) {
-			Log({ message: "Class ID set to: " + (classID || "{No Class}"), level: "debug" });
+			Log({
+				message: "Class ID set to: " + (classID || "{No Class}"),
+				level: "debug",
+			});
 			socket.emit("classUpdate", "");
 		}
 
@@ -601,12 +655,12 @@ const AppContent = () => {
 		// so the user isn't permanently stuck on the loading screen.
 		function onAuthFailed() {
 			Log({
-				message: "All auth attempts failed - clearing tokens and redirecting to login",
+				message:
+					"All auth attempts failed - clearing tokens and redirecting to login",
 				level: "warn",
 			});
 			/* Comment these to fix reload bug */
 			clearAuthTokens();
-			sessionStorage.removeItem("formbarLoginCreds");
 			setIsConnected(true); // dismiss the loading screen
 			navigate(buildLoginPath());
 		}
@@ -629,7 +683,7 @@ const AppContent = () => {
 				open={isVerificationRequired}
 				closable={false}
 				mask={{
-					closable: false
+					closable: false,
 				}}
 				keyboard={false}
 				footer={null}
@@ -689,15 +743,27 @@ const AppContent = () => {
 function App() {
 	return (
 		<StrictMode>
-			<svg aria-hidden="true" style={{ position: "absolute", width: 0, height: 0 }}>
+			<svg
+				aria-hidden="true"
+				style={{ position: "absolute", width: 0, height: 0 }}
+			>
 				<defs>
-					<filter id="formbar-deuteranopia" colorInterpolationFilters="sRGB">
+					<filter
+						id="formbar-deuteranopia"
+						colorInterpolationFilters="sRGB"
+					>
 						<feColorMatrix values="0.625 0.375 0 0 0  0.7 0.3 0 0 0  0 0.3 0.7 0 0  0 0 0 1 0" />
 					</filter>
-					<filter id="formbar-protanopia" colorInterpolationFilters="sRGB">
+					<filter
+						id="formbar-protanopia"
+						colorInterpolationFilters="sRGB"
+					>
 						<feColorMatrix values="0.567 0.433 0 0 0  0.558 0.442 0 0 0  0 0.242 0.758 0 0  0 0 0 1 0" />
 					</filter>
-					<filter id="formbar-tritanopia" colorInterpolationFilters="sRGB">
+					<filter
+						id="formbar-tritanopia"
+						colorInterpolationFilters="sRGB"
+					>
 						<feColorMatrix values="0.95 0.05 0 0 0  0 0.433 0.567 0 0  0 0.475 0.525 0 0  0 0 0 1 0" />
 					</filter>
 				</defs>

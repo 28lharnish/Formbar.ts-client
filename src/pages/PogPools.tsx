@@ -18,9 +18,7 @@ import { useUserData } from "@/main";
 import { useEffect, useState } from "react";
 import { getUserPools } from "@api/userApi";
 import type { PogPool } from "@/types";
-import {
-	createPool,
-} from "@api/pogPoolsApi";
+import { createPool } from "@api/pogPoolsApi";
 import { currentUserHasScope } from "@/utils/scopeUtils";
 import PogPoolElement from "@/components/PogPoolElement";
 import { useGlobalMessage } from "@/components/providers/GlobalMessageProvider";
@@ -63,7 +61,6 @@ export default function PogPools() {
 	const [currentPage, setCurrentPage] = useState(1);
 	const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 	const [totalPools, setTotalPools] = useState(0);
-	
 
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 	const [poolName, setPoolName] = useState("");
@@ -108,7 +105,7 @@ export default function PogPools() {
 
 	const handleCreatePool = () => {
 		if (!poolName.trim()) {
-			globalMessageAPI.error(messageTemplates["pool.name.required.error"]);
+			globalMessageAPI.error(messageTemplates.pool_name_required_error);
 
 			return;
 		}
@@ -117,17 +114,23 @@ export default function PogPools() {
 		createPool({ name: poolName, description: poolDesc })
 			.then((response) => {
 				if (response?.success === false || response?.error) {
-					globalMessageAPI.error(messageTemplates["pool.create.failed"]);
+					globalMessageAPI.error(messageTemplates.pool_create_failed);
 					return;
 				}
 				Log({ message: `Pool ${poolName} created successfully` });
-				globalMessageAPI.success(messageTemplates["pool.created.success"]);
+				globalMessageAPI.success(messageTemplates.pool_created_success);
 				setPoolName("");
 				setPoolDesc("");
 				setIsCreateModalOpen(false);
 				refreshPools();
 			})
-			.catch((error) => Log({ message: "Error creating pool", data: error, level: "error" }));
+			.catch((error) =>
+				Log({
+					message: "Error creating pool",
+					data: error,
+					level: "error",
+				}),
+			);
 	};
 
 	const canManagePools = currentUserHasScope(userData, "global.pools.manage");
@@ -151,7 +154,7 @@ export default function PogPools() {
 					gutter={[16, 16]}
 					style={{
 						margin: "20px",
-						justifyContent: 'center'
+						justifyContent: "center",
 					}}
 				>
 					{isLoading && (
@@ -166,7 +169,10 @@ export default function PogPools() {
 						pools.map((pool) => {
 							return (
 								<Col xs={24} sm={12} lg={8} key={pool.id}>
-									<PogPoolElement pool={pool} refreshPools={refreshPools} />
+									<PogPoolElement
+										pool={pool}
+										refreshPools={refreshPools}
+									/>
 								</Col>
 							);
 						})}
@@ -203,7 +209,12 @@ export default function PogPools() {
 				{totalPools > 0 && (
 					<Flex
 						justify="center"
-						style={{ margin: 0, position: 'absolute', width: '100%', bottom: 8 }}
+						style={{
+							margin: 0,
+							position: "absolute",
+							width: "100%",
+							bottom: 8,
+						}}
 					>
 						<Pagination
 							current={currentPage}
@@ -212,6 +223,9 @@ export default function PogPools() {
 							showSizeChanger
 							pageSizeOptions={[6, 12, 24, 48]}
 							defaultPageSize={6}
+							showTotal={(total, [start, end]) =>
+								`${start}-${end} of ${total}`
+							}
 							onChange={(page, size) => {
 								setIsLoading(true);
 								setCurrentPage(page);
