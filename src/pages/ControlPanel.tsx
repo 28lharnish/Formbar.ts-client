@@ -43,6 +43,7 @@ import { getMe } from "@api/userApi";
 
 type EditorSeedPoll = {
 	prompt: string;
+	promptMD?: string;
 	answers: {
 		color: string;
 		answer: string;

@@ -571,6 +571,8 @@ export type AppScopeKey = ExtractAppScopeKey<typeof AppScopes>;
 export type SavedPollTemplateBody = {
 	name: string;
 	prompt: string;
+	promptMD?: string;
+	promptHTML?: string;
 	answers: any[];
 	allowTextResponses: boolean;
 	blind: boolean;

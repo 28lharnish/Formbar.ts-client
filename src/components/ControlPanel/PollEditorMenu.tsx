@@ -176,6 +176,8 @@ export default function PollsEditorMenu({
 					pollProperties.promptMD ||
 					pollProperties.promptHTML ||
 					"",
+				promptMD: pollProperties.promptMD || undefined,
+				promptHTML: pollProperties.promptHTML || undefined,
 				answers: pollProperties.answers,
 				allowTextResponses: pollProperties.allowTextResponses,
 				blind: pollProperties.blind,
@@ -267,6 +269,7 @@ export default function PollsEditorMenu({
 			autoEndThreshold: initialPoll.autoEndThreshold,
 			allowMultipleResponses: initialPoll.allowMultipleResponses,
 		}));
+		setPromptMode(initialPoll.promptMD ? "Advanced" : "Basic");
 		setUseAutoEndTimer(initialPoll.autoEndTimer != null);
 		setUseAutoEndThreshold(initialPoll.autoEndThreshold != null);
 	}, [initialPoll]);
@@ -276,13 +279,15 @@ export default function PollsEditorMenu({
 			return;
 		}
 
-		if (promptMode === "Basic") {
-			delete pollProperties.promptMD;
-			delete pollProperties.promptHTML;
-		} else {
-			pollProperties.promptMD = pollProperties.prompt;
-			delete pollProperties.prompt;
-		}
+		const pollToCreate = {
+			...pollProperties,
+			prompt: promptMode === "Basic" ? pollProperties.prompt : "",
+			promptMD:
+				promptMode === "Basic"
+					? undefined
+					: pollProperties.promptMD || pollProperties.prompt,
+			promptHTML: undefined,
+		};
 
 		if (pollProperties.answers.find((e) => e.answer === "remove")) {
 			return globalMessageAPI.error(
@@ -291,15 +296,9 @@ export default function PollsEditorMenu({
 		}
 
 		if (
-			(pollProperties.prompt !== undefined &&
-				pollProperties.prompt === "") ||
-			(pollProperties.promptMD !== undefined &&
-				pollProperties.promptMD === "") ||
-			(pollProperties.promptHTML !== undefined &&
-				pollProperties.promptHTML === "") ||
-			(pollProperties.promptMD === undefined &&
-				pollProperties.promptHTML === undefined &&
-				pollProperties.prompt === undefined)
+			(!pollToCreate.prompt &&
+				!pollToCreate.promptMD &&
+				!pollToCreate.promptHTML)
 		) {
 			return globalMessageAPI.error(
 				messageTemplates.poll_prompt_required_error,
@@ -307,7 +306,7 @@ export default function PollsEditorMenu({
 		}
 
 		createPoll(classData.id, {
-			...pollProperties,
+			...pollToCreate,
 			blindUntilEnded: pollProperties.blind
 				? pollProperties.blindUntilEnded
 				: false,
@@ -397,7 +396,10 @@ export default function PollsEditorMenu({
 								setValue={(newVal: string) =>
 									setPollProperties({
 										...pollProperties,
-										prompt: newVal,
+										prompt:
+											promptMode === "Basic" ? newVal : "",
+										promptMD:
+											promptMode === "Basic" ? undefined : newVal,
 									})
 								}
 								textAreaStyles={{

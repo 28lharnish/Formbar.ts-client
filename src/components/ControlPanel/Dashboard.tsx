@@ -16,10 +16,9 @@ import {
 	useClassData,
 	useUserData,
 	useSettings,
-	getAppearAnimation,
 	useMobileDetect,
 } from "@/main";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as IonIcons from "ionicons/icons";
 import { IonIcon } from "@ionic/react";
 import type { Student } from "@/types";
@@ -69,6 +68,7 @@ export default function Dashboard({
 	const [excludedRespondents, setExcludedRespondents] = useState<number[]>(
 		[],
 	);
+	const animatedStudentIds = useRef<Set<number>>(new Set());
 
 	const canSeeUsers = currentUserHasScope(userData, "class.students.read");
 
@@ -107,12 +107,18 @@ export default function Dashboard({
 					? sorted.sort(
 							(a, b) =>
 								compareOfflineLast(a, b) ||
-								a.displayName.localeCompare(b.displayName),
+								a.displayName.localeCompare(b.displayName, undefined, {
+									numeric: true,
+									sensitivity: "base",
+								}),
 						)
 					: sorted.sort(
 							(a, b) =>
 								compareOfflineLast(a, b) ||
-								b.displayName.localeCompare(a.displayName),
+								b.displayName.localeCompare(a.displayName, undefined, {
+									numeric: true,
+									sensitivity: "base",
+								}),
 						);
 				break;
 			case "Permissions":
@@ -263,6 +269,24 @@ export default function Dashboard({
 
 			return nextExcluded;
 		});
+	}
+
+	function getStudentAnimationStyle(
+		studentId: number,
+		index: number,
+	): React.CSSProperties {
+		const shouldAnimate = !animatedStudentIds.current.has(studentId);
+		animatedStudentIds.current.add(studentId);
+
+		return {
+			height: "100%",
+			...(shouldAnimate && !settings.accessibility.disableAnimations
+				? {
+						animation: "appear 0.25s ease-in forwards",
+						animationDelay: `${index * 0.03}s`,
+					}
+				: {}),
+		};
 	}
 
 	return (
@@ -534,36 +558,24 @@ export default function Dashboard({
 								)
 								.map((student: any, index: number) =>
 									student.id !== userData?.id ? (
-										<StudentObject
-											style={{
-												...getAppearAnimation(
-													settings.accessibility
-														.disableAnimations,
-													index,
-												),
-																animation: settings.accessibility
-																	.disableAnimations
-																	? undefined
-																	: "appear 0.25s ease-in forwards",
-																animationDelay: settings.accessibility
-																	.disableAnimations
-																	? undefined
-																	: `${index * 0.03}s`,
-												height: "100%",
-											}}
-											key={student.id}
-											student={student}
-											isVoteExcluded={
-												excludedRespondents.includes(
-													Number(student.id),
-												) && !student.isOffline
-											}
-											onToggleVote={
-												handleExcludeRespondent
-											}
-											openModalId={openModalId}
-											setOpenModalId={setOpenModalId}
-										/>
+																		<StudentObject
+																			key={student.id}
+																			style={getStudentAnimationStyle(
+																				student.id,
+																				index,
+																			)}
+																			student={student}
+																			isVoteExcluded={
+																				excludedRespondents.includes(
+																				Number(student.id),
+																			) && !student.isOffline
+																			}
+																			onToggleVote={
+																				handleExcludeRespondent
+																			}
+																			openModalId={openModalId}
+																			setOpenModalId={setOpenModalId}
+																		/>
 									) : null,
 								)}
 					</div>

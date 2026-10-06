@@ -60,7 +60,6 @@ export default function PollModal({
 	onCancel,
 	promptMD,
 	prompt,
-	onPromptChange,
 	answers,
 	onAnswersChange,
 	allowVoteChanges,
@@ -135,7 +134,7 @@ export default function PollModal({
 							disabled={
 								answers.length === 0 ||
 								answers.some((a) => a.answer.trim() === "") ||
-								prompt.trim() === ""
+									(prompt.trim() === "" && !promptMD?.trim())
 							}
 						>
 							{footerButton.label}

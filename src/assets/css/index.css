@@ -585,3 +585,7 @@ label.correctAnswer .ant-checkbox-inner::after {
 .pogMeterMove {
 	animation: pogMeterWaveScroll 20s linear infinite;
 }
+
+.wmde-markdown.wmde-markdown-color img {
+	background: none !important;
+}

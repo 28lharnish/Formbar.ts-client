@@ -534,7 +534,7 @@ export default function PollsMenu({
 													}}
 												>
 													<Text strong>
-														{poll.prompt}
+																		{poll.promptMD || poll.prompt}
 													</Text>
 												</Button>
 												<PollModal
@@ -600,6 +600,7 @@ export default function PollsMenu({
 															const editedPoll = {
 																...poll,
 																prompt: previousPollPrompt,
+																			promptMD: previousPollPromptMD,
 																answers:
 																	previousPollAnswers,
 																allowVoteChanges:
@@ -636,6 +637,7 @@ export default function PollsMenu({
 																			seedPollEditor(
 																				{
 																					prompt: previousPollPrompt,
+																					promptMD: previousPollPromptMD,
 																					answers:
 																						previousPollAnswers,
 																					allowVoteChanges,
