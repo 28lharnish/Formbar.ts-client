@@ -325,8 +325,8 @@ export default function Student() {
 										? {
 												width: "100%",
 												height: "50%",
-												paddingTop: "260px",
-												paddingBottom: "120px",
+													boxSizing: "border-box",
+												marginTop: 80
 											}
 										: {
 												width: "50%",
