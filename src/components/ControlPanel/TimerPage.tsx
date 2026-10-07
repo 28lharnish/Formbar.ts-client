@@ -135,7 +135,7 @@ export default function TimerPage() {
 		grid.push(
 			<Col span={8} key={`${timer.duration}-${timer.name}`}>
 				{timer && (
-					<Card>
+					<Card style={{height: '100%'}}>
 						<Flex justify="center" align="center" vertical gap={10}>
 							{!isMobile && (
 								<Title
