@@ -8,7 +8,6 @@ import {
 	Row,
 	Spin,
 	Typography,
-	notification,
 } from "antd";
 const { Text, Title } = Typography;
 import FormbarHeader from "@components/FormbarHeader";
@@ -19,11 +18,11 @@ import { useUserData } from "@/main";
 import { useEffect, useState } from "react";
 import { getUserPools } from "@api/userApi";
 import type { PogPool } from "@/types";
-import {
-	createPool,
-} from "@api/pogPoolsApi";
+import { createPool } from "@api/pogPoolsApi";
 import { currentUserHasScope } from "@/utils/scopeUtils";
-import PogPoolElement from "@/components/PogPool";
+import PogPoolElement from "@/components/PogPoolElement";
+import { useGlobalMessage } from "@/components/providers/GlobalMessageProvider";
+import { messageTemplates } from "@utils/messageTemplates";
 
 const DEFAULT_PAGE_SIZE = 6;
 
@@ -55,13 +54,13 @@ function parsePools(responseData: unknown): PogPool[] {
 
 export default function PogPools() {
 	const { userData } = useUserData();
+	const globalMessageAPI = useGlobalMessage();
 	const [pools, setPools] = useState<PogPool[]>([]);
 	const [error, setError] = useState<string | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
 	const [totalPools, setTotalPools] = useState(0);
-	const [api, contextHolderNotification] = notification.useNotification();
 
 	const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 	const [poolName, setPoolName] = useState("");
@@ -106,47 +105,42 @@ export default function PogPools() {
 
 	const handleCreatePool = () => {
 		if (!poolName.trim()) {
-			api["error"]({
-				title: "Validation Error",
-				description: "Pool name is required.",
-				placement: "bottom",
-			});
+			globalMessageAPI.error(messageTemplates.pool_name_required_error);
 
 			return;
 		}
 
 		Log({ message: `Creating pool: ${poolName}` });
 		createPool({ name: poolName, description: poolDesc })
-			.then(() => {
+			.then((response) => {
+				if (response?.success === false || response?.error) {
+					globalMessageAPI.error(messageTemplates.pool_create_failed);
+					return;
+				}
 				Log({ message: `Pool ${poolName} created successfully` });
+				globalMessageAPI.success(messageTemplates.pool_created_success);
 				setPoolName("");
 				setPoolDesc("");
 				setIsCreateModalOpen(false);
 				refreshPools();
 			})
-			.catch((err) => {
+			.catch((error) =>
 				Log({
-					message: `Error creating pool`,
-					data: err,
+					message: "Error creating pool",
+					data: error,
 					level: "error",
-				});
-				api["error"]({
-					title: "Error Creating Pool",
-					description: `Failed to create the pool. Please try again.`,
-					placement: "bottom",
-				});
-			});
+				}),
+			);
 	};
 
 	const canManagePools = currentUserHasScope(userData, "global.pools.manage");
 
 	return (
 		<>
-			{contextHolderNotification}
 			<FormbarHeader />
 			<div
 				style={{
-					height: "calc(100vh - 80px)",
+					height: "calc(100vh - 64px)",
 					overflowY: "auto",
 					overflowX: "hidden",
 					WebkitOverflowScrolling: "touch",
@@ -160,6 +154,7 @@ export default function PogPools() {
 					gutter={[16, 16]}
 					style={{
 						margin: "20px",
+						justifyContent: "center",
 					}}
 				>
 					{isLoading && (
@@ -174,7 +169,10 @@ export default function PogPools() {
 						pools.map((pool) => {
 							return (
 								<Col xs={24} sm={12} lg={8} key={pool.id}>
-									<PogPoolElement pool={pool} refreshPools={refreshPools} />
+									<PogPoolElement
+										pool={pool}
+										refreshPools={refreshPools}
+									/>
 								</Col>
 							);
 						})}
@@ -211,7 +209,12 @@ export default function PogPools() {
 				{totalPools > 0 && (
 					<Flex
 						justify="center"
-						style={{ marginBottom: "32px", marginTop: "20px" }}
+						style={{
+							margin: 0,
+							position: "absolute",
+							width: "100%",
+							bottom: 8,
+						}}
 					>
 						<Pagination
 							current={currentPage}
@@ -220,6 +223,9 @@ export default function PogPools() {
 							showSizeChanger
 							pageSizeOptions={[6, 12, 24, 48]}
 							defaultPageSize={6}
+							showTotal={(total, [start, end]) =>
+								`${start}-${end} of ${total}`
+							}
 							onChange={(page, size) => {
 								setIsLoading(true);
 								setCurrentPage(page);

@@ -7,7 +7,7 @@ export type SettingType = "boolean" | "number" | "select" | "action";
 export interface SettingConfig {
 	key: string;
 	label: string;
-    mobileLabel?: string;
+	mobileLabel?: string;
 	description?: string;
 	type: SettingType;
 	category: string;
@@ -32,7 +32,8 @@ export const settingCategories: SettingCategory[] = [
 	{
 		id: "general",
 		label: "General",
-		description: "Manage sound effects and other everyday Formbar preferences.",
+		description:
+			"Manage sound effects and other everyday Formbar preferences.",
 		icon: IonIcons.settingsOutline,
 		selectedIcon: IonIcons.settings,
 		deselectedIcon: IonIcons.settingsOutline,
@@ -40,7 +41,8 @@ export const settingCategories: SettingCategory[] = [
 	{
 		id: "appearance",
 		label: "Appearance",
-		description: "Personalize the theme and colors used throughout Formbar.",
+		description:
+			"Personalize the theme and colors used throughout Formbar.",
 		icon: IonIcons.colorPaletteOutline,
 		selectedIcon: IonIcons.colorPalette,
 		deselectedIcon: IonIcons.colorPaletteOutline,
@@ -48,37 +50,39 @@ export const settingCategories: SettingCategory[] = [
 	{
 		id: "accessibility",
 		label: "Accessibility",
-		description: "Make Formbar easier to read and ensure colors remain distinguishable.",
+		description:
+			"Make Formbar easier to read and ensure colors remain distinguishable.",
 		icon: IonIcons.accessibility,
 		selectedIcon: IonIcons.accessibility,
 		deselectedIcon: IonIcons.accessibilityOutline,
 	},
 	{
-		id: 'divider',
-		label: '',
+		id: "divider",
+		label: "",
 		description: "",
 		icon: null,
 		selectedIcon: null,
 		deselectedIcon: null,
 	},
 	{
-		id: 'user',
-		label: 'User',
+		id: "user",
+		label: "User",
 		description: "Manage your current Formbar session.",
 		icon: IonIcons.personOutline,
 		selectedIcon: IonIcons.person,
 		deselectedIcon: IonIcons.personOutline,
-	}
+	},
 ];
 
 export const settingsConfig: SettingConfig[] = [
 	{
 		key: "sfxVolume",
 		label: "Sound Effects Volume",
-        mobileLabel: "SFX",
+		mobileLabel: "SFX",
 		type: "number",
 		category: "general",
-		description: "Adjust the volume of alerts and other Formbar sound effects.",
+		description:
+			"Adjust the volume of alerts and other Formbar sound effects.",
 		min: 0,
 		max: 100,
 		step: 1,
@@ -104,7 +108,8 @@ export const settingsConfig: SettingConfig[] = [
 	{
 		key: "accentColor",
 		label: "Accent Color",
-		description: "Choose the color used for primary controls and highlights.",
+		description:
+			"Choose the color used for primary controls and highlights.",
 		type: "select",
 		category: "appearance",
 		options: [
@@ -137,19 +142,33 @@ export const settingsConfig: SettingConfig[] = [
 		label: "High Contrast",
 		type: "boolean",
 		category: "accessibility",
-		description: "Strengthens text, borders, and control edges for easier viewing",
+		description:
+			"Strengthens text, borders, and control edges for easier viewing",
 	},
 	{
 		key: "colorVisionMode",
 		label: "Color Vision Mode",
-		description: "Uses a colorblind-friendly palette for poll answers and charts.",
+		description:
+			"Uses a colorblind-friendly palette for poll answers and charts.",
 		type: "select",
 		category: "accessibility",
 		options: [
-			{ label: "Default colors", value: "default" satisfies ColorVisionMode },
-			{ label: "Deuteranopia", value: "deuteranopia" satisfies ColorVisionMode },
-			{ label: "Protanopia", value: "protanopia" satisfies ColorVisionMode },
-			{ label: "Tritanopia", value: "tritanopia" satisfies ColorVisionMode },
+			{
+				label: "Default colors",
+				value: "default" satisfies ColorVisionMode,
+			},
+			{
+				label: "Deuteranopia",
+				value: "deuteranopia" satisfies ColorVisionMode,
+			},
+			{
+				label: "Protanopia",
+				value: "protanopia" satisfies ColorVisionMode,
+			},
+			{
+				label: "Tritanopia",
+				value: "tritanopia" satisfies ColorVisionMode,
+			},
 		],
 	},
 	{
@@ -159,5 +178,5 @@ export const settingsConfig: SettingConfig[] = [
 		type: "action",
 		category: "user",
 		requiresLogin: true,
-	}
+	},
 ];

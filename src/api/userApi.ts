@@ -1,5 +1,9 @@
 import { http } from "@api/HTTPApi";
-import { buildPaginationQuery, fetchAllPaginated, type PaginationParams } from "@api/pagination";
+import {
+	buildPaginationQuery,
+	fetchAllPaginated,
+	type PaginationParams,
+} from "@api/pagination";
 
 // DELETE: Delete a user
 export function deleteUser(id: string) {
@@ -22,13 +26,19 @@ export function getUserActiveClass(id: string) {
 }
 
 // GET /user/{id}/classes
-export function getUserClasses(id: string, { limit, offset }: PaginationParams = {}) {
-	return http(`/user/${id}/classes${buildPaginationQuery({ limit, offset })}`);
+export function getUserClasses(
+	id: string,
+	{ limit, offset }: PaginationParams = {},
+) {
+	return http(
+		`/user/${id}/classes${buildPaginationQuery({ limit, offset })}`,
+	);
 }
 
 export function getAllUserClasses(id: string) {
 	return fetchAllPaginated<any>(
-		({ limit, offset }) => `/user/${id}/classes${buildPaginationQuery({ limit, offset })}`,
+		({ limit, offset }) =>
+			`/user/${id}/classes${buildPaginationQuery({ limit, offset })}`,
 		(data) => {
 			const classes = (data as { classes?: unknown })?.classes;
 			return Array.isArray(classes) ? classes : [];
@@ -42,8 +52,15 @@ export function getUserScopes(id: string) {
 }
 
 // GET /user/{id}/transactions
-export function getUserTransactions(id: string, limit: number = 20, offset: number = 0) {
-	return http(`/user/${id}/transactions${buildPaginationQuery({ limit, offset })}`, "GET");
+export function getUserTransactions(
+	id: string,
+	limit: number = 20,
+	offset: number = 0,
+) {
+	return http(
+		`/user/${id}/transactions${buildPaginationQuery({ limit, offset })}`,
+		"GET",
+	);
 }
 
 // PATCH /user/{id}/ban
@@ -57,7 +74,10 @@ export function updateUserPermissions(id: string, body: { perm: number }) {
 }
 
 // PATCH /user/{id}/pin
-export function updateUserPin(id: string, body: { oldPin: string, pin: string } | { pin: string }) {
+export function updateUserPin(
+	id: string,
+	body: { oldPin: string; pin: string } | { pin: string },
+) {
 	return http(`/user/${id}/pin`, "PATCH", {}, body);
 }
 
@@ -73,7 +93,7 @@ export function verifyUser(id: string) {
 
 // POST /user/{id}/verify/request
 export function requestUserVerificationEmail(id: string) {
-    return http(`/user/${id}/verify/request`, "POST");
+	return http(`/user/${id}/verify/request`, "POST");
 }
 
 // PATCH /user/pin/reset
@@ -96,18 +116,30 @@ export function verifyUserPin(id: string, body: { pin: string }) {
 	return http(`/user/${id}/pin/verify`, "POST", {}, body);
 }
 
-export function getUserPools(id: string, limit: number = 20, offset: number = 0) {
-    return http(`/user/${id}/pools${buildPaginationQuery({ limit, offset })}`, "GET");
+export function getUserPools(
+	id: string,
+	limit: number = 20,
+	offset: number = 0,
+) {
+	return http(
+		`/user/${id}/pools${buildPaginationQuery({ limit, offset })}`,
+		"GET",
+	);
 }
 
 export function verifyUserEmail(code: string) {
-    return http(`/user/verify/email?code=${code}`, "POST", {Accept: "application/json"}, { code });
+	return http(
+		`/user/verify/email?code=${code}`,
+		"POST",
+		{ Accept: "application/json" },
+		{ code },
+	);
 }
 
 export function getUserPollTemplates(userId: string) {
-    return http(`/user/${userId}/polls/templates`);
+	return http(`/user/${userId}/polls/templates`);
 }
 
 export function savePollTemplateToUser(userId: string, body: any) {
-    return http(`/user/${userId}/polls/templates`, "POST", {}, body);
+	return http(`/user/${userId}/polls/templates`, "POST", {}, body);
 }

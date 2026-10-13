@@ -10,7 +10,12 @@ export function getNotificationById(notificationId: string) {
 }
 
 export function markNotificationAsRead(notificationId: string) {
-	return http(`/notifications/${encodeURIComponent(notificationId)}/mark-read`, "POST", {}, { read: true });
+	return http(
+		`/notifications/${encodeURIComponent(notificationId)}/mark-read`,
+		"POST",
+		{},
+		{ read: true },
+	);
 }
 
 export function deleteAllNotifications() {
@@ -18,5 +23,8 @@ export function deleteAllNotifications() {
 }
 
 export function deleteNotificationById(notificationId: string) {
-	return http(`/notifications/${encodeURIComponent(notificationId)}`, "DELETE");
+	return http(
+		`/notifications/${encodeURIComponent(notificationId)}`,
+		"DELETE",
+	);
 }
