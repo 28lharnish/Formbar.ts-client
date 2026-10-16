@@ -130,7 +130,7 @@ export default function SettingsMenu() {
 	}, [classData]);
 
 	useEffect(() => {
-		setDefaultRoleId(classData?.settings.defaultRoleId ?? undefined);
+		setDefaultRoleId(classData?.settings?.defaultRoleId ?? undefined);
 	}, [classData]);
 
 	function updateDefaultRole(roleId: number) {
