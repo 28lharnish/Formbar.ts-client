@@ -237,6 +237,9 @@ export function regenerateClassCode(classId: number) {
 	return http(`/class/${classId}/code/regenerate`, "POST");
 }
 
-export function updateSettings(classId: number, body: any) {
+export function updateSettings(classId: number, body: {
+	name?: string,
+	defaultRoleId?: number
+}) {
 	return http(`/class/${classId}/settings`, "PATCH", {}, body);
 }

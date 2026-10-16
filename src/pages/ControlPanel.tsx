@@ -803,7 +803,7 @@ export default function ControlPanel() {
 									}
 									color="blue"
 									variant="solid"
-									style={buttonStyle}
+									style={{...buttonStyle, borderTopLeftRadius: 12}}
 									styles={{
 										content: {
 											width: "100%",
@@ -836,7 +836,7 @@ export default function ControlPanel() {
 									}
 									color="pink"
 									variant="solid"
-									style={buttonStyle}
+									style={{...buttonStyle, borderTopRightRadius: 12}}
 									styles={{
 										content: {
 											width: "100%",
@@ -892,7 +892,7 @@ export default function ControlPanel() {
 									}
 									color="orange"
 									variant="solid"
-									style={buttonStyle}
+									style={{...buttonStyle, borderBottomLeftRadius: 12}}
 									styles={{
 										content: {
 											width: "100%",
@@ -943,7 +943,7 @@ export default function ControlPanel() {
 										classData?.isActive ? "red" : "green"
 									}
 									variant="solid"
-									style={buttonStyle}
+									style={{...buttonStyle, borderBottomRightRadius: 12}}
 									styles={{
 										content: {
 											width: "100%",
