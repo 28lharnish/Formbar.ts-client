@@ -5,11 +5,14 @@ Formbar.js is a classroom polling and management system built with Node.js.
 This repository houses the official app used to interface with Formbar.
 
 ## Quick Start
+
 ### Prerequisites
--   Node.js 20.19+
--   npm or yarn
+
+- Node.js 20.19+
+- npm or yarn
 
 ### Installation
+
 ```bash
 git clone https://github.com/csmith1188/Formbar.ts-client.git
 cd Formbar.ts-client
@@ -17,13 +20,15 @@ npm install
 ```
 
 ### Setup
+
 - Copy or rename the `.env-template` file to `.env`
 - Input your Formbar API URL as `VITE_FORMBAR_API_URL`
-  - *<sub>[Need the server for your API?](https://github.com/csmith1188/Formbar.js)</sub>*
+    - _<sub>[Need the server for your API?](https://github.com/csmith1188/Formbar.js)</sub>_
 - Input your client address as `VITE_FORMBAR_CLIENT_URL`
-  - Ex. `https://127.0.0.1:5173` or `https://formbar.com`
+    - Ex. `https://127.0.0.1:5173` or `https://formbar.com`
 
 ## Project Structure
+
 - `src/main.tsx` is the client entry point.
 - `src/pages/` contains route-level screens and top-level app pages.
 - `src/components/` holds reusable UI pieces, including control panel modules under `src/components/ControlPanel/`.
@@ -33,6 +38,7 @@ npm install
 - `public/` contains static assets and logos.
 
 ## Common Workflows
+
 - Start local development with `npm run dev`.
 - Run the app on the network for device testing with `npx vite --host`.
 - Check formatting and code quality with `npm run lint`.
@@ -40,6 +46,7 @@ npm install
 - Use `./updater.sh` when you want the interactive fetch, build, and sync workflow.
 
 ### Testing
+
 ```bash
 # Development - Local Testing
 npm run dev
@@ -67,11 +74,11 @@ This will produce a full build into the `dist/` folder.
 ## Using `nginx` to serve your build
 
 ### Prerequisites
+
 - nginx 1.18.0+
 - rsync (or alternative)
 
 Below is a base config file used to serve your newly-built Formbar client.
-
 
 ```nginx
 server {
@@ -101,22 +108,26 @@ If you are on Windows, you will need to change the directory you are reading fro
 In the project root, there is `updater.sh`, an interactive script for updating, building, and deploying the client.
 
 ### Usage
+
 ```bash
 ./updater.sh [options]
 ```
 
 ### Options
-| Argument | Description |
-|----------|-------------|
-| `--no-fetch` | Skip fetching/pulling from GitHub |
-| `--no-install` | Skip `npm install` |
-| `--no-build` | Skip the build step entirely |
-| `--full` | Fully automated: fetch, install, strict build, and sync |
-| `--full-dev` | Fully automated: fetch, install, development build, and sync |
+
+| Argument            | Description                                                        |
+| ------------------- | ------------------------------------------------------------------ |
+| `--no-fetch`        | Skip fetching/pulling from GitHub                                  |
+| `--no-install`      | Skip `npm install`                                                 |
+| `--no-build`        | Skip the build step entirely                                       |
+| `--full`            | Fully automated: fetch, install, strict build, and sync            |
+| `--full-dev`        | Fully automated: fetch, install, development build, and sync       |
 | `--sync-dir <path>` | Specify custom directory for syncing (default: `/var/www/formbar`) |
 
 ### Interactive Mode
+
 When run without `--full` or `--full-dev`, the script presents a menu:
+
 1. **Build** - Strict production build (`npm run build`)
 2. **Build (Development)** - Development build (`npx vite build`)
 3. **Test Locally** - Run dev server (`npm run dev`)
@@ -125,6 +136,7 @@ When run without `--full` or `--full-dev`, the script presents a menu:
 After building, you'll be prompted to sync `dist/` to your sync directory (default: `/var/www/formbar`).
 
 ### Examples
+
 ```bash
 # Full automated build and sync to default directory
 ./updater.sh --full
@@ -135,19 +147,21 @@ After building, you'll be prompted to sync `dist/` to your sync directory (defau
 # Development build with custom directory, skip fetch
 ./updater.sh --full-dev --no-fetch --sync-dir ~/my-formbar
 
-# Interactive mode with custom sync directory  
+# Interactive mode with custom sync directory
 ./updater.sh --sync-dir /var/www/formbar-staging
 ```
 
 ### Manual Build & Sync
+
 To manually build and sync folders:
-```bash 
+
+```bash
 git fetch && git pull
 npm run build      # Strict Build
 # or
 npx vite build     # Development Build
 
 rsync -av dist/ /var/www/formbar  # Or your custom directory
-``` 
+```
 
 This is built to work in conjunction with [**Formbar.js**](https://github.com/csmith1188/Formbar.js).

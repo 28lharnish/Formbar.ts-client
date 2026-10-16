@@ -1,79 +1,134 @@
-import { Flex, Tooltip, Input, InputNumber, Button, ColorPicker, Checkbox } from "antd";
+import {
+	Flex,
+	Tooltip,
+	Input,
+	InputNumber,
+	Button,
+	ColorPicker,
+	Checkbox,
+} from "antd";
 import { getAppearAnimation, useSettings } from "@/main";
 import { IonIcon } from "@ionic/react";
 import * as IonIcons from "ionicons/icons";
 
 export default function PollEditorResponse({
-    answer,
-    setAnswer,
-    removeAnswer,
+	answer,
+	setAnswer,
+	removeAnswer,
 }: {
-    answer: { color: string; answer: string; isCorrect: boolean; weight: number };
-    setAnswer: (newAnswer: { color: string; answer: string; isCorrect: boolean; weight: number }) => void;
-    removeAnswer: () => void;
+	answer: {
+		color: string;
+		answer: string;
+		isCorrect: boolean;
+		weight: number;
+	};
+	setAnswer: (newAnswer: {
+		color: string;
+		answer: string;
+		isCorrect: boolean;
+		weight: number;
+	}) => void;
+	removeAnswer: () => void;
 }) {
+	const { settings } = useSettings();
 
-    const { settings } = useSettings();
+	return (
+		<Flex
+			align="center"
+			justify="center"
+			style={{
+				height: "40px",
+				...getAppearAnimation(settings.accessibility.disableAnimations),
+			}}
+			gap={10}
+		>
+			<ColorPicker
+				disabledAlpha
+				value={answer.color}
+				styles={{
+					root: {
+						height: "100%",
+						minWidth: "unset",
+						width: "unset",
+						aspectRatio: 1,
+					},
+				}}
+				onChange={(e) =>
+					setAnswer({ ...answer, color: "#" + e.toHex() })
+				}
+			/>
 
+			<Tooltip title="Mark as Correct Answer" mouseEnterDelay={0.5}>
+				<Checkbox
+					className="correctAnswer"
+					styles={{
+						root: {
+							height: "100%",
+							aspectRatio: 1,
+						},
+						icon: {
+							height: "100%",
+							width: "100%",
+						},
+					}}
+					checked={answer.isCorrect}
+					onChange={(e) =>
+						setAnswer({ ...answer, isCorrect: e.target.checked })
+					}
+				/>
+			</Tooltip>
 
-    return (
-        <Flex align="center" justify="center" style={{ height: "40px", ...getAppearAnimation(settings.accessibility.disableAnimations) }} gap={10}>
-            <ColorPicker disabledAlpha value={answer.color} styles={{
-                root: {
-                    height: '100%',  
-                    minWidth: 'unset',
-                    width: 'unset',
-                    aspectRatio: 1,
-                },
-                
-            }} onChange={(e) => setAnswer({...answer, color: "#" + e.toHex()})}/>
+			<Input
+				placeholder="Answer Text"
+				style={{
+					height: "100%",
+				}}
+				styles={{
+					root: {
+						color: answer.answer == "remove" ? "red" : "inherit",
+					},
+				}}
+				value={answer.answer}
+				onChange={(e) =>
+					setAnswer({ ...answer, answer: e.target.value })
+				}
+			/>
 
-            <Tooltip title="Mark as Correct Answer" mouseEnterDelay={0.5}>
-                <Checkbox className="correctAnswer" styles={{
-                    root: {
-                        height: '100%',
-                        aspectRatio: 1,
-                    },
-                    icon: {
-                        height: '100%',
-                        width: '100%',
-                    }
-                }} checked={answer.isCorrect} onChange={(e) => setAnswer({ ...answer, isCorrect: e.target.checked })} />
-            </Tooltip>
+			<Tooltip title="Answer Weight" mouseEnterDelay={0.5}>
+				<InputNumber
+					styles={{
+						root: {
+							height: "100%",
+							width: "unset",
+							aspectRatio: 1,
+							flexShrink: 0,
+							padding: 0,
+						},
+						input: {
+							textAlign: "center",
+						},
+						actions: {
+							display: "none",
+						},
+					}}
+					value={answer.weight}
+					onChange={(value) =>
+						setAnswer({ ...answer, weight: value ?? 1 })
+					}
+				/>
+			</Tooltip>
 
-            <Input placeholder="Answer Text" style={{
-                height: '100%'
-            }} styles={{
-				root: {
-					color:
-						answer.answer == "remove" ? "red" : "inherit"
-				},	
-			}} value={answer.answer} onChange={(e) => setAnswer({ ...answer, answer: e.target.value })} />
-
-            <Tooltip title="Answer Weight" mouseEnterDelay={0.5}>
-                <InputNumber styles={{
-                    root: {
-                        height: '100%',
-                        width: 'unset',
-                        aspectRatio: 1,
-                        flexShrink: 0,
-                        padding: 0,
-                    },
-                    input: {
-                        textAlign: 'center'
-                    },
-                    actions: {
-                        display: 'none'
-                    }}} value={answer.weight} onChange={(value) => setAnswer({ ...answer, weight: value ?? 1 })} />
-            </Tooltip>
-            
-            <Button variant="solid" color="red" onClick={removeAnswer}
-                style={{
-                    height: '100%',
-                    aspectRatio: 1
-                }}>
-                <IonIcon icon={IonIcons.trash} />
-            </Button>
-        </Flex>
-    );
+			<Button
+				variant="solid"
+				color="red"
+				onClick={removeAnswer}
+				style={{
+					height: "100%",
+					aspectRatio: 1,
+				}}
+			>
+				<IonIcon icon={IonIcons.trash} />
+			</Button>
+		</Flex>
+	);
 }

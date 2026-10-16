@@ -22,7 +22,9 @@ function isNonNegativeInteger(value: number | undefined): value is number {
 	return Number.isInteger(value) && Number(value) >= 0;
 }
 
-export function buildQueryString(params: Record<string, string | number | boolean | undefined>) {
+export function buildQueryString(
+	params: Record<string, string | number | boolean | undefined>,
+) {
 	const searchParams = new URLSearchParams();
 
 	for (const [key, value] of Object.entries(params)) {
@@ -34,7 +36,10 @@ export function buildQueryString(params: Record<string, string | number | boolea
 	return queryString ? `?${queryString}` : "";
 }
 
-export function buildPaginationQuery({ limit, offset }: PaginationParams = {}, extraParams: Record<string, string | number | boolean | undefined> = {}) {
+export function buildPaginationQuery(
+	{ limit, offset }: PaginationParams = {},
+	extraParams: Record<string, string | number | boolean | undefined> = {},
+) {
 	return buildQueryString({
 		...extraParams,
 		...(isPositiveInteger(limit) ? { limit } : {}),
@@ -68,11 +73,14 @@ export async function fetchAllPaginated<T>(
 		const pageItems = itemSelector(response?.data);
 		items.push(...pageItems);
 
-		const pagination = response?.data?.pagination as Partial<Pagination> | undefined;
+		const pagination = response?.data?.pagination as
+			Partial<Pagination> | undefined;
 		hasMore = Boolean(pagination?.hasMore);
-		offset = typeof pagination?.offset === "number" && typeof pagination?.limit === "number"
-			? pagination.offset + pagination.limit
-			: offset + pageSize;
+		offset =
+			typeof pagination?.offset === "number" &&
+			typeof pagination?.limit === "number"
+				? pagination.offset + pagination.limit
+				: offset + pageSize;
 
 		if (!pagination) {
 			hasMore = false;

@@ -34,7 +34,7 @@ function decryptToken(encrypted: string): string {
 		return decrypted;
 	} catch (e) {
 		console.error("Failed to decrypt token:", e);
-		setRefreshToken('')
+		setRefreshToken("");
 		return "";
 	}
 }
@@ -50,10 +50,7 @@ export function getRefreshToken(): string | null {
 }
 
 export function setGuestAccessToken(token: string) {
-	sessionStorage.setItem(
-		GUEST_ACCESS_TOKEN_STORAGE_KEY,
-		encryptToken(token),
-	);
+	sessionStorage.setItem(GUEST_ACCESS_TOKEN_STORAGE_KEY, encryptToken(token));
 	localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
 }
 
@@ -92,6 +89,10 @@ export function refreshAuthToken(refreshToken: string) {
 	return http("/auth/refresh", "POST", {}, { token: refreshToken });
 }
 
-export function registerUser(body : {email: string, password: string, displayName: string}) {
-	return http("/auth/register", "POST", {}, body	);
+export function registerUser(body: {
+	email: string;
+	password: string;
+	displayName: string;
+}) {
+	return http("/auth/register", "POST", {}, body);
 }

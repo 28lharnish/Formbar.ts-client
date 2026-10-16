@@ -14,13 +14,13 @@ export default function LoadingScreen({
 	httpErrors: number;
 	isConnected: boolean;
 }) {
-    const isMobile = useMobileDetect();
+	const isMobile = useMobileDetect();
 	const { settings } = useSettings();
 	const { isHighContrast } = useTheme();
 	const loadingBackground = settings.accessibility.highContrast
 		? "#000000"
 		: "linear-gradient(rgba(95, 122, 158, 1) 0%, rgba(28, 68, 124, 1) 100%)";
-    
+
 	return (
 		<>
 			<Flex
@@ -41,13 +41,27 @@ export default function LoadingScreen({
 						marginBottom: "0",
 					}}
 				>
-					<span className={!isConnected ? "bounce" : undefined}>F</span>
-					<span className={!isConnected ? "bounce" : undefined}>o</span>
-					<span className={!isConnected ? "bounce" : undefined}>r</span>
-					<span className={!isConnected ? "bounce" : undefined}>m</span>
-					<span className={!isConnected ? "bounce" : undefined}>b</span>
-					<span className={!isConnected ? "bounce" : undefined}>a</span>
-					<span className={!isConnected ? "bounce" : undefined}>r</span>
+					<span className={!isConnected ? "bounce" : undefined}>
+						F
+					</span>
+					<span className={!isConnected ? "bounce" : undefined}>
+						o
+					</span>
+					<span className={!isConnected ? "bounce" : undefined}>
+						r
+					</span>
+					<span className={!isConnected ? "bounce" : undefined}>
+						m
+					</span>
+					<span className={!isConnected ? "bounce" : undefined}>
+						b
+					</span>
+					<span className={!isConnected ? "bounce" : undefined}>
+						a
+					</span>
+					<span className={!isConnected ? "bounce" : undefined}>
+						r
+					</span>
 				</Title>
 				{isConnected ? (
 					<IonIcon
@@ -85,7 +99,7 @@ export default function LoadingScreen({
 						fontSize: "20px",
 						fontWeight: 500,
 						marginTop: "0",
-                        textAlign: "center",
+						textAlign: "center",
 					}}
 				>
 					{!isConnected ? randomText() : "Loading panel..."}
@@ -122,13 +136,13 @@ function randomText() {
 		"Releasing Half-Life 3...",
 		"I'm the Formboy!",
 		"Yo, Gurt!!",
-        "Steven, fix it!!",
-        "PR #85",
-        "Robert was here... It's in your skin. It's in your blood. It's in your brain. It is part of you.",
-        "Wishlist Kogama on Steam!",
-        "onebar@yorktechapps.com",
-        "Loading battle pass...",
-        "Loading FormAI..."
+		"Steven, fix it!!",
+		"PR #85",
+		"Robert was here... It's in your skin. It's in your blood. It's in your brain. It is part of you.",
+		"Wishlist Kogama on Steam!",
+		"onebar@yorktechapps.com",
+		"Loading battle pass...",
+		"Loading FormAI...",
 	];
 
 	return splashTexts[Math.floor(Math.random() * splashTexts.length)];

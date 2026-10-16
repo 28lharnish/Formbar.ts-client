@@ -1,7 +1,6 @@
 import { io, Socket } from "socket.io-client";
 import Log from "@utils/debugLogger";
 import {
-	authLogin,
 	refreshAuthToken,
 	setRefreshToken,
 	getRefreshToken,
@@ -11,7 +10,8 @@ import {
 } from "@api/authApi";
 
 //! ONLY UNTIL LOGIN IS IMPLEMENTED
-export const formbarUrl = import.meta.env.VITE_FORMBAR_API_URL || "http://localhost:420";
+export const formbarUrl =
+	import.meta.env.VITE_FORMBAR_API_URL || "http://localhost:420";
 
 export let refreshToken: string = getRefreshToken() || "";
 export let accessToken: string = getGuestAccessToken() || "";
@@ -107,32 +107,13 @@ export function socketLogin(
 	}
 
 	refreshAuthToken(tokenToUse)
-		.then(async (res) => {
+		.then((res) => {
 			if (!res.ok) {
 				clearAuthTokens();
 				clearInMemoryAuth();
 				Log({ message: "Failed to refresh token", level: "error" });
-
-				// Get cached credentials from sessionStorage (lost on page refresh)
-				const cachedCreds = sessionStorage.getItem("formbarLoginCreds");
-				if (!cachedCreds) {
-					window.dispatchEvent(new CustomEvent("formbar:authfailed"));
-					return null;
-				}
-
-				const [email, password] = JSON.parse(cachedCreds);
-				const loginResponse = await authLogin(email, password);
-				if (!loginResponse.ok) {
-					throw new Error("Login failed", { cause: loginResponse.error });
-				}
-				const { data } = loginResponse;
-				const { refreshToken } = data;
-				Log({ message: "Login successful", data: loginResponse });
-
-				// Delegate to a fresh socketLogin call and stop this chain
-				// so the next .then() is not reached with undefined.
-				socketLogin(refreshToken);
-				return null;
+				window.dispatchEvent(new CustomEvent("formbar:authfailed"));
+				return;
 			}
 
 			const { data } = res;
@@ -157,11 +138,13 @@ export function socketLogin(
 			// stale tokens and return the user to the login page.
 			window.dispatchEvent(new CustomEvent("formbar:authfailed"));
 		});
-
 }
 
-setInterval(() => {
-	if (refreshToken) {
-		socketLogin(refreshToken);
-	}
-}, 15 * 60 * 1000); // Refresh every 10 minutes
+setInterval(
+	() => {
+		if (refreshToken) {
+			socketLogin(refreshToken);
+		}
+	},
+	15 * 60 * 1000,
+); // Refresh every 10 minutes

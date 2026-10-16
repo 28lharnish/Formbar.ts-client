@@ -27,7 +27,13 @@ export default function TransactionItem({
 				},
 			}}
 		>
-			<Flex justify="space-between" align="center" gap={20} style={{ padding: "10px 20px" }} wrap>
+			<Flex
+				justify="space-between"
+				align="center"
+				gap={20}
+				style={{ padding: "10px 20px" }}
+				wrap
+			>
 				<Flex vertical gap={5}>
 					<Text
 						style={{
@@ -38,8 +44,7 @@ export default function TransactionItem({
 						}}
 					>
 						{direction.from}{" "}
-						<IonIcon icon={IonIcons.arrowForward} />{" "}
-						{direction.to}
+						<IonIcon icon={IonIcons.arrowForward} /> {direction.to}
 					</Text>
 
 					<Text>{transaction.reason}</Text>
@@ -75,16 +80,21 @@ export default function TransactionItem({
 					}
 					suffix=""
 				/>
-
 			</Flex>
 		</Card>
 	);
 }
 
-function isOutgoingTransaction(transaction: Transaction, userId: number | undefined): boolean {
+function isOutgoingTransaction(
+	transaction: Transaction,
+	userId: number | undefined,
+): boolean {
 	if (typeof userId !== "number") return false;
 
-	if (transaction.from && (transaction.from.type === "user" || transaction.from.type === "award")) {
+	if (
+		transaction.from &&
+		(transaction.from.type === "user" || transaction.from.type === "award")
+	) {
 		return Number(transaction.from.id) === userId;
 	}
 

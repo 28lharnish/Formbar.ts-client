@@ -16,9 +16,12 @@ export default function StudentMenu() {
 	const [helpReason, setHelpReason] = useState<string>("");
 
 	const canRequestHelp = currentUserHasScope(userData, "class.help.request");
-	const canRequestBreak = currentUserHasScope(userData, "class.break.request");
+	const canRequestBreak = currentUserHasScope(
+		userData,
+		"class.break.request",
+	);
 
-	if(!canRequestBreak && !canRequestHelp) return (<></>)
+	if (!canRequestBreak && !canRequestHelp) return <></>;
 
 	return (
 		<>
@@ -35,7 +38,7 @@ export default function StudentMenu() {
 					/>
 				}
 				tooltip={{
-                    mouseEnterDelay: 0.5,
+					mouseEnterDelay: 0.5,
 					title: "Menu",
 					color: "blue",
 					placement: "left",
@@ -55,66 +58,62 @@ export default function StudentMenu() {
 					},
 				}}
 			>
-				{
-					canRequestHelp && (
-						<FloatButton
-							shape="circle"
-							type="primary"
-							tooltip={{
-								mouseEnterDelay: 0.5,
-								title: "Help Ticket",
-								color: "#ff6860",
-								placement: "left",
-							}}
-							styles={{
-								root: {
-									background: "#ff6860",
-								},
-							}}
-							onClick={() => setHelpModalOpen(true)}
-							icon={
-								<IonIcon
-									icon={IonIcons.handLeftOutline}
-									style={{
-										fontSize: "36px",
-										display: "flex",
-										filter: "invert(1)",
-									}}
-								/>
-							}
-						/>
-					)
-				}
-				{
-					canRequestBreak && (
-						<FloatButton
-							shape="circle"
-							type="primary"
-							tooltip={{
-								mouseEnterDelay: 0.5,
-								title: "Request a Break",
-								color: "#ff8f40",
-								placement: "left",
-							}}
-							styles={{
-								root: {
-									background: "#ff8f40",
-								},
-							}}
-							icon={
-								<IonIcon
-									icon={IonIcons.umbrellaOutline}
-									style={{
-										fontSize: "36px",
-										display: "flex",
-										filter: "invert(1)",
-									}}
-								/>
-							}
-							onClick={() => setBreakModalOpen(true)}
-						/>
-					)
-				}
+				{canRequestHelp && (
+					<FloatButton
+						shape="circle"
+						type="primary"
+						tooltip={{
+							mouseEnterDelay: 0.5,
+							title: "Help Ticket",
+							color: "#ff6860",
+							placement: "left",
+						}}
+						styles={{
+							root: {
+								background: "#ff6860",
+							},
+						}}
+						onClick={() => setHelpModalOpen(true)}
+						icon={
+							<IonIcon
+								icon={IonIcons.handLeftOutline}
+								style={{
+									fontSize: "36px",
+									display: "flex",
+									filter: "invert(1)",
+								}}
+							/>
+						}
+					/>
+				)}
+				{canRequestBreak && (
+					<FloatButton
+						shape="circle"
+						type="primary"
+						tooltip={{
+							mouseEnterDelay: 0.5,
+							title: "Request a Break",
+							color: "#ff8f40",
+							placement: "left",
+						}}
+						styles={{
+							root: {
+								background: "#ff8f40",
+							},
+						}}
+						icon={
+							<IonIcon
+								icon={IonIcons.umbrellaOutline}
+								style={{
+									fontSize: "36px",
+									display: "flex",
+									filter: "invert(1)",
+								}}
+							/>
+						}
+						onClick={() => setBreakModalOpen(true)}
+					/>
+				)}
 			</FloatButton.Group>
 
 			<Modal
@@ -123,7 +122,7 @@ export default function StudentMenu() {
 				onCancel={() => setHelpModalOpen(false)}
 				onOk={() => {
 					setHelpModalOpen(false);
-					if(!userData?.activeClass) return;
+					if (!userData?.activeClass) return;
 					requestHelp(userData?.activeClass, helpReason);
 				}}
 			>
@@ -142,7 +141,7 @@ export default function StudentMenu() {
 				onCancel={() => setBreakModalOpen(false)}
 				onOk={() => {
 					setBreakModalOpen(false);
-					if(!userData?.id || !userData?.activeClass) return;
+					if (!userData?.id || !userData?.activeClass) return;
 					requestBreak(
 						userData?.activeClass,
 						breakType === "Other" ? breakReason : breakType,

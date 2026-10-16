@@ -1,9 +1,30 @@
-import { useClassData, useMobileDetect, useSettings, useTheme, useUserData } from "@/main";
-import { Button, Card, ColorPicker, Divider, Flex, Input, Listy, Switch, Typography } from "antd";
+import {
+	useClassData,
+	useMobileDetect,
+	useSettings,
+	useTheme,
+	useUserData,
+} from "@/main";
+import {
+	Button,
+	Card,
+	ColorPicker,
+	Divider,
+	Flex,
+	Input,
+	Listy,
+	Switch,
+	Typography,
+} from "antd";
 const { Title, Text } = Typography;
 import { IonIcon } from "@ionic/react";
 import * as IonIcons from "ionicons/icons";
-import { getClassRoles, updateRole, createRole, deleteRole } from "@api/rolesApi";
+import {
+	getClassRoles,
+	updateRole,
+	createRole,
+	deleteRole,
+} from "@api/rolesApi";
 import { useEffect, useState } from "react";
 import { darkMode, lightMode } from "@/themes/ThemeConfig";
 import { SCOPES } from "@/types";
@@ -40,7 +61,11 @@ interface SortableRoleItemProps {
 	onSelect: (id: number) => void;
 }
 
-	function SortableRoleItem({ role, isSelected, onSelect }: SortableRoleItemProps) {
+function SortableRoleItem({
+	role,
+	isSelected,
+	onSelect,
+}: SortableRoleItemProps) {
 	const {
 		attributes,
 		listeners,
@@ -64,20 +89,28 @@ interface SortableRoleItemProps {
 			onClick={() => onSelect(role.id)}
 			className="sortable-role-item"
 		>
-			<Flex align="center" gap={8} style={{ width: "100%", cursor: "pointer" }}>
+			<Flex
+				align="center"
+				gap={8}
+				style={{ width: "100%", cursor: "pointer" }}
+			>
 				<span
 					style={{
 						padding: "8px",
 						flex: 1,
-						backgroundColor: isSelected ? "rgba(0, 0, 0, 0.1)" : "transparent",
-						borderLeft: isSelected ? `3px solid ${role.color}` : "3px solid transparent",
+						backgroundColor: isSelected
+							? "rgba(0, 0, 0, 0.1)"
+							: "transparent",
+						borderLeft: isSelected
+							? `3px solid ${role.color}`
+							: "3px solid transparent",
 						borderRadius: "4px",
 						color: role.color,
 						fontWeight: isSelected ? 600 : 400,
 						transition: "all 0.2s ease",
-						display: 'flex',
-						justifyContent: 'start',
-						alignItems: 'center'
+						display: "flex",
+						justifyContent: "start",
+						alignItems: "center",
 					}}
 				>
 					<div
@@ -90,7 +123,10 @@ interface SortableRoleItemProps {
 							alignItems: "center",
 						}}
 					>
-						<IonIcon icon={IonIcons.reorderFour} style={{ fontSize: 18 }} />
+						<IonIcon
+							icon={IonIcons.reorderFour}
+							style={{ fontSize: 18 }}
+						/>
 					</div>
 					{role.name}
 				</span>
@@ -101,7 +137,7 @@ interface SortableRoleItemProps {
 
 export default function RolesMenu() {
 	const isMobile = useMobileDetect();
-	const {settings} = useSettings();
+	const { settings } = useSettings();
 	const { classData } = useClassData();
 	const { userData } = useUserData();
 
@@ -119,11 +155,11 @@ export default function RolesMenu() {
 		}),
 		useSensor(KeyboardSensor, {
 			coordinateGetter: sortableKeyboardCoordinates,
-		})
+		}),
 	);
 
 	useEffect(() => {
-		if(!classData) return;
+		if (!classData) return;
 
 		fetchRoles();
 	}, [classData]);
@@ -135,7 +171,7 @@ export default function RolesMenu() {
 	}, [selectedRoleId, roles]);
 
 	function fetchRoles() {
-		if(!classData) return;
+		if (!classData) return;
 
 		getClassRoles(classData?.id).then((roles) => {
 			setRoles(roles.data);
@@ -153,7 +189,10 @@ export default function RolesMenu() {
 		const savePromises: Promise<any>[] = [];
 		const idRemaps = new Map<number, number>();
 
-		const trackRoleIdRemap = (requestedRoleId: number, response: { data?: { id?: number } }) => {
+		const trackRoleIdRemap = (
+			requestedRoleId: number,
+			response: { data?: { id?: number } },
+		) => {
 			const savedRoleId = response?.data?.id;
 			if (savedRoleId != null && savedRoleId !== requestedRoleId) {
 				idRemaps.set(requestedRoleId, savedRoleId);
@@ -162,12 +201,12 @@ export default function RolesMenu() {
 
 		// Find deleted roles (in originalRoles but not in roles)
 		const deletedRoles = originalRoles.filter(
-			(original) => !roles.find((r) => r.id === original.id)
+			(original) => !roles.find((r) => r.id === original.id),
 		);
 
 		// Find new roles (in roles but not in originalRoles)
 		const newRoles = roles.filter(
-			(role) => !originalRoles.find((r) => r.id === role.id)
+			(role) => !originalRoles.find((r) => r.id === role.id),
 		);
 
 		// Delete roles
@@ -186,7 +225,7 @@ export default function RolesMenu() {
 				}).then((response) => {
 					trackRoleIdRemap(role.id, response);
 					return response;
-				})
+				}),
 			);
 		});
 
@@ -195,8 +234,11 @@ export default function RolesMenu() {
 			const original = originalRoles.find((r) => r.id === role.id);
 			if (!original) return;
 
-			const originalIndex = originalRoles.findIndex((r) => r.id === role.id);
-			const contentChanged = JSON.stringify(original) !== JSON.stringify(role);
+			const originalIndex = originalRoles.findIndex(
+				(r) => r.id === role.id,
+			);
+			const contentChanged =
+				JSON.stringify(original) !== JSON.stringify(role);
 			const orderChanged = originalIndex !== index;
 
 			if (contentChanged || orderChanged) {
@@ -209,7 +251,7 @@ export default function RolesMenu() {
 					}).then((response) => {
 						trackRoleIdRemap(role.id, response);
 						return response;
-					})
+					}),
 				);
 			}
 		});
@@ -225,8 +267,10 @@ export default function RolesMenu() {
 					setRoles((prevRoles) =>
 						prevRoles.map((role) => {
 							const remappedId = idRemaps.get(role.id);
-							return remappedId ? { ...role, id: remappedId } : role;
-						})
+							return remappedId
+								? { ...role, id: remappedId }
+								: role;
+						}),
 					);
 
 					if (remappedSelection != null) {
@@ -249,7 +293,7 @@ export default function RolesMenu() {
 	}
 
 	function handlePermissionToggle(scopeKey: string, isChecked: boolean) {
-		if(!selectedRoleId) return;
+		if (!selectedRoleId) return;
 
 		setRoles((prevRoles) =>
 			prevRoles.map((role) => {
@@ -260,13 +304,13 @@ export default function RolesMenu() {
 					: (role.scopes || []).filter((s: any) => s !== scopeKey);
 
 				return { ...role, scopes: updatedScopes };
-			})
+			}),
 		);
 	}
 
 	function handleCreateRole() {
-		const newRoleId = Math.min(...roles.map(r => r.id), 0) - 1; // Generate temporary negative ID for new roles
-		
+		const newRoleId = Math.min(...roles.map((r) => r.id), 0) - 1; // Generate temporary negative ID for new roles
+
 		setRoles((prevRoles) => [
 			...prevRoles,
 			{
@@ -274,16 +318,16 @@ export default function RolesMenu() {
 				name: "New role",
 				scopes: [],
 				color: "#000000",
-			}
+			},
 		]);
 		setSelectedRoleId(newRoleId);
 	}
 
 	function handleDeleteRole() {
-		if(!selectedRoleId) return;
+		if (!selectedRoleId) return;
 
 		setRoles((prevRoles) =>
-			prevRoles.filter((role) => role.id !== selectedRoleId)
+			prevRoles.filter((role) => role.id !== selectedRoleId),
 		);
 		setSelectedRoleId(null);
 	}
@@ -308,15 +352,60 @@ export default function RolesMenu() {
 
 	return (
 		<>
-			<Flex style={{width: '100%', height: '100%', padding: 20, overflow:'scroll'}} gap={10} vertical={isMobile}>
-				<Flex vertical style={{width:isMobile ? '100%' : '300px', borderRadius: isHighContrast ? 0 : 6, background: isHighContrast ? '#000000' : settings.appearance.theme === 'dark' ? darkMode.components.Card.colorBgContainer : lightMode.components.Card.colorBgContainer, border: isHighContrast ? '2px solid #ffffff' : undefined, padding: '15px 0'}} gap={10}>
-					<Flex align="center" justify="space-between" style={{padding: '0 15px'}}>
-						<Title level={4} style={{margin: 0}}>Roles</Title>
-						<Button type="primary" variant="solid" onClick={handleCreateRole} style={{display:'flex',justifyContent:'center',alignItems:'center'}}><IonIcon icon={IonIcons.addCircle}/></Button>
+			<Flex
+				style={{
+					width: "100%",
+					height: "100%",
+					padding: 20,
+					overflow: "scroll",
+					paddingBottom: 8
+				}}
+				gap={10}
+				vertical={isMobile}
+			>
+				<Flex
+					vertical
+					style={{
+						width: isMobile ? "100%" : "300px",
+						borderRadius: isHighContrast ? 0 : 6,
+						background: isHighContrast
+							? "#000000"
+							: settings.appearance.theme === "dark"
+								? darkMode.components.Card.colorBgContainer
+								: lightMode.components.Card.colorBgContainer,
+						border: isHighContrast
+							? "2px solid #ffffff"
+							: undefined,
+						padding: "15px 0",
+					}}
+					gap={10}
+				>
+					<Flex
+						align="center"
+						justify="space-between"
+						style={{ padding: "0 15px" }}
+					>
+						<Title level={4} style={{ margin: 0 }}>
+							Roles
+						</Title>
+						<Button
+							type="primary"
+							variant="solid"
+							onClick={handleCreateRole}
+							style={{
+								display: "flex",
+								justifyContent: "center",
+								alignItems: "center",
+							}}
+						>
+							<IonIcon icon={IonIcons.addCircle} />
+						</Button>
 					</Flex>
 					<DndContext
 						sensors={canEditRoles ? sensors : []}
-						collisionDetection={canEditRoles ? closestCenter : undefined}
+						collisionDetection={
+							canEditRoles ? closestCenter : undefined
+						}
 						onDragEnd={canEditRoles ? handleDragEnd : undefined}
 						modifiers={canEditRoles ? [restrictToVerticalAxis] : []}
 					>
@@ -325,12 +414,20 @@ export default function RolesMenu() {
 							strategy={verticalListSortingStrategy}
 						>
 							<Listy
-								style={{width:'100%', borderRadius: 6, background: 'none', paddingInline: 0, overflowY: 'scroll', overflowX: 'hidden', flex: 1}}
+								style={{
+									width: "100%",
+									borderRadius: 6,
+									background: "none",
+									paddingInline: 0,
+									overflowY: "scroll",
+									overflowX: "hidden",
+									flex: 1,
+								}}
 								styles={{
 									item: {
 										padding: 0,
-										width: '100%'
-									}
+										width: "100%",
+									},
 								}}
 								items={roles}
 								rowKey={"id"}
@@ -346,84 +443,195 @@ export default function RolesMenu() {
 						</SortableContext>
 					</DndContext>
 				</Flex>
-				<Card style={{flex:"1 1 auto", display: 'flex', flexDirection: 'column'}} styles={{body:{height:'100%', display: 'flex', flexDirection: 'column'}}}>
-					<Flex vertical justify="start" align="center" style={{height:'100%', overflowY:'auto', flex: 1}}>
-						<Flex align="center" justify="space-between" gap={10} style={{width:'100%', marginBottom: 20}}>
-							<Input style={{flex: '1 1 auto'}} placeholder="Role Name" value={editedRoleName} disabled={!canEditRoles} onChange={(e) => {
-								setEditedRoleName(e.target.value);
-								if(!selectedRoleId) return;
-								setRoles((prevRoles) =>
-									prevRoles.map((role) => {
-										if (role.id !== selectedRoleId) return role;
-										return { ...role, name: e.target.value };
-									})
-								);
-							}} />
-							<ColorPicker disabledAlpha value={editedRoleColor} 
-							disabled={!canEditRoles}
-							styles={{
-								root: {
-									height: '100%',
-									minWidth: 'unset',
-									width: 'unset',
-									aspectRatio: 1,
-								},
-							}} onChange={(color) => {
-								const colorHex = color.toHexString();
-								setEditedRoleColor(colorHex);
-								if(!selectedRoleId) return;
-								setRoles((prevRoles) =>
-									prevRoles.map((role) => {
-										if (role.id !== selectedRoleId) return role;
-										return { ...role, color: colorHex };
-									})
-								);
-							}}/>
-							<Button variant="solid" type="primary" color="red" style={{aspectRatio: 1, height: '42px'}} onClick={handleDeleteRole} disabled={!selectedRoleId || !canEditRoles}>
+				<Card
+					style={{
+						flex: "1 1 auto",
+						display: "flex",
+						flexDirection: "column",
+					}}
+					styles={{
+						body: {
+							height: "100%",
+							display: "flex",
+							flexDirection: "column",
+						},
+					}}
+				>
+					<Flex
+						vertical
+						justify="start"
+						align="center"
+						style={{ height: "100%", overflowY: "auto", flex: 1 }}
+					>
+						<Flex
+							align="center"
+							justify="space-between"
+							gap={10}
+							style={{ width: "100%", marginBottom: 20 }}
+						>
+							<Input
+								style={{ flex: "1 1 auto" }}
+								placeholder="Role Name"
+								value={editedRoleName}
+								disabled={!canEditRoles}
+								onChange={(e) => {
+									setEditedRoleName(e.target.value);
+									if (!selectedRoleId) return;
+									setRoles((prevRoles) =>
+										prevRoles.map((role) => {
+											if (role.id !== selectedRoleId)
+												return role;
+											return {
+												...role,
+												name: e.target.value,
+											};
+										}),
+									);
+								}}
+							/>
+							<ColorPicker
+								disabledAlpha
+								value={editedRoleColor}
+								disabled={!canEditRoles}
+								styles={{
+									root: {
+										height: "100%",
+										minWidth: "unset",
+										width: "unset",
+										aspectRatio: 1,
+									},
+								}}
+								onChange={(color) => {
+									const colorHex = color.toHexString();
+									setEditedRoleColor(colorHex);
+									if (!selectedRoleId) return;
+									setRoles((prevRoles) =>
+										prevRoles.map((role) => {
+											if (role.id !== selectedRoleId)
+												return role;
+											return { ...role, color: colorHex };
+										}),
+									);
+								}}
+							/>
+							<Button
+								variant="solid"
+								type="primary"
+								color="red"
+								style={{ aspectRatio: 1, height: "42px" }}
+								onClick={handleDeleteRole}
+								disabled={!selectedRoleId || !canEditRoles}
+							>
 								<IonIcon icon={IonIcons.trash} />
 							</Button>
 						</Flex>
-						{
-							(Object.keys(SCOPES.CLASS) as CategoryKey[]).map((category) => {
+						{(Object.keys(SCOPES.CLASS) as CategoryKey[]).map(
+							(category) => {
 								const categoryData = SCOPES.CLASS[category];
 								return (
-									<div key={category} style={{marginTop: 20, width: '100%'}}>
-										<Title level={4} style={{marginBottom: 10, fontSize: 16, fontWeight: 'bolder'}}>{categoryData.title}</Title>
+									<div
+										key={category}
+										style={{ marginTop: 20, width: "100%" }}
+									>
+										<Title
+											level={4}
+											style={{
+												marginBottom: 10,
+												fontSize: 16,
+												fontWeight: "bolder",
+											}}
+										>
+											{categoryData.title}
+										</Title>
 										<Flex vertical gap={5}>
-											{
-												Object.entries(categoryData.actions).map(([action, actionData]) => {
-													const selectedRole = roles.find((r) => r.id === selectedRoleId);
-													const hasPermission = selectedRole?.scopes?.includes(actionData.key) ?? false;
+											{Object.entries(
+												categoryData.actions,
+											).map(([action, actionData]) => {
+												const selectedRole = roles.find(
+													(r) =>
+														r.id === selectedRoleId,
+												);
+												const hasPermission =
+													selectedRole?.scopes?.includes(
+														actionData.key,
+													) ?? false;
 
-													return (
-														<Flex key={action} style={{ borderRadius: 4, padding: 5 }} align="center">
-															<Flex vertical style={{flex: 1}}>
-																<Text style={{fontWeight: 500}}>{actionData.label}</Text>
-																<Text type="secondary" style={{ fontSize: 12 }}>
-																	{actionData.description}
-																</Text>
-															</Flex>
-															<Switch
-																style={{ marginLeft: "auto" }}
-																checked={hasPermission}
-																onChange={(checked) => handlePermissionToggle(actionData.key, checked)}
-																disabled={!selectedRoleId || !canEditRoles}
-															/>
+												return (
+													<Flex
+														key={action}
+														style={{
+															borderRadius: 4,
+															padding: 5,
+														}}
+														align="center"
+													>
+														<Flex
+															vertical
+															style={{ flex: 1 }}
+														>
+															<Text
+																style={{
+																	fontWeight: 500,
+																}}
+															>
+																{
+																	actionData.label
+																}
+															</Text>
+															<Text
+																type="secondary"
+																style={{
+																	fontSize: 12,
+																}}
+															>
+																{
+																	actionData.description
+																}
+															</Text>
 														</Flex>
-													);
-												})
-											}
-											<Divider style={{margin: '10px 0'}} />
+														<Switch
+															style={{
+																marginLeft:
+																	"auto",
+															}}
+															checked={
+																hasPermission
+															}
+															onChange={(
+																checked,
+															) =>
+																handlePermissionToggle(
+																	actionData.key,
+																	checked,
+																)
+															}
+															disabled={
+																!selectedRoleId ||
+																!canEditRoles
+															}
+														/>
+													</Flex>
+												);
+											})}
+											<Divider
+												style={{ margin: "10px 0" }}
+											/>
 										</Flex>
 									</div>
 								);
-							})
-						}
+							},
+						)}
 					</Flex>
 					{hasChanges() && (
-						<Flex gap={10} style={{marginTop: 20}} justify="flex-end">
+						<Flex
+							gap={10}
+							style={{ marginTop: 20 }}
+							justify="flex-end"
+						>
 							<Button onClick={handleCancel}>Cancel</Button>
-							<Button type="primary" onClick={handleSave}>Save Changes</Button>
+							<Button type="primary" onClick={handleSave}>
+								Save Changes
+							</Button>
 						</Flex>
 					)}
 				</Card>
