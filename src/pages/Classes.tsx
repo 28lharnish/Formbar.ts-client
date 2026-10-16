@@ -13,6 +13,7 @@ import {
 	createClass as createClassAPI,
 	deleteClass as deleteClassAPI,
 	enrollInClass,
+	unenrollFromClass
 } from "@api/classApi";
 import { type CurrentUserData } from "@/types";
 import { currentUserHasScope } from "@utils/scopeUtils";
@@ -189,6 +190,28 @@ export default function ClassesPage() {
 					});
 			},
 		});
+	}
+
+	function unenrollFromClassFn(id: number) {
+		unenrollFromClass(id)
+			.then((response) => {
+				const { data } = response;
+				Log({ message: "Unenrolled from class " + id, data });
+				if (response.success) {
+					getClasses();
+					setSelectedClass(null);
+				} else {
+					showActionError(response, "Failed to unenroll from class.");
+				}
+			})
+			.catch((err) => {
+				Log({
+					message: "Error unenrolling from class",
+					data: err,
+					level: "error",
+				});
+				showActionError(err, "Failed to unenroll from class.");
+			});
 	}
 
 	function enterClassWithId(classId: number) {
@@ -407,6 +430,14 @@ export default function ClassesPage() {
 									}
 								>
 									Enter{isMobileView ? "" : " Class"}
+								</Button>
+								<Button
+									type="primary"
+									onClick={() =>
+										unenrollFromClassFn(selectedClass!)
+									}
+								>
+									Leave{isMobileView ? "" : " Class"}
 								</Button>
 								{userData && canDeleteClasses && (
 									<Button

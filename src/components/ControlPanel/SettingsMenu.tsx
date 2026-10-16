@@ -10,6 +10,7 @@ import {
 	Modal,
 	Tooltip,
 	Card,
+	Select,
 } from "antd";
 const { Title, Text } = Typography;
 import {
@@ -82,6 +83,9 @@ export default function SettingsMenu() {
 	);
 
 	const [isQRModalOpen, setIsQRModalOpen] = useState(false);
+	const [defaultRoleId, setDefaultRoleId] = useState<number | undefined>(
+		undefined,
+	);
 
 	const [openModalId, setOpenModalId] = useState<number | null>(null);
 
@@ -124,6 +128,35 @@ export default function SettingsMenu() {
 				});
 		}
 	}, [classData]);
+
+	useEffect(() => {
+		setDefaultRoleId(classData?.settings.defaultRoleId ?? undefined);
+	}, [classData]);
+
+	function updateDefaultRole(roleId: number) {
+		if (!classData) return;
+
+		const previousRoleId = defaultRoleId;
+		setDefaultRoleId(roleId);
+		updateSettings(classData.id, { defaultRoleId: roleId })
+			.then((response) => {
+				if (response?.success === false || response?.error) {
+					setDefaultRoleId(previousRoleId);
+					globalMessageAPI.error(
+						"Failed to update the default role.",
+					);
+				}
+			})
+			.catch((error) => {
+				setDefaultRoleId(previousRoleId);
+				Log({
+					message: "Error updating default role:",
+					data: error,
+					level: "error",
+				});
+				globalMessageAPI.error("Failed to update the default role.");
+			});
+	}
 
 	useEffect(() => {
 		if (!classData || !canManageUsers) {
@@ -331,6 +364,29 @@ export default function SettingsMenu() {
 										Change Class Name
 									</Button>
 								)}
+							</Flex>
+							<Flex
+								gap={10}
+								align="center"
+								style={{ width: isMobile ? "100%" : "600px" }}
+								vertical={isMobile}
+							>
+								<Text style={{ minWidth: isMobile ? undefined : 120 }}>
+									Default Role
+								</Text>
+								<Select
+									value={defaultRoleId}
+									placeholder="Select a default role"
+									style={{ width: "100%" }}
+									onChange={updateDefaultRole}
+									options={[
+										{ label: "None", value: null },
+										...(classData?.roles ?? []).map((role) => ({
+											label: role.name,
+											value: role.id,
+										})),
+									]}
+								/>
 							</Flex>
 
 							{isMobile && (
