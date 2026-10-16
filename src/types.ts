@@ -98,6 +98,7 @@ export type ClassData = {
 		mute: boolean;
 		filter: any;
 		sort: any;
+		defaultRoleId?: number | null;
 		isExcluded: {
 			guests: boolean;
 			mods: boolean;
