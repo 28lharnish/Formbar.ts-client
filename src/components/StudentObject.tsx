@@ -1,8 +1,7 @@
-import { Badge, Button, Flex, Row, Modal, Typography } from "antd";
+import { Badge, Button, Flex, Modal, Typography } from "antd";
 import { useClassData, useMobileDetect, useUserData } from "@/main";
 import { useEffect, useRef } from "react";
 const { Text } = Typography;
-import { currentUserHasScope } from "@/utils/scopeUtils";
 import type { Student } from "@/types";
 import StudentManagementGrid from "@components/StudentManagementGrid";
 import { StudentAccordion } from "./AccordionCollapse";

@@ -1298,28 +1298,28 @@ async function requestClassHelp(inputValue: string) {
 	}
 }
 
-async function joinClassByCode(inputValue: string) {
-	if (!inputValue)
-		return Log({
-			message: "joinClassByCode requires a code or JSON with {code}",
-			level: "warn",
-		});
-	let code = inputValue;
-	try {
-		const parsed = JSON.parse(inputValue);
-		if (parsed.code) code = parsed.code;
-	} catch {}
-	try {
-		const data = await classApi.enrollInClass(code);
-		Log({ message: "Join Class By Code:", data });
-	} catch (err) {
-		Log({
-			message: "Error joining class by code:",
-			data: err,
-			level: "error",
-		});
-	}
-}
+// async function joinClassByCode(inputValue: string) {
+// 	if (!inputValue)
+// 		return Log({
+// 			message: "joinClassByCode requires a code or JSON with {code}",
+// 			level: "warn",
+// 		});
+// 	let code = inputValue;
+// 	try {
+// 		const parsed = JSON.parse(inputValue);
+// 		if (parsed.code) code = parsed.code;
+// 	} catch {}
+// 	try {
+// 		const data = await classApi.enrollInClass(code);
+// 		Log({ message: "Join Class By Code:", data });
+// 	} catch (err) {
+// 		Log({
+// 			message: "Error joining class by code:",
+// 			data: err,
+// 			level: "error",
+// 		});
+// 	}
+// }
 
 // --- Class - Links ---
 async function removeClassLink(inputValue: string) {

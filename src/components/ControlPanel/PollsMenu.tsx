@@ -120,13 +120,14 @@ const defaultPolls: DefaultPoll[] = [
 		blindUntilEnded: false,
 		autoEndTimer: null,
 		autoEndThreshold: null,
-	},
+		divider: true
+	}
 ];
 
 import { useTheme } from "@/main";
 import { useEffect, useState } from "react";
 
-import { getPolls } from "@api/classApi";
+import { getClassPollTemplates, getPolls } from "@api/classApi";
 import { currentUserHasScope } from "@utils/scopeUtils";
 import {
 	millisecondsToSeconds,
@@ -182,6 +183,8 @@ export default function PollsMenu({
 	>([]);
 
 	// Previous polls pagination state
+	const [savedClassPolls, setSavedClassPolls] = useState<any[]>([]);
+
 	const [previousPolls, setPreviousPolls] = useState<any[]>([]);
 	const [currentPage, setCurrentPage] = useState(1);
 	const [pageSize, setPageSize] = useState(10);
@@ -283,6 +286,18 @@ export default function PollsMenu({
 			.finally(() => {
 				setIsPreviousPollsLoading(false);
 			});
+
+		getClassPollTemplates(classData.id)
+			.then((data) => {
+				if (data.success) {
+					const pollsData = Array.isArray(data.data?.polls)
+						? data.data.polls
+						: Array.isArray(data.data)
+							? data.data
+							: [];
+					setSavedClassPolls(pollsData);
+				}
+			})
 	}, [classData, currentPage, pageSize]);
 
 	return (
@@ -310,7 +325,7 @@ export default function PollsMenu({
 					}}
 				>
 					<Title level={isMobile ? 3 : 2}>Default Polls</Title>
-					{defaultPolls.map((poll) => {
+					{[...defaultPolls, ...savedClassPolls].map((poll) => {
 						return (
 							<>
 								<div
@@ -359,7 +374,7 @@ export default function PollsMenu({
 											);
 											setPollPrompt(poll.prompt);
 											setPollAnswers(
-												poll.answers.map((a) => ({
+												poll.answers.map((a: any) => ({
 													...a,
 												})),
 											);
