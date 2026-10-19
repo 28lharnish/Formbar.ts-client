@@ -48,11 +48,6 @@ import { CSS } from "@dnd-kit/utilities";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { currentUserHasScope } from "@utils/scopeUtils";
 
-interface Item {
-	id: number;
-	content: string;
-}
-
 type CategoryKey = keyof typeof SCOPES.CLASS;
 
 interface SortableRoleItemProps {
@@ -431,7 +426,7 @@ export default function RolesMenu() {
 								}}
 								items={roles}
 								rowKey={"id"}
-								itemRender={(role) => (
+								itemRender={(role: { id: number }) => (
 									<SortableRoleItem
 										key={role.id}
 										role={role}

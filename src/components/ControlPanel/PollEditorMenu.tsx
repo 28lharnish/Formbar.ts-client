@@ -953,13 +953,17 @@ export default function PollsEditorMenu({
 							minWidth: 0,
 							height: "100%",
 						}}
+						styles={{
+							body: {
+								height: 'calc(100% - 64px)',
+  								overflow: 'scroll'
+							}
+						}}
 					>
 						<Flex
 							vertical
 							gap={10}
 							style={{
-								height: "100%",
-								maxHeight: "none",
 								overflowY: "auto",
 							}}
 						>
