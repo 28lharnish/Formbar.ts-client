@@ -534,8 +534,6 @@ const AppContent = () => {
 		let attempts = 0;
 		let timeoutId: ReturnType<typeof setTimeout>;
 
-		fetchConfig();
-
 		async function pingServer() {
 			attempts++;
 			setHttpErrorCount(attempts - 1);
@@ -568,12 +566,13 @@ const AppContent = () => {
 						timeoutId = setTimeout(pingServer, 1000); // Retry after 1 second
 					}
 				});
+			setHttpErrorCount(0)
 		}
 
 		pingServer();
 
 		return () => {
-			clearTimeout(timeoutId);
+			// clearTimeout(timeoutId);
 		};
 	}, []);
 

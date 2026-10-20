@@ -2,6 +2,13 @@ import { accessToken } from "@utils/socket";
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 const apiVersion = "v1";
+const anonymousClientIdStorageKey = "anonymousClientId";
+const anonymousClientIdPaths = new Set([
+	"/certs",
+	"/config",
+	"/auth/refresh",
+	"/auth/login"
+]);
 
 let apiErrorReporter: ((message: string) => void) | null = null;
 const reportedApiErrors = new WeakSet<object>();
@@ -66,13 +73,21 @@ export async function http(
 ): Promise<any> {
 	const baseUrl = import.meta.env.VITE_FORMBAR_API_URL ?? "";
 	const token = getToken();
+	const usesAnonymousClientId = anonymousClientIdPaths.has(path);
+	let anonymousClientId = usesAnonymousClientId
+		? localStorage.getItem(anonymousClientIdStorageKey)
+		: null;
+	const requestUrl = `${baseUrl}/api/${apiVersion}${path}`;
 
 	try {
-		const res = await fetch(`${baseUrl}/api/${apiVersion}${path}`, {
+		const requestOptions: RequestInit = {
 			method,
 			headers: {
 				"Content-Type": headers?.["Content-Type"] || "application/json",
 				Authorization: token ? `Bearer ${token}` : "",
+				...(anonymousClientId
+					? { "X-Anonymous-Client-Id": anonymousClientId }
+					: {}),
 				...(headers || {}),
 			},
 			...(body !== undefined
@@ -83,7 +98,37 @@ export async function http(
 								: JSON.stringify(body),
 					}
 				: {}),
-		});
+		};
+		let res = await fetch(requestUrl, requestOptions);
+
+		if (usesAnonymousClientId && !anonymousClientId && !res.ok) {
+			const newAnonymousClientId = res.headers.get(
+				"X-Anonymous-Client-Id",
+			);
+			if (newAnonymousClientId) {
+				anonymousClientId = newAnonymousClientId;
+				localStorage.setItem(
+					anonymousClientIdStorageKey,
+					newAnonymousClientId,
+				);
+				(requestOptions.headers as Record<string, string>)[
+					"X-Anonymous-Client-Id"
+				] = newAnonymousClientId;
+				res = await fetch(requestUrl, requestOptions);
+			}
+		}
+
+		if (usesAnonymousClientId) {
+			const newAnonymousClientId = res.headers.get(
+				"X-Anonymous-Client-Id",
+			);
+			if (newAnonymousClientId) {
+				localStorage.setItem(
+					anonymousClientIdStorageKey,
+					newAnonymousClientId,
+				);
+			}
+		}
 
 		if (!res.ok) {
 			const text = await res.text().catch(() => "");
