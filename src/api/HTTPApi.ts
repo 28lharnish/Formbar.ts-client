@@ -7,7 +7,8 @@ const anonymousClientIdPaths = new Set([
 	"/certs",
 	"/config",
 	"/auth/refresh",
-	"/auth/login"
+	"/auth/login",
+	"/oauth/authorize/metadata"
 ]);
 
 let apiErrorReporter: ((message: string) => void) | null = null;
@@ -73,7 +74,8 @@ export async function http(
 ): Promise<any> {
 	const baseUrl = import.meta.env.VITE_FORMBAR_API_URL ?? "";
 	const token = getToken();
-	const usesAnonymousClientId = anonymousClientIdPaths.has(path);
+	const requestPath = path.split("?", 1)[0];
+	const usesAnonymousClientId = anonymousClientIdPaths.has(requestPath);
 	let anonymousClientId = usesAnonymousClientId
 		? localStorage.getItem(anonymousClientIdStorageKey)
 		: null;
