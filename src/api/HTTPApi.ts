@@ -29,6 +29,7 @@ export function registerApiErrorReporter(
 export function reportApiError(error: unknown, fallback: string): void {
 	const message =
 		error instanceof Error && error.message ? error.message : fallback;
+	if(message.includes("X-Anonymous-Client-Id")) return; //? These are already auto-retried, no need to show user
 	if (typeof error === "object" && error !== null) {
 		reportedApiErrors.add(error);
 	}
