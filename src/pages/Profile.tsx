@@ -592,28 +592,28 @@ export default function Profile() {
 							style={
 								isMobile
 									? {
-											height: sensitiveActiveKeys.includes(
-												"1",
-											)
-												? "0"
-												: "120px",
-											width: "100%",
-											overflow: "hidden",
-											transition: "height 0.3s ease",
-										}
+										height: sensitiveActiveKeys.includes(
+											"1",
+										)
+											? "0"
+											: "120px",
+										width: "100%",
+										overflow: "hidden",
+										transition: "height 0.3s ease",
+									}
 									: {
-											width: "100%",
-										}
+										width: "100%",
+									}
 							}
 						>
 							{!error &&
 								Object.entries(profileProps).map(
 									([key, value]) =>
 										key == "Pog Meter" ||
-										value == "N/A" ? null : key ==
+											value == "N/A" ? null : key ==
 												"Digipogs" &&
-										  settings.accessibility
-												.disableAnimations === false ? (
+												settings.accessibility
+													.disableAnimations === false ? (
 											<p key={key} style={infoStyle}>
 												<strong>{key}:</strong>
 												{
@@ -649,7 +649,6 @@ export default function Profile() {
 									onOk={() => {
 										if (
 											!transferDigipog ||
-											transferDigipog <= 0 ||
 											!canTransferDigipogs ||
 											!userData
 										) {
@@ -665,7 +664,7 @@ export default function Profile() {
 											.then((response) => {
 												if (
 													response?.success ===
-														false ||
+													false ||
 													response?.error
 												)
 													return;
@@ -709,7 +708,7 @@ export default function Profile() {
 											onChange={(value) =>
 												setTransferDigipog(value || 0)
 											}
-											min={0}
+
 										/>
 										<Input
 											placeholder="Reason"
@@ -788,86 +787,86 @@ export default function Profile() {
 														<>
 															{hasPin !==
 																false && (
-																<Flex
-																	vertical
-																	gap={8}
-																>
 																	<Flex
-																		justify="space-between"
-																		align="center"
+																		vertical
+																		gap={8}
 																	>
-																		<Text
-																			strong
+																		<Flex
+																			justify="space-between"
+																			align="center"
 																		>
-																			API
-																			{!isMobile &&
-																				" Key"}
-																		</Text>
-																		<Button
-																			type="primary"
-																			onClick={
-																				regenerateApiKey
-																			}
-																			loading={
-																				apiKeyLoading
-																			}
-																		>
-																			Regenerate
-																			API
-																			Key
-																		</Button>
-																	</Flex>
-																	{apiKey ? (
-																		<Space.Compact
-																			style={{
-																				height: 40,
-																			}}
-																		>
-																			<Input
-																				disabled
-																				value={
-																					apiKey
-																				}
-																			/>
+																			<Text
+																				strong
+																			>
+																				API
+																				{!isMobile &&
+																					" Key"}
+																			</Text>
 																			<Button
-																				style={{
-																					height: "100%",
-																				}}
-																				variant="solid"
 																				type="primary"
-																				onClick={() => {
-																					window.navigator.clipboard.writeText(
-																						apiKey,
-																					);
-																					messageApi.success(
-																						"API key copied to clipboard.",
-																					);
+																				onClick={
+																					regenerateApiKey
+																				}
+																				loading={
+																					apiKeyLoading
+																				}
+																			>
+																				Regenerate
+																				API
+																				Key
+																			</Button>
+																		</Flex>
+																		{apiKey ? (
+																			<Space.Compact
+																				style={{
+																					height: 40,
 																				}}
 																			>
-																				Copy
-																			</Button>
-																		</Space.Compact>
-																	) : (
-																		<Input
-																			disabled
-																			value={fakeApiKey()}
-																			style={{
-																				height: 40,
-																				filter: "blur(3px)",
-																				pointerEvents:
-																					"none",
-																			}}
-																		/>
-																	)}
-																</Flex>
-															)}
+																				<Input
+																					disabled
+																					value={
+																						apiKey
+																					}
+																				/>
+																				<Button
+																					style={{
+																						height: "100%",
+																					}}
+																					variant="solid"
+																					type="primary"
+																					onClick={() => {
+																						window.navigator.clipboard.writeText(
+																							apiKey,
+																						);
+																						messageApi.success(
+																							"API key copied to clipboard.",
+																						);
+																					}}
+																				>
+																					Copy
+																				</Button>
+																			</Space.Compact>
+																		) : (
+																			<Input
+																				disabled
+																				value={fakeApiKey()}
+																				style={{
+																					height: 40,
+																					filter: "blur(3px)",
+																					pointerEvents:
+																						"none",
+																				}}
+																			/>
+																		)}
+																	</Flex>
+																)}
 
 															<Flex
 																vertical
 																gap={8}
 															>
 																{hasPin ===
-																false ? (
+																	false ? (
 																	<>
 																		<Text
 																			strong
