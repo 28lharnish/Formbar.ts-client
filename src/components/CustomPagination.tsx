@@ -23,6 +23,7 @@ export type CustomPaginationProps = {
 const validPageSizes = [ 12, 24, 48, 100, 200 ]
 
 const SizeChanger = (props: SizeChangerProps) => {
+	const { isDark } = useTheme();
 	const { disabled, value, onChange, className } = props;
 	const [draftValue, setDraftValue] = useState(String(value));
 
@@ -56,7 +57,9 @@ const SizeChanger = (props: SizeChangerProps) => {
 			onSelect={setDraftValue}
 			onBlur={commitValue}
 			placeholder="Page size"
-			style={{ minWidth: 100, padding: "0 0.5em" }}
+			style={{ minWidth: 100, padding: "0 0.5em", borderRadius: 999,
+				background: isDark ? "rgba(255,255,255,0.1)" : "initial"
+			 }}
 			styles={{
 				content: {
 					width: 60,
@@ -96,10 +99,18 @@ export default function CustomPagination({
 				marginInline: isMobile ? 8 : 0,
 				background: isDark ? "#020b24ab" : "#fffa",
 				border: isDark ? '1px solid #070a2786' : "1px solid #00000020",
-				padding: "0.125em 0.75em",
-				borderRadius: 10,
+				padding: "0.125em 0.25em",
+				paddingLeft: "0.75em",
+				borderRadius: 999,
 				backdropFilter: "blur(5px)",
 				...style,
+			}}
+
+			styles={{
+				item: {
+					borderRadius: 999,
+					background: isDark ? "rgba(255,255,255,0.1)" : "initial"
+				}
 			}}
 		/>
 	);

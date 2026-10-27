@@ -4,7 +4,6 @@ import {
 	Modal,
 	Flex,
 	Col,
-	Typography,
 	Select,
 	Tooltip,
 } from "antd";
