@@ -8,11 +8,9 @@ import {
 	Card,
 	Button,
 	Flex,
-	Select,
 	Tooltip,
 	Input,
 	Skeleton,
-	Pagination,
 	Modal,
 	Switch,
 } from "antd";
@@ -25,7 +23,6 @@ import { Activity, useEffect, useState } from "react";
 import { accessToken } from "@utils/socket";
 import {
 	useSettings,
-	getAppearAnimation,
 	useMobileDetect,
 	useUserData,
 } from "@/main";
@@ -49,8 +46,10 @@ import { SCOPES } from "@/types";
 import { currentUserHasScope } from "@/utils/scopeUtils";
 import { useGlobalMessage } from "@/components/providers/GlobalMessageProvider";
 import { messageTemplates } from "@utils/messageTemplates";
+import CustomPagination from "@/components/CustomPagination";
+import ManagerPanelUserCard from "@/components/ManagerPanelUserCard";
 
-type ManagerPanelUser = {
+export type ManagerPanelUser = {
 	id: number | string;
 	email: string;
 	permissions: number;
@@ -60,10 +59,6 @@ type ManagerPanelUser = {
 };
 
 const DEFAULT_PAGE_SIZE = 24;
-
-function isUnverifiedUser(user: ManagerPanelUser): boolean {
-	return Number(user.verified) === 0;
-}
 
 function isBannedUser(user: ManagerPanelUser): boolean {
 	return (
@@ -361,6 +356,7 @@ export default function ManagerPanel() {
 							});
 							return;
 						}
+
 						if (res?.success) {
 							globalMessageAPI.success(
 								messageTemplates.user_unbanned_success,
@@ -385,187 +381,29 @@ export default function ManagerPanel() {
 		});
 	}
 
-	function renderUserCard(
-		user: ManagerPanelUser,
-		index: number,
-		mobileCard: boolean,
+	function handlePermissionChange(
+		userId: number | string,
+		permission: number,
 	) {
-		const colStyle =
-			initialLoad && !isLoading
-				? getAppearAnimation(
-						settings.accessibility.disableAnimations,
-						index,
-					)
-				: {};
-
-		const card = (
-			<Card
-				key={`user-card-${user.id}`}
-				title={user.displayName || user.email || "Pending User"}
-				styles={{
-					title: {
-						textAlign: "center",
-					},
-					body: {
-						textAlign: "center",
-					},
-					root: {
-						height: "100%",
-					},
-				}}
-			>
-				<Flex vertical style={{ marginBottom: "10px" }}>
-					<Text type="secondary" style={{ fontSize: "16px" }}>
-						{user.email}
-					</Text>
-					{!isUnverifiedUser(user) ? (
-						<Text type="secondary" style={{ fontSize: "16px" }}>
-							ID: {user.id}
-						</Text>
-					) : (
-						<Text
-							type="secondary"
-							style={{
-								fontSize: "16px",
-								fontStyle: "italic",
-							}}
-						>
-							Pending Verification
-						</Text>
-					)}
-				</Flex>
-				{!isMobile && (
-					<Select
-						style={{ width: "100%" }}
-						onChange={(e) =>
-							updateUserPermissions(String(user.id), { perm: e })
-						}
-						defaultValue={user.permissions}
-						disabled={isUnverifiedUser(user) || isBannedUser(user)}
-					>
-						<Select.Option value={5}>Manager</Select.Option>
-						<Select.Option value={4}>Teacher</Select.Option>
-						<Select.Option value={3}>Mod</Select.Option>
-						<Select.Option value={2}>Student</Select.Option>
-						<Select.Option value={1}>Guest</Select.Option>
-						{isBannedUser(user) && (
-							<Select.Option value={0}>Banned</Select.Option>
-						)}
-					</Select>
-				)}
-				<Flex
-					gap={10}
-					justify="space-evenly"
-					style={{ marginTop: "10px" }}
-					wrap
-				>
-					{isUnverifiedUser(user) ? (
-						<Tooltip
-							mouseEnterDelay={0.5}
-							title={"Verify User"}
-							color="green"
-						>
-							<Button
-								variant="solid"
-								color="green"
-								size="large"
-								style={{
-									padding: "0 20px",
-								}}
-								onClick={() => handleVerify(user.id)}
-							>
-								<IonIcon
-									icon={IonIcons.checkmarkCircle}
-									size="large"
-								/>
-							</Button>
-						</Tooltip>
-					) : null}
-					{!isBannedUser(user) ? (
-						<Tooltip
-							mouseEnterDelay={0.5}
-							title={"Ban User"}
-							color="red"
-						>
-							<Button
-								variant="solid"
-								color="red"
-								size="large"
-								style={{
-									padding: "0 20px",
-								}}
-								onClick={() => banUserButton(user.id)}
-							>
-								<IonIcon icon={IonIcons.ban} size="large" />
-							</Button>
-						</Tooltip>
-					) : (
-						<Tooltip
-							mouseEnterDelay={0.5}
-							title={"Unban User"}
-							color="green"
-						>
-							<Button
-								variant="solid"
-								color="green"
-								size="large"
-								style={{
-									padding: "0 20px",
-								}}
-								onClick={() => unbanUserButton(user.id)}
-							>
-								<IonIcon
-									icon={IonIcons.checkmarkCircle}
-									size="large"
-								/>
-							</Button>
-						</Tooltip>
-					)}
-					{isMobile && (
-						<Select
-							style={{ flex: "1 1 auto" }}
-							defaultValue={user.permissions}
-						>
-							<Select.Option value={5}>Manager</Select.Option>
-							<Select.Option value={4}>Teacher</Select.Option>
-							<Select.Option value={3}>Mod</Select.Option>
-							<Select.Option value={2}>Student</Select.Option>
-							<Select.Option value={1}>Guest</Select.Option>
-							{isBannedUser(user) && (
-								<Select.Option value={0}>Banned</Select.Option>
-							)}
-						</Select>
-					)}
-					<Tooltip
-						mouseEnterDelay={0.5}
-						title={"Delete User"}
-						color="red"
-					>
-						<Button
-							variant="solid"
-							color="red"
-							size="large"
-							style={{
-								padding: "0 20px",
-							}}
-							onClick={() => deleteUserButton(user.id)}
-						>
-							<IonIcon icon={IonIcons.trash} size="large" />
-						</Button>
-					</Tooltip>
-				</Flex>
-			</Card>
-		);
-
-		if (mobileCard) {
-			return card;
-		}
-
-		return (
-			<Col span={4} key={`user-col-${user.id}`} style={colStyle}>
-				{card}
-			</Col>
-		);
+		updateUserPermissions(String(userId), { perm: permission })
+			.then((response) => {
+				if (!response.ok) {
+					throw new Error(
+						response.detail ||
+							response.message ||
+							"Failed to update user permissions.",
+					);
+				}
+				setRefreshNonce((value) => value + 1);
+			})
+			.catch((err) => {
+				Log({
+					message: "Error updating user permissions:",
+					data: err,
+					level: "error",
+				});
+				globalMessageAPI.error("Failed to update user permissions.");
+			});
 	}
 
 	const canManageUsers = currentUserHasScope(userData, "global.users.manage");
@@ -582,27 +420,112 @@ export default function ManagerPanel() {
 			>
 				<FormbarHeader />
 
-				<Title
+				<div
 					style={{
-						textAlign: "center",
-						marginTop: "20px",
-						marginBottom: "20px",
+						display: isMobile ? "flex" : "grid",
+						flexDirection: 'column',
+						gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+						alignItems: "center",
+						marginInline: 16,
+						marginBlock: 10
 					}}
 				>
-					Manager{isMobile ? "" : " Panel"}
-				</Title>
+					{
+						!isMobile && (
+							<Title
+								style={{
+									textAlign: "center",
+									marginBottom: "0",
+								}}
+							>
+								Manager Panel
+							</Title>
+						)
+					}
 
-				<Flex
-					justify="center"
-					style={{ marginTop: "20px", marginBottom: "20px" }}
-				>
+					<Activity
+						mode={listCategory === "Users" ? "visible" : "hidden"}
+					>
+						<Flex
+							style={{
+								gap: 10,
+								alignItems: "center",
+								justifyContent: "center",
+								width: isMobile ? "100%" : "initial",
+								marginBottom: isMobile ? 8 : 0
+							}}
+						>
+							<Button
+								variant="solid"
+								color={sortBy === "name" ? "primary" : undefined}
+								onClick={() => {
+									setCurrentPage(1);
+									setIsLoading(true);
+									setInitialLoad(true);
+									setSortBy("name");
+								}}
+							>
+								Name
+							</Button>
+							<Button
+								variant="solid"
+								color={
+									sortBy === "permission"
+										? "primary"
+										: undefined
+								}
+								onClick={() => {
+									setCurrentPage(1);
+									setIsLoading(true);
+									setInitialLoad(true);
+									setSortBy("permission");
+								}}
+							>
+								Permission
+							</Button>
+							<Input
+								placeholder={isMobile ? "Search" : "Search users..."}
+								style={{ width: "auto" }}
+								value={searchQuery}
+								onChange={(e) => {
+									setCurrentPage(1);
+									setIsLoading(true);
+									setInitialLoad(true);
+									setSearchQuery(e.target.value);
+								}}
+							/>
+						</Flex>
+					</Activity>
+
+					<Activity
+						mode={listCategory === "Users" ? "hidden" : "visible"}
+						children={<p></p>}
+					/>
+
 					<Segmented
-						options={[
+						options={!isMobile ? [
 							"Users",
 							"Classrooms",
 							"IP Addresses",
 							"Banned Users",
+						]: [
+							{ value: "Users", icon: <IonIcon icon={IonIcons.person} /> },
+							{ value: "Classrooms", icon: <IonIcon icon={IonIcons.easel} /> },
+							{ value: "IP Addresses", icon: <IonIcon icon={IonIcons.globe} /> },
+							{ value: "Banned Users", icon: <IonIcon icon={IonIcons.ban} /> },
 						]}
+
+						style={{
+							width: isMobile ? "100%" : 'max-content',
+							marginLeft: isMobile ? "none" : 'auto'
+						}}
+
+						styles={{
+							item: {
+								width: isMobile ? "100%" : "initial"
+							}
+						}}
+
 						onChange={(value) => {
 							if (value === "Users") {
 								setIsLoading(true);
@@ -615,78 +538,7 @@ export default function ManagerPanel() {
 						}}
 						value={listCategory}
 					/>
-				</Flex>
-
-				<Activity
-					mode={listCategory === "Users" ? "visible" : "hidden"}
-				>
-					<Flex
-						gap={10}
-						justify="center"
-						align="center"
-						style={{
-							marginBottom: "20px",
-							height: "40px",
-							padding: "0 5px",
-						}}
-					>
-						{isMobile ? null : (
-							<Title level={3} style={{ margin: 0 }}>
-								Sort by:
-							</Title>
-						)}
-						<Button
-							variant="solid"
-							color={sortBy === "name" ? "primary" : undefined}
-							style={{
-								padding: "0 20px",
-								height: "100%",
-								...(isMobile ? { flex: "1 1 auto" } : {}),
-							}}
-							onClick={() => {
-								setCurrentPage(1);
-								setIsLoading(true);
-								setInitialLoad(true);
-								setSortBy("name");
-							}}
-						>
-							Name
-						</Button>
-						<Button
-							variant="solid"
-							color={
-								sortBy === "permission" ? "primary" : undefined
-							}
-							style={{
-								padding: "0 20px",
-								height: "100%",
-								...(isMobile ? { flex: "1 1 auto" } : {}),
-							}}
-							onClick={() => {
-								setCurrentPage(1);
-								setIsLoading(true);
-								setInitialLoad(true);
-								setSortBy("permission");
-							}}
-						>
-							Permission
-						</Button>
-						<Input
-							placeholder="Search users..."
-							style={{
-								width: "40%",
-								...(isMobile ? { flex: "1 1 auto" } : {}),
-							}}
-							value={searchQuery}
-							onChange={(e) => {
-								setCurrentPage(1);
-								setIsLoading(true);
-								setInitialLoad(true);
-								setSearchQuery(e.target.value);
-							}}
-						/>
-					</Flex>
-				</Activity>
+				</div>
 
 				<div
 					style={{
@@ -712,11 +564,23 @@ export default function ManagerPanel() {
 									>
 										{users.length > 0 ? (
 											users.map((user, index) =>
-												renderUserCard(
-													user,
-													index,
-													true,
-												),
+												<ManagerPanelUserCard
+													key={`user-card-${user.id}`}
+													user={user}
+													index={index}
+													mobileCard
+													isMobile={isMobile}
+													initialLoad={initialLoad}
+													isLoading={isLoading}
+													settings={settings}
+													onVerify={handleVerify}
+													onBan={banUserButton}
+													onUnban={unbanUserButton}
+													onDelete={deleteUserButton}
+													onPermissionChange={
+														handlePermissionChange
+													}
+												/>
 											)
 										) : (
 											<Flex
@@ -731,17 +595,30 @@ export default function ManagerPanel() {
 									<Row
 										gutter={[8, 8]}
 										style={{
-											margin: "10px",
+											marginInline: "10px",
+											paddingBottom: 36,
 											justifyContent: "center",
 										}}
 									>
 										{users.length > 0 ? (
 											users.map((user, index) =>
-												renderUserCard(
-													user,
-													index,
-													false,
-												),
+												<ManagerPanelUserCard
+													key={`user-card-${user.id}`}
+													user={user}
+													index={index}
+													mobileCard={false}
+													isMobile={isMobile}
+													initialLoad={initialLoad}
+													isLoading={isLoading}
+													settings={settings}
+													onVerify={handleVerify}
+													onBan={banUserButton}
+													onUnban={unbanUserButton}
+													onDelete={deleteUserButton}
+													onPermissionChange={
+														handlePermissionChange
+													}
+												/>
 											)
 										) : (
 											<Flex
@@ -759,19 +636,16 @@ export default function ManagerPanel() {
 										style={{
 											margin: 0,
 											position: "absolute",
-											width: "100%",
+											justifySelf: 'center',
 											bottom: 8,
+											width: '100%'
 										}}
 									>
-										<Pagination
-											current={currentPage}
+										<CustomPagination
+											currentPage={currentPage}
 											pageSize={pageSize}
 											total={totalUsers}
-											showSizeChanger
-											pageSizeOptions={[12, 24, 48, 100]}
-											showTotal={(total, [start, end]) =>
-												`${start}-${end} of ${total}`
-											}
+											
 											onChange={(page, size) => {
 												setIsLoading(true);
 												setInitialLoad(true);
@@ -789,7 +663,7 @@ export default function ManagerPanel() {
 										: "hidden"
 								}
 							>
-								<Row gutter={[8, 8]} style={{ margin: "10px" }}>
+								<Row gutter={[8, 8]} style={{ marginInline: "10px" }}>
 									{classrooms.length > 0 ? (
 										classrooms.map((classroom: any) => (
 											<Col
@@ -1002,7 +876,7 @@ export default function ManagerPanel() {
 								<div>
 									<Row
 										gutter={[8, 8]}
-										style={{ margin: "10px" }}
+										style={{ marginInline: "10px" }}
 									>
 										{ipListData.ips.length > 0 ? (
 											ipListData.ips.map(({ id, ip }) => (
@@ -1240,17 +1114,35 @@ export default function ManagerPanel() {
 										: "hidden"
 								}
 							>
-								<Row gutter={[8, 8]} style={{ margin: "10px" }}>
+								<Row gutter={[8, 8]} style={{ marginInline: "10px" }}>
 									{bannedUsers.length > 0 ? (
 										bannedUsers.map((user, index) =>
-											renderUserCard(user, index, false),
+											<ManagerPanelUserCard
+												key={`user-card-${user.id}`}
+												user={user}
+												index={index}
+												mobileCard={false}
+												isMobile={isMobile}
+												initialLoad={initialLoad}
+												isLoading={isLoading}
+												settings={settings}
+												onVerify={handleVerify}
+												onBan={banUserButton}
+												onUnban={unbanUserButton}
+												onDelete={deleteUserButton}
+												onPermissionChange={
+													handlePermissionChange
+												}
+											/>
 										)
 									) : (
 										<Flex
 											justify="center"
 											style={{ width: "100%" }}
 										>
-											<Skeleton></Skeleton>
+											<Text type="secondary">
+												Could not find any banned users.
+											</Text>
 										</Flex>
 									)}
 								</Row>

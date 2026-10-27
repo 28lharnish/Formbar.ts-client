@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getUserTransactions } from "@api/userApi";
 import ProfileViewingCard from "@/components/ProfileViewingCard";
+import CustomPagination from "@/components/CustomPagination";
 
 const DEFAULT_PAGE_SIZE = 20;
 
@@ -105,7 +106,7 @@ export default function Transactions() {
 						margin: isMobile ? "0" : "0px auto",
 						marginBottom: "64px",
 						padding: "0 20px",
-						paddingBottom: "20px",
+						paddingBottom: "48px",
 						overflowY: "auto",
 					}}
 				>
@@ -162,15 +163,11 @@ export default function Transactions() {
 							bottom: 8,
 						}}
 					>
-						<Pagination
-							current={currentPage}
+						<CustomPagination
+							currentPage={currentPage}
 							pageSize={pageSize}
 							total={totalTransactions}
-							showSizeChanger
-							pageSizeOptions={[10, 20, 50, 100]}
-							showTotal={(total, [start, end]) =>
-								`${start}-${end} of ${total}`
-							}
+							
 							onChange={(page, size) => {
 								setIsLoading(true);
 								setCurrentPage(page);
