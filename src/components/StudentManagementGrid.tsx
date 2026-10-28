@@ -545,44 +545,6 @@ export default function StudentManagementGrid({
 			})(),
 		},
 		{
-			icon: IonIcons.cashOutline,
-			color: "#81ff81",
-			title: "Digipogs",
-			description: "Award Digipogs to this user.",
-			children: (
-				<>
-					<Flex
-						justify="center"
-						align="center"
-						style={{ width: "100%", height: "100%" }}
-						gap={10}
-						vertical
-					>
-						<InputNumber
-							placeholder="Digipogs"
-							style={{ width: "100%" }}
-							onInput={(e) => {
-								if (e !== null)
-									setAwardDigipogs(parseInt(e.toString()));
-							}}
-						/>
-						<Button
-							variant="outlined"
-							color="green"
-							disabled={!canAwardDigipogs}
-							style={{ width: "50%" }}
-							onClick={() => {
-								if (!canAwardDigipogs) return;
-								awardDigipogsAPI(student.id, awardDigipogs);
-							}}
-						>
-							Award
-						</Button>
-					</Flex>
-				</>
-			),
-		},
-		{
 			icon: IonIcons.lockClosedOutline,
 			color: "#bfcfff",
 			title: "Roles",

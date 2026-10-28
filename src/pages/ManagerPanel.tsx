@@ -457,7 +457,7 @@ export default function ManagerPanel() {
 						>
 							<Button
 								variant="solid"
-								color={sortBy === "name" ? "primary" : undefined}
+								color={sortBy === "name" ? "primary" : "default"}
 								onClick={() => {
 									setCurrentPage(1);
 									setIsLoading(true);
@@ -472,7 +472,7 @@ export default function ManagerPanel() {
 								color={
 									sortBy === "permission"
 										? "primary"
-										: undefined
+										: "default"
 								}
 								onClick={() => {
 									setCurrentPage(1);

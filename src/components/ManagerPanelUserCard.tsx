@@ -3,10 +3,16 @@ import {
 	Button,
 	Modal,
 	Flex,
+	InputNumber,
 	Col,
 	Select,
 	Tooltip,
+	Typography
 } from "antd";
+
+const { Text } = Typography;
+
+import { currentUserHasScope } from "@utils/scopeUtils";
 
 import { IonIcon } from "@ionic/react";
 import * as IonIcons from "ionicons/icons";
@@ -14,10 +20,16 @@ import { useState } from "react";
 
 import {
 	getAppearAnimation,
+	useUserData,
 } from "@/main";
 import type { AppSettings } from "@/main";
 import { SCOPES } from "@/types";
 import type { ManagerPanelUser } from "@pages/ManagerPanel";
+
+import { awardDigipogs as awardDigipogAPI } from "@/api/digipogApi";
+import { useGlobalMessage } from "@components/providers/GlobalMessageProvider";
+import { messageTemplates } from "@/utils/messageTemplates";
+import Log from "@/utils/debugLogger";
 
 function isUnverifiedUser(user: ManagerPanelUser): boolean {
 	return Number(user.verified) === 0;
@@ -67,7 +79,14 @@ export default function ManagerPanelUserCard({
 	onDelete,
 	onPermissionChange,
 }: ManagerPanelUserCardProps) {
+	const globalMessageAPI = useGlobalMessage();
+	
+	const { userData } = useUserData();
+	const canAwardDigipogs = currentUserHasScope(userData, "global.digipogs.award");
+
 	const [extraInfoOpen, setExtraInfoOpen] = useState<boolean>(false);
+	const [awardModalOpen, setAwardModalOpen] = useState<boolean>(false);
+	const [awardDigipogs, setAwardDigipogs] = useState<number>(0);
 
 	const colStyle =
 		initialLoad && !isLoading
@@ -103,14 +122,14 @@ export default function ManagerPanelUserCard({
 		>
 			<Modal
 				open={extraInfoOpen}
-				title="User details"
-				okText="Close"
-				onOk={() => setExtraInfoOpen(false)}
+				title="User Details"
+				cancelText="Close"
+				okButtonProps={{style:{display:'none'}}}
 				onCancel={() => setExtraInfoOpen(false)}
 			>
 				<Flex vertical>
-					<span>Email: {user.email}</span>
-					<span>ID: {user.id}</span>
+					<Text>Email: {user.email}</Text>
+					<Text>ID: {user.id}</Text>
 				</Flex>
 			</Modal>
 			{!isMobile && (
@@ -139,6 +158,29 @@ export default function ManagerPanelUserCard({
 						options={isBannedUser(user) ? [...permissionLevels, {value: 0, label: "Banned"}] : permissionLevels}
 					/>
 				)}
+				{!isUnverifiedUser(user) && !isBannedUser(user) && canAwardDigipogs ? (
+					<Tooltip
+						mouseEnterDelay={0.5}
+						title={"Award Digipogs"}
+						color="blue"
+					>
+						<Button
+							variant="solid"
+							color="blue"
+							size="large"
+							style={{
+								padding: "0",
+								aspectRatio: 1
+							}}
+							onClick={() => { setAwardModalOpen(true) }}
+						>
+							<IonIcon
+								icon={IonIcons.cash}
+								size="large"
+							/>
+						</Button>
+					</Tooltip>
+				) : null}
 				{isUnverifiedUser(user) ? (
 					<Tooltip
 						mouseEnterDelay={0.5}
@@ -230,8 +272,69 @@ export default function ManagerPanelUserCard({
 		return card;
 	}
 
+	const awardModal = (
+		<Modal
+			title="Award Digipogs"
+			okText="Award"
+			cancelText="Cancel"
+			open={awardModalOpen}
+			onCancel={() => {
+				setAwardModalOpen(false);
+				setAwardDigipogs(0);
+			}}
+			onOk={() => { 
+				awardDigipogAPI({studentId: Number(user.id), amount: awardDigipogs}).then((response) => {
+					if (
+						response?.success ===
+							false ||
+						response?.error
+					)
+						return;
+					globalMessageAPI.success(
+						messageTemplates.profile_digipogs_transfer_success,
+					);
+					setAwardModalOpen(
+						false,
+					);
+					setAwardDigipogs(0);
+				})
+				.catch((error) =>
+					Log({
+						message:
+							"Error transferring digipogs",
+						data: error,
+						level: "error",
+					}),
+				);
+			}}
+			closeIcon={
+				<IonIcon icon={IonIcons.close} />
+			}
+		>
+			<Flex
+				vertical
+				gap={10}
+				justify="start"
+				align="start"
+			>
+				<Text>
+					Award Digipogs to {user.displayName || user.email || "Pending User"}
+				</Text>
+				<InputNumber
+					style={{ width: "100%" }}
+					placeholder="Amount"
+					value={awardDigipogs}
+					onChange={(value) =>
+						setAwardDigipogs(value || 0)
+					}
+				/>
+			</Flex>
+		</Modal>
+	)
+
 	return (
 		<Col span={4} key={`user-col-${user.id}`} style={colStyle}>
+			{awardModal}
 			{card}
 		</Col>
 	);
