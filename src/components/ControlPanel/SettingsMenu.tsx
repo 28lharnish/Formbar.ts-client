@@ -673,9 +673,7 @@ export default function SettingsMenu() {
 
 				{canManageLinks && !isMobile && (
 					<>
-						<Divider />
-
-						<Card>
+						<Card style={{marginTop: 20}}>
 							<Title level={3}>Links</Title>
 
 							<Flex
@@ -702,10 +700,6 @@ export default function SettingsMenu() {
 								<Space.Compact
 									style={{
 										width: "100%",
-										...(isMobile && {
-											marginRight: 0,
-											width: "100%",
-										}),
 									}}
 								>
 									<AutoComplete
@@ -812,13 +806,11 @@ export default function SettingsMenu() {
 
 				{canManageUsers && (
 					<>
-						<Divider />
-
-						<Card>
+						<Card style={{marginTop: 20}}>
 							<Title level={3}>Banned Users</Title>
 							<Flex vertical align="center" style={{width: '100%'}}>
 								{
-									!isMobile ? <Row gutter={[8, 8]} style={{ marginBottom: "10px", width: '100%' }}>
+									!isMobile ? <Row gutter={[8, 8]} style={{ marginBottom: "10px", width: '100%', justifyContent: 'center' }}>
 										{
 											bannedStudents.map((student, index) => (
 												<Col
