@@ -546,57 +546,6 @@ export function StudentAccordion({
 							classData?.poll.allowTextResponses,
 					},
 					{
-						name: "Digipogs",
-						icon: IonIcons.cashOutline,
-						content: (
-							<Flex
-								justify="center"
-								align="center"
-								style={{ width: "100%", height: "100%" }}
-								gap={10}
-							>
-								<InputNumber
-									placeholder="Digipogs"
-									style={{ width: "120px" }}
-									onInput={(e) => {
-										if (e !== null)
-											setAwardDigipogs(
-												parseInt(e.toString()),
-											);
-									}}
-								/>
-								<Button
-									variant="solid"
-									color="blue"
-									style={{ width: "120px" }}
-									onClick={async () => {
-										const response = await awardDigipogAPI({
-											studentId: studentData.id,
-											amount: awardDigipogs,
-										});
-										if (
-											response?.success === false ||
-											response?.error
-										) {
-											globalMessageAPI.error(
-												messageTemplates.user_digipogs_award_failed,
-											);
-											return;
-										}
-										globalMessageAPI.success(
-											messageTemplates.user_digipogs_awarded_success(
-												awardDigipogs,
-											),
-										);
-									}}
-								>
-									Award
-								</Button>
-							</Flex>
-						),
-						enabled: canAwardDigipogs,
-					},
-					{
 						name: "Roles",
 						icon: IonIcons.lockClosedOutline,
 						content: (

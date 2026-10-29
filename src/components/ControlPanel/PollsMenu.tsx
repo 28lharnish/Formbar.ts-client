@@ -135,6 +135,7 @@ import {
 } from "@utils/GlobalFunctions";
 import { useGlobalMessage } from "../providers/GlobalMessageProvider";
 import { messageTemplates } from "@utils/messageTemplates";
+import CustomPagination from "@components/CustomPagination";
 
 export default function PollsMenu({
 	openModalId,
@@ -685,20 +686,18 @@ export default function PollsMenu({
 										bottom: 8,
 									}}
 								>
-									<Pagination
-										current={currentPage}
+									<CustomPagination
+										currentPage={currentPage}
 										pageSize={pageSize}
 										total={totalPreviousPolls}
-										pageSizeOptions={[10, 20, 50, 100]}
-										showTotal={(total, [start, end]) =>
-											`${start}-${end} of ${total}`
-										}
-
+										
 										onChange={(page, size) => {
 											setCurrentPage(page);
 											setPageSize(size);
 										}}
+
 										style={{ marginTop: "20px" }}
+
 									/>
 								</Flex>
 							)}

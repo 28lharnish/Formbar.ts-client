@@ -23,6 +23,7 @@ import { currentUserHasScope } from "@/utils/scopeUtils";
 import PogPoolElement from "@/components/PogPoolElement";
 import { useGlobalMessage } from "@/components/providers/GlobalMessageProvider";
 import { messageTemplates } from "@utils/messageTemplates";
+import CustomPagination from "@/components/CustomPagination";
 
 const DEFAULT_PAGE_SIZE = 6;
 
@@ -216,16 +217,11 @@ export default function PogPools() {
 							bottom: 8,
 						}}
 					>
-						<Pagination
-							current={currentPage}
+						<CustomPagination
+							currentPage={currentPage}
 							pageSize={pageSize}
 							total={totalPools}
-							showSizeChanger
-							pageSizeOptions={[6, 12, 24, 48]}
-							defaultPageSize={6}
-							showTotal={(total, [start, end]) =>
-								`${start}-${end} of ${total}`
-							}
+							
 							onChange={(page, size) => {
 								setIsLoading(true);
 								setCurrentPage(page);

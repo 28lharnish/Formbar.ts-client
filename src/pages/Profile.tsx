@@ -38,12 +38,12 @@ export default function Profile() {
 	const { isHighContrast } = useTheme();
 	const { userData } = useUserData();
 	const globalMessageAPI = useGlobalMessage();
-	const [messageApi, contextHolder] = message.useMessage();
 	const navigate = useNavigate();
 	const [showSensitiveInfo, setShowSensitiveInfo] = useState(false);
 	const [sensitiveActiveKeys, setSensitiveActiveKeys] = useState<string[]>(
 		[],
 	);
+
 	const [sensModalOpen, setSensModalOpen] = useState(false);
 	const [firstPinModalOpen, setFirstPinModalOpen] = useState(false);
 
@@ -116,9 +116,9 @@ export default function Profile() {
 			}
 
 			setApiKey(response?.data?.apiKey || null);
-			messageApi.success("API key regenerated successfully.");
+			globalMessageAPI.success("API key regenerated successfully.");
 		} catch (err) {
-			messageApi.error(
+			globalMessageAPI.error(
 				err instanceof Error
 					? err.message
 					: "Failed to regenerate API key.",
@@ -131,7 +131,7 @@ export default function Profile() {
 	const updatePin = async () => {
 		if (!userData?.id || !isOwnProfile) return;
 		if (!/^\d{4,6}$/.test(newPin)) {
-			messageApi.error("PIN must be 4-6 numeric digits.");
+			globalMessageAPI.error("PIN must be 4-6 numeric digits.");
 			return;
 		}
 
@@ -150,9 +150,9 @@ export default function Profile() {
 			setOldPin("");
 			setNewPin("");
 			setHasPin(true);
-			messageApi.success("PIN updated successfully.");
+			globalMessageAPI.success("PIN updated successfully.");
 		} catch (err) {
-			messageApi.error(
+			globalMessageAPI.error(
 				err instanceof Error ? err.message : "Failed to update PIN.",
 			);
 		} finally {
@@ -171,9 +171,9 @@ export default function Profile() {
 				);
 			}
 
-			messageApi.success("PIN reset email sent.");
+			globalMessageAPI.success("PIN reset email sent.");
 		} catch (err) {
-			messageApi.error(
+			globalMessageAPI.error(
 				err instanceof Error
 					? err.message
 					: "Failed to request PIN reset.",
@@ -194,7 +194,7 @@ export default function Profile() {
 			return;
 		}
 		if (!/^\d{4,6}$/.test(enteredPin)) {
-			messageApi.error("Enter a valid 4-6 digit PIN.");
+			globalMessageAPI.error("Enter a valid 4-6 digit PIN.");
 			return;
 		}
 
@@ -227,7 +227,7 @@ export default function Profile() {
 				return;
 			}
 
-			messageApi.error(message);
+			globalMessageAPI.error(message);
 		} finally {
 			setPinVerifyLoading(false);
 		}
@@ -236,7 +236,7 @@ export default function Profile() {
 	const createFirstPin = async () => {
 		if (!userData?.id || !isOwnProfile) return;
 		if (!/^\d{4,6}$/.test(firstPin)) {
-			messageApi.error("PIN must be 4-6 numeric digits.");
+			globalMessageAPI.error("PIN must be 4-6 numeric digits.");
 			return;
 		}
 
@@ -254,9 +254,9 @@ export default function Profile() {
 			setFirstPinModalOpen(false);
 			setShowSensitiveInfo(true);
 			setSensitiveActiveKeys(["1"]);
-			messageApi.success("PIN created successfully.");
+			globalMessageAPI.success("PIN created successfully.");
 		} catch (err) {
-			messageApi.error(
+			globalMessageAPI.error(
 				err instanceof Error ? err.message : "Failed to create PIN.",
 			);
 		} finally {
@@ -333,7 +333,6 @@ export default function Profile() {
 
 	return (
 		<>
-			{contextHolder}
 			<FormbarHeader />
 
 			{Number(profileProps["Pog Meter"]) > 0 && (

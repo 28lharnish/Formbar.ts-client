@@ -42,7 +42,7 @@ export default function StudentObject({
 		typeof student.break === "string"
 			? { text: "Requesting Break", color: "#9ca3af" }
 			: typeof student.break === "boolean" && student.break
-				? { text: "On Break", color: "#facc15" }
+				? { text: "On Break", color: "#ff8f40" }
 				: null;
 	const textResponse =
 		typeof student.pollRes?.textRes === "string"
@@ -100,45 +100,6 @@ export default function StudentObject({
 				onClick={handleButtonClick}
 				onDoubleClick={handleButtonDoubleClick}
 			>
-				<Flex
-					gap={2}
-					vertical
-					justify="center"
-					style={{
-						position: "absolute",
-						height: "calc(100% + 2px)",
-						right: 8,
-						top: 0,
-					}}
-				>
-					{student.help ? (
-						<Badge
-							color="red"
-							styles={{
-								root: { height: 8, lineHeight: 0 },
-								indicator: { boxShadow: "0 0 3px 0 #000a" },
-							}}
-						/>
-					) : null}
-					{breakBadge ? (
-						<Badge
-							color={breakBadge.color}
-							styles={{
-								root: { height: 8, lineHeight: 0 },
-								indicator: { boxShadow: "0 0 3px 0 #000a" },
-							}}
-						/>
-					) : null}
-					{showTextResponseBadge ? (
-						<Badge
-							color="green"
-							styles={{
-								root: { height: 8, lineHeight: 0 },
-								indicator: { boxShadow: "0 0 3px 0 #000a" },
-							}}
-						/>
-					) : null}
-				</Flex>
 				<Text
 					strong
 					style={{
@@ -175,6 +136,47 @@ export default function StudentObject({
 						</span>
 					)}
 				</Text>
+
+				<Flex
+					gap={2}
+					
+					justify="center"
+					style={{
+						position: "absolute",
+						height: "min-content",
+						right: 0,
+						left: 0,
+						bottom: -6,
+					}}
+				>
+					{student.help ? (
+						<Badge
+							color="red"
+							styles={{
+								root: { height: 8, lineHeight: 0 },
+								indicator: { boxShadow: "0 0 3px 0 #000a" },
+							}}
+						/>
+					) : null}
+					{breakBadge ? (
+						<Badge
+							color={breakBadge.color}
+							styles={{
+								root: { height: 8, lineHeight: 0 },
+								indicator: { boxShadow: "0 0 3px 0 #000a" },
+							}}
+						/>
+					) : null}
+					{showTextResponseBadge ? (
+						<Badge
+							color="#ffdf40"
+							styles={{
+								root: { height: 8, lineHeight: 0 },
+								indicator: { boxShadow: "0 0 3px 0 #000a" },
+							}}
+						/>
+					) : null}
+				</Flex>
 			</Button>
 			<Modal
 				centered

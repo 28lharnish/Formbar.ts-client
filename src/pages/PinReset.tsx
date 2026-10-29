@@ -3,13 +3,14 @@ import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import FormbarHeader from "@components/FormbarHeader";
 import { resetPinWithToken } from "@api/userApi";
+import { useGlobalMessage } from "@/components/providers/GlobalMessageProvider";
 
 const { Text, Title } = Typography;
 
 export default function PinResetPage() {
 	const [searchParams] = useSearchParams();
 	const navigate = useNavigate();
-	const [messageApi, contextHolder] = message.useMessage();
+	const globalMessageAPI = useGlobalMessage();
 
 	const token = useMemo(
 		() => searchParams.get("code") || searchParams.get("token") || "",
@@ -23,15 +24,15 @@ export default function PinResetPage() {
 
 	const submit = async () => {
 		if (!token) {
-			messageApi.error("Reset token is missing.");
+			globalMessageAPI.error("Reset token is missing.");
 			return;
 		}
 		if (!/^\d{4,6}$/.test(pin)) {
-			messageApi.error("PIN must be 4-6 numeric digits.");
+			globalMessageAPI.error("PIN must be 4-6 numeric digits.");
 			return;
 		}
 		if (pin !== confirmPin) {
-			messageApi.error("PIN values do not match.");
+			globalMessageAPI.error("PIN values do not match.");
 			return;
 		}
 
@@ -47,9 +48,9 @@ export default function PinResetPage() {
 			}
 
 			setResetComplete(true);
-			messageApi.success("PIN reset successfully.");
+			globalMessageAPI.success("PIN reset successfully.");
 		} catch (err) {
-			messageApi.error(
+			globalMessageAPI.error(
 				err instanceof Error ? err.message : "PIN reset failed.",
 			);
 		} finally {
@@ -59,7 +60,6 @@ export default function PinResetPage() {
 
 	return (
 		<>
-			{contextHolder}
 			<FormbarHeader />
 			<Flex
 				justify="center"
