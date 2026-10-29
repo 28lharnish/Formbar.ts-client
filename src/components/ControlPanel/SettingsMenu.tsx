@@ -321,7 +321,7 @@ export default function SettingsMenu() {
 										placeholder="Class Name"
 										defaultValue={classData?.className}
 									/>
-									{canRenameClass && (
+									{canRenameClass && !isMobile && (
 										<Button
 											type="primary"
 											style={{height: 'auto'}}
@@ -361,6 +361,48 @@ export default function SettingsMenu() {
 										</Button>
 									)}
 								</Space.Compact>
+
+								{
+									isMobile && (
+										<Button
+											type="primary"
+											style={{height: 'auto', width: '100%'}}
+											onClick={() => {
+												if (!canRenameClass || !classData)
+													return;
+
+												updateSettings(classData.id, {
+													name: classData.className,
+												})
+													.then((response) => {
+														if (
+															response?.success ===
+																false ||
+															response?.error
+														) {
+															globalMessageAPI.error(
+																messageTemplates.class_name_update_failed,
+															);
+															return;
+														}
+														globalMessageAPI.success(
+															messageTemplates.class_name_updated_success,
+														);
+													})
+													.catch((error) =>
+														Log({
+															message:
+																"Error updating class name",
+															data: error,
+															level: "error",
+														}),
+													);
+											}}
+										>
+											Change Class Name
+										</Button>
+									)
+								}
 								
 							</Flex>
 							<Flex
@@ -629,7 +671,7 @@ export default function SettingsMenu() {
 
 				</Card>
 
-				{canManageLinks && (
+				{canManageLinks && !isMobile && (
 					<>
 						<Divider />
 
@@ -648,10 +690,6 @@ export default function SettingsMenu() {
 									style={{
 										width: "200px",
 										marginRight: 10,
-										...(isMobile && {
-											marginRight: 0,
-											width: "100%",
-										}),
 									}}
 									value={newLinkInput.name}
 									onChange={(e) =>
@@ -779,20 +817,44 @@ export default function SettingsMenu() {
 						<Card>
 							<Title level={3}>Banned Users</Title>
 							<Flex vertical align="center" style={{width: '100%'}}>
-								<Row gutter={[8, 8]} style={{ marginBottom: "10px", width: '100%' }}>
-									{
-										bannedStudents.map((student, index) => (
-											<Col
-												span={4}
-												key={`student-${student.id}`}
-											>
+								{
+									!isMobile ? <Row gutter={[8, 8]} style={{ marginBottom: "10px", width: '100%' }}>
+										{
+											bannedStudents.map((student, index) => (
+												<Col
+													span={4}
+													key={`student-${student.id}`}
+												>
+													<StudentObject
+														style={getAppearAnimation(
+															settings
+																.accessibility
+																.disableAnimations,
+															index,
+														)}
+														key={student.id}
+														student={classData?.students[student.id]!}
+														openModalId={
+															openModalId
+														}
+														setOpenModalId={
+															setOpenModalId
+														}
+													/>
+												</Col>
+											))
+										}
+									</Row> :
+									<Flex vertical style={{width: "100%", marginBottom: 10}}>
+										{
+											bannedStudents.map((student, index) => (
 												<StudentObject
-													style={getAppearAnimation(
+													style={{...getAppearAnimation(
 														settings
 															.accessibility
 															.disableAnimations,
 														index,
-													)}
+													), width: '100%'}}
 													key={student.id}
 													student={classData?.students[student.id]!}
 													openModalId={
@@ -802,10 +864,11 @@ export default function SettingsMenu() {
 														setOpenModalId
 													}
 												/>
-											</Col>
-										))
-									}
-								</Row>
+											))
+										}
+									</Flex>
+
+								}
 								
 								<CustomPagination 
 									style={{
