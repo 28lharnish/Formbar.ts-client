@@ -7,7 +7,6 @@ import {
 	Typography,
 	Button,
 	Input,
-	message,
 	Modal,
 	Space,
 	InputNumber,
@@ -36,6 +35,7 @@ import { messageTemplates } from "@utils/messageTemplates";
 export default function Profile() {
 	const { settings } = useSettings();
 	const { isHighContrast } = useTheme();
+	// const { notiData } = useNotiData();
 	const { userData } = useUserData();
 	const globalMessageAPI = useGlobalMessage();
 	const navigate = useNavigate();
@@ -459,8 +459,8 @@ export default function Profile() {
 											onClick={() => {
 												navigate(
 													id
-														? `/profile/${id}/transactions`
-														: "/profile/transactions",
+														? `/profile/${id}/exchanges`
+														: "/profile/exchanges",
 												);
 											}}
 											style={
@@ -474,7 +474,7 @@ export default function Profile() {
 													icon={IonIcons.cashOutline}
 												/>
 											) : (
-												"Transactions"
+												"Exchanges"
 											)}
 										</Button>
 									</Tooltip>
@@ -837,7 +837,7 @@ export default function Profile() {
 																						window.navigator.clipboard.writeText(
 																							apiKey,
 																						);
-																						messageApi.success(
+																						globalMessageAPI.success(
 																							"API key copied to clipboard.",
 																						);
 																					}}

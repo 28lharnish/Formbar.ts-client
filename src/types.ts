@@ -237,6 +237,21 @@ export const SCOPES = {
 				},
 			},
 		},
+		EXHANGES: {
+			title: "Exchanges",
+			actions: {
+				CREATE: {
+					key: "global.exchanges.create",
+					label: "Create",
+					description: "Create exchanges",
+				},
+				ACCEPT: {
+					key: "global.exchanges.accept",
+					label: "Accept",
+					description: "Accept exchanges",
+				},
+			},
+		},
 		POOLS: {
 			title: "Pools",
 			actions: {
@@ -597,3 +612,64 @@ export type InventoryItem = {
 	quantity: number;
 	stack_size: number;
 };
+
+export type RegistryItem = Omit<InventoryItem, "quantity">;
+
+export type NotificationType =
+	| "exchange_received"
+	| "exchange_completed"
+	| "exchange_failed"
+	| "exchange_canceled"
+	| "exchange_rejected"
+	| "trade_received"
+	| "trade_completed"
+	| "trade_failed"
+	| "trade_rejected"
+	| "trade_canceled";
+
+export type NotificationPayload = {
+	fromUserId?: number | string;
+	toUserId?: number | string;
+	exchangeId?: number | string;
+	tradeId?: number | string;
+	reason?: string;
+	error?: string;
+	[key: string]: unknown;
+};
+
+export type Notification = {
+	id: number;
+	user_id: number;
+	type: NotificationType | (string & {});
+	data: NotificationPayload | string | null;
+	is_read: number;
+	created_at: string;
+};
+
+export type NotificationData = {
+	notifications: Notification[],
+	pagination: {
+		hasMore: boolean
+		limit: number
+		offset: number
+		total: number
+	}
+}
+
+export type Exchange = {
+	id: number,
+	to: {
+		id: number,
+		type: "user" | "pool",
+		request: Record<string, number>
+	},
+	from: {
+		id: number,
+		type: "user" | "pool",
+		offer: Record<string, number>
+	},
+	reason: string,
+	status: string,
+	created: string,
+	updated: string
+}
