@@ -1,6 +1,7 @@
 import { createExchange } from "@/api/exchangeApi";
 import { getUserInventory } from "@/api/inventoryApi";
 import { getUser } from "@/api/userApi";
+import { useMobileDetect } from "@/main";
 import type { CurrentUserData, InventoryItem, UserData } from "@/types";
 import Log from "@/utils/debugLogger";
 import { IonIcon } from "@ionic/react";
@@ -49,13 +50,15 @@ function TradeInventory({
 	type,
 	quantities,
 	onQuantityChange,
+	isMobile,
 }: {
 	title: string;
 	inventory: InventoryItem[];
 	digipogs: number;
-	type: 'offer' | 'request'
+	type: "offer" | "request";
 	quantities: TradeQuantity;
 	onQuantityChange: (itemId: number, quantity: number) => void;
+	isMobile: boolean;
 }) {
 	const items = useMemo(
 		() => [
@@ -74,11 +77,15 @@ function TradeInventory({
 	return (
 		<Card
 			title={title}
-			style={{ flex: "1 1 0", minWidth: 0 }}
+			style={{
+				flex: "1 1 0",
+				minWidth: 0,
+				width: isMobile ? "100%" : undefined,
+			}}
 			styles={{
 				body: {
-					maxHeight: 360,
-					minHeight: 360,
+					maxHeight: isMobile ? 280 : 360,
+					minHeight: isMobile ? 180 : 360,
 					overflowY: "auto",
 				},
 			}}
@@ -129,6 +136,7 @@ export default function CreateExchangeModal({
 	onCreated,
 	userData,
 }: CreateExchangeModalProps) {
+	const isMobile = useMobileDetect();
 	const [targetId, setTargetId] = useState("");
 	const [ownInventory, setOwnInventory] = useState<InventoryItem[]>([]);
 	const [targetUserData, setTargetUserData] = useState<UserData>();
@@ -304,11 +312,18 @@ export default function CreateExchangeModal({
 			)}
 			okText="Create exchange"
 			confirmLoading={isSubmitting}
-			width={900}
+			width={isMobile ? "calc(100vw - 24px)" : 900}
+			styles={{
+				body: {
+					maxHeight: isMobile ? "calc(100vh - 180px)" : undefined,
+					overflowY: isMobile ? "auto" : undefined,
+					padding: isMobile ? 12 : undefined,
+				},
+			}}
 			destroyOnHidden
 		>
 			<Flex vertical gap={16}>
-				<Flex gap={8}>
+				<Flex gap={8} vertical={isMobile}>
 					<Input
 						placeholder="User ID to exchange with"
 						value={targetId}
@@ -325,6 +340,7 @@ export default function CreateExchangeModal({
 						type="primary"
 						onClick={() => void loadTargetInventory()}
 						loading={isLoadingTarget}
+						block={isMobile}
 					>
 						Load inventory
 					</Button>
@@ -338,7 +354,7 @@ export default function CreateExchangeModal({
 					<Flex
 						gap={16}
 						style={{
-							flexDirection: "row",
+							flexDirection: isMobile ? "column" : "row",
 							flexWrap: "wrap",
 							alignItems: "flex-start",
 						}}
@@ -349,6 +365,7 @@ export default function CreateExchangeModal({
 							digipogs={userData?.digipogs ?? 0}
 							type={'offer'}
 							quantities={offer}
+							isMobile={isMobile}
 							onQuantityChange={(itemId, quantity) =>
 								updateQuantity(setOffer, itemId, quantity)
 							}
@@ -359,6 +376,7 @@ export default function CreateExchangeModal({
 							digipogs={targetDigipogs}
 							type={'request'}
 							quantities={request}
+							isMobile={isMobile}
 							onQuantityChange={(itemId, quantity) =>
 								updateQuantity(setRequest, itemId, quantity)
 							}

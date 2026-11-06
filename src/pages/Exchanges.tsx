@@ -193,9 +193,9 @@ export default function ExchangesPage() {
 				vertical
 				gap={16}
 				style={{
-					height: 'calc(100% - 64px)',
+					height: "calc(100% - 64px)",
 					minHeight: 0,
-					padding: 20,
+					padding: isMobile ? 12 : 20,
 				}}
 			>
 				<ProfileViewingCard userId={targetId} />
@@ -206,30 +206,47 @@ export default function ExchangesPage() {
 						flex: 1,
 						minHeight: 0,
 						flexDirection: isMobile ? "column" : "row",
+						overflowY: isMobile ? "auto" : undefined,
 					}}
 				>
 					<Flex
 						vertical
 						gap={20}
 						style={{
-							flex: "1 1 0",
+							flex: isMobile ? "0 0 auto" : "1 1 0",
 							minWidth: 0,
 							minHeight: 0,
 							overflowY: "auto",
 							padding: "0 4px 8px",
+							maxHeight: isMobile ? "48vh" : undefined,
 						}}
 					>
-					<Flex justify="space-between" align="center" gap={12} wrap>
+					<Flex
+						justify="space-between"
+						align={isMobile ? "stretch" : "center"}
+						gap={12}
+						wrap
+						vertical={isMobile}
+					>
 						<div>
 							<Title level={2} style={{ margin: 0 }}>Exchanges</Title>
 							<Text type="secondary">
 								Review digipog and item exchanges.
 							</Text>
 						</div>
-						<Flex align="center" gap={12}>
+						<Flex
+							align="center"
+							gap={12}
+							justify={isMobile ? "space-between" : undefined}
+							style={{ width: isMobile ? "100%" : undefined }}
+						>
 							<Tag>{totalExchanges} total</Tag>
 							{userData && (
-								<Button type="primary" onClick={() => setIsCreateModalOpen(true)}>
+								<Button
+									type="primary"
+									onClick={() => setIsCreateModalOpen(true)}
+									block={isMobile}
+								>
 									Create exchange
 								</Button>
 							)}
@@ -279,10 +296,11 @@ export default function ExchangesPage() {
 					<Card
 						title="Exchange details"
 						style={{
-							flex: "1 1 0",
+							flex: isMobile ? "0 0 auto" : "1 1 0",
 							minWidth: 0,
 							minHeight: 0,
 							overflow: "auto",
+							maxHeight: isMobile ? "none" : undefined,
 						}}
 						styles={{ body: { padding: isMobile ? 12 : 20 } }}
 					>

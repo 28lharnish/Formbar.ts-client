@@ -140,9 +140,12 @@ export type PogPool = {
 	name: string;
 	description: string;
 	amount: number;
-	share_item: number;
+	shareItem: number;
 	members: any[];
-	owners: any[];
+	topShareholders: Array<{
+		id: number;
+		displayName: string;
+	}>;
 };
 
 export type Class = {

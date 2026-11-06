@@ -45,3 +45,13 @@ export function removePoolMember(
 ) {
 	return http(`/pools/${poolId}/remove-member`, "POST", {}, body);
 }
+
+export function updatePoolPin(
+	poolId: number,
+	body: {
+		oldPin: string | undefined,
+		pin: string | undefined
+	}
+) {
+	return http(`/pool/${poolId}/pin`, "PATCH", {}, body);
+}

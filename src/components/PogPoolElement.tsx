@@ -9,8 +9,11 @@ import {
 	Typography,
 	InputNumber,
 	Segmented,
+	Popover,
+	Popconfirm,
+	Input,
 } from "antd";
-import { payoutPool, deletePool } from "@api/pogPoolsApi";
+import { payoutPool, deletePool, updatePoolPin } from "@api/pogPoolsApi";
 const { Text } = Typography;
 import { IonIcon } from "@ionic/react";
 import Log from "@utils/debugLogger";
@@ -39,6 +42,10 @@ export default function PogPoolElement({
 	);
 	const [payoutPercent, setPayoutPercent] = useState<number>(100);
 	const [payoutDigipogs, setPayoutDigipogs] = useState<number>(pool.amount);
+
+	const [newPin, setNewPin] = useState<string>();
+	const [oldPin, setOldPin] = useState<string>();
+
 
 	const handlePayout = (poolId: number) => {
 		Log({ message: `Payout initiated for pool ${poolId}` });
@@ -105,16 +112,14 @@ export default function PogPoolElement({
 		});
 	};
 
-	const isOwner =
-		Array.isArray(pool.owners) &&
-		pool.owners.some((owner) => owner.id === Number(userData?.id));
-	const ownerLabel = isOwner
-		? "You"
-		: Array.isArray(pool.owners) && pool.owners.length > 0
-			? `${pool.owners[0].displayName}`
-			: "N/A";
+	const isOwner = userData &&
+		pool.topShareholders.some((e) => 
+			e.id === userData?.id
+		);
 
 	const canManagePools = currentUserHasScope(userData, "global.pools.manage");
+
+	Log({ message: `${isOwner} | ${canManagePools}`, level:'error' })
 
 	return (
 		<>
@@ -206,6 +211,50 @@ export default function PogPoolElement({
 										key="payout"
 									/>
 								</Tooltip>,
+								<Popconfirm
+									title="Enter old and new PINs"
+									description={(
+										<Flex gap={10}>
+											<Input.Password
+												autoFocus
+												style={{ width: 150 }}
+												value={oldPin}
+												onChange={(event) => setOldPin(event.target.value)}
+												placeholder="Old PIN"
+												maxLength={6}
+											/>
+											<Input.Password
+												autoFocus
+												style={{ width: 150 }}
+												value={newPin}
+												onChange={(event) => setNewPin(event.target.value)}
+												placeholder="New PIN"
+												maxLength={6}
+											/>
+										</Flex>
+									)}
+									showCancel={false}
+									okText="Continue"
+									onConfirm={() => {
+										setOldPin("");
+										setNewPin("");
+										updatePoolPin(pool.id, { oldPin, pin: newPin })
+									}}
+								>
+									<Tooltip
+										mouseEnterDelay={0.5}
+										title="Change Pool PIN"
+										key="poolPin"
+										placement="top"
+										color="red"
+									>
+										<IonIcon
+											icon={IonIcons.keyOutline}
+											style={{ fontSize: "32px" }}
+											key="payout"
+										/>
+									</Tooltip>
+								</Popconfirm>,
 								<Tooltip
 									mouseEnterDelay={0.5}
 									title="Delete Pool"
@@ -229,8 +278,8 @@ export default function PogPoolElement({
 				<Row gutter={[16, 16]} style={{ marginTop: "20px" }}>
 					<Col span={12}>
 						<Statistic
-							title="Owner"
-							value={ownerLabel}
+							title={`Owner${pool.topShareholders.length > 1 ? "s" : ""}`}
+							value={pool.topShareholders.map((e: { id: number, displayName: string }) => e.displayName).join(', ')}
 							styles={{
 								content: {
 									textAlign: "center",
