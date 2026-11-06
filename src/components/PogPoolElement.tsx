@@ -45,13 +45,14 @@ export default function PogPoolElement({
 
 	const [newPin, setNewPin] = useState<string>();
 	const [oldPin, setOldPin] = useState<string>();
-
+	const [payoutPin, setPayoutPin] = useState<string>();
 
 	const handlePayout = (poolId: number) => {
 		Log({ message: `Payout initiated for pool ${poolId}` });
 
 		payoutPool(
 			poolId,
+			payoutPin,
 			percentOrSet === "Percent" ? payoutPercent : payoutDigipogs,
 			percentOrSet,
 		)
@@ -139,38 +140,49 @@ export default function PogPoolElement({
 					the full amount.
 				</Text>
 				<Flex
-					align="center"
-					justify="space-between"
-					gap={10}
-					style={{ marginTop: 20 }}
+					vertical
 				>
-					<Segmented
-						options={["Percent", "Digipogs"]}
-						onChange={setPercentOrSet}
+					<Input.Password
+						autoFocus
+						value={payoutPin}
+						onChange={(event) => setPayoutPin(event.target.value)}
+						placeholder="Pool PIN"
+						maxLength={6}
 					/>
-					{percentOrSet === "Digipogs" ? (
-						<>
-							<InputNumber
-								suffix="digipogs"
-								style={{ width: 200 }}
-								max={pool.amount}
-								min={0}
-								value={payoutDigipogs}
-								onChange={(e) => setPayoutDigipogs(e || 0)}
-							/>
-						</>
-					) : (
-						<>
-							<InputNumber
-								suffix="%"
-								style={{ width: 200 }}
-								max={100}
-								min={0}
-								value={payoutPercent}
-								onChange={(e) => setPayoutPercent(e || 0)}
-							/>
-						</>
-					)}
+					<Flex
+						align="center"
+						justify="space-between"
+						gap={10}
+						style={{ marginTop: 10 }}
+					>
+						<Segmented
+							options={["Percent", "Digipogs"]}
+							onChange={setPercentOrSet}
+						/>
+						{percentOrSet === "Digipogs" ? (
+							<>
+								<InputNumber
+									suffix="digipogs"
+									style={{ width: 200 }}
+									max={pool.amount}
+									min={0}
+									value={payoutDigipogs}
+									onChange={(e) => setPayoutDigipogs(e || 0)}
+								/>
+							</>
+						) : (
+							<>
+								<InputNumber
+									suffix="%"
+									style={{ width: 200 }}
+									max={100}
+									min={0}
+									value={payoutPercent}
+									onChange={(e) => setPayoutPercent(e || 0)}
+								/>
+							</>
+						)}
+					</Flex>
 				</Flex>
 			</Modal>
 
@@ -278,7 +290,7 @@ export default function PogPoolElement({
 				<Row gutter={[16, 16]} style={{ marginTop: "20px" }}>
 					<Col span={12}>
 						<Statistic
-							title={`Owner${pool.topShareholders.length > 1 ? "s" : ""}`}
+							title={`Top Shareholder${pool.topShareholders.length > 1 ? "s" : ""}`}
 							value={pool.topShareholders.map((e: { id: number, displayName: string }) => e.displayName).join(', ')}
 							styles={{
 								content: {

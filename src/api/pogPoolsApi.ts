@@ -23,6 +23,7 @@ export function addPoolMember(
 
 export function payoutPool(
 	poolId: number,
+	payoutPin: string | undefined,
 	amount: number,
 	payoutType: "Percent" | "Digipogs",
 ) {
@@ -32,6 +33,7 @@ export function payoutPool(
 		{},
 		{
 			amount,
+			pin: payoutPin,
 			payoutType: payoutType.toLowerCase(),
 		},
 	);
