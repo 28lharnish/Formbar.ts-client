@@ -1,4 +1,5 @@
 import { IonIcon } from "@ionic/react";
+import * as IonIcons from "ionicons/icons"
 import {
 	Flex,
 	Menu,
@@ -263,6 +264,17 @@ export default function SettingsModal() {
 							</Button>
 						</Popconfirm>
 					);
+				}
+				if (config.key === "visit-api-docs") {
+					return ( 
+						<Button
+							type="primary"
+							style={{ width: "100%" }}
+							onClick={() => window.open(import.meta.env.VITE_FORMBAR_API_URL + "/docs")}
+						>
+							<IonIcon icon={IonIcons.documentText} /> {config.label}
+						</Button>
+					)
 				}
 				return null;
 			default:

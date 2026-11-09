@@ -65,6 +65,15 @@ export const settingCategories: SettingCategory[] = [
 		deselectedIcon: null,
 	},
 	{
+		id: "developer",
+		label: "Developer",
+		description:
+			"Options for Developers",
+		icon: IonIcons.codeSlash,
+		selectedIcon: IonIcons.codeSlash,
+		deselectedIcon: IonIcons.code,
+	},
+	{
 		id: "user",
 		label: "User",
 		description: "Manage your current Formbar session.",
@@ -170,6 +179,13 @@ export const settingsConfig: SettingConfig[] = [
 				value: "tritanopia" satisfies ColorVisionMode,
 			},
 		],
+	},
+	{
+		key: "visit-api-docs",
+		label: "API Documentation",
+		description: "Visit the page for API documentation.",
+		type: "action",
+		category: "developer",
 	},
 	{
 		key: "logout",
