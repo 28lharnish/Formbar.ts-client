@@ -8,14 +8,17 @@ import {
 	Typography,
 	Slider,
 	Select,
+	Input,
 	Button,
 	Popconfirm,
 	Card,
+	Alert,
+	Spin,
 } from "antd";
 
 const { Text } = Typography;
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMobileDetect, useSettings, useUserData, useTheme } from "@/main";
 import {
@@ -26,6 +29,7 @@ import {
 import { clearAuthTokens } from "@api/authApi";
 import { socket } from "@utils/socket";
 import { userHasAllScopes } from "@utils/scopeUtils";
+import { getAppById } from "@api/appsApi";
 
 type MenuItem = Required<MenuProps>["items"][number] & {
 	selectedicon?: React.ReactNode;
@@ -38,6 +42,16 @@ interface SettingItemProps {
 	onChange: (newValue: any) => void;
 	onAction?: (key: string) => void;
 }
+
+type AppProfile = {
+	id?: number | string;
+	name?: string;
+	displayName?: string;
+	description?: string;
+	version?: string;
+	author?: string;
+	[key: string]: unknown;
+};
 
 export default function SettingsModal() {
 	const [currentCategoryId, setCurrentCategoryId] =
@@ -75,6 +89,69 @@ export default function SettingsModal() {
 	const isMobile = useMobileDetect();
 	const { userData, setUserData } = useUserData();
 	const navigate = useNavigate();
+	const appId = settings.developer["testing-app-id"].trim();
+	const [appProfile, setAppProfile] = useState<AppProfile | null>(null);
+	const [appLookupLoading, setAppLookupLoading] = useState(false);
+	const [appLookupError, setAppLookupError] = useState<string | null>(null);
+
+	useEffect(() => {
+		if (!appId) {
+			setAppProfile(null);
+			setAppLookupError(null);
+			setAppLookupLoading(false);
+			return;
+		}
+
+		const parsedAppId = Number(appId);
+		if (!Number.isInteger(parsedAppId) || parsedAppId <= 0) {
+			setAppProfile(null);
+			setAppLookupError("Enter a positive numeric App ID.");
+			setAppLookupLoading(false);
+			return;
+		}
+
+		let isCurrentLookup = true;
+		setAppLookupLoading(true);
+		setAppLookupError(null);
+
+		const lookupTimeout = window.setTimeout(() => {
+			getAppById(parsedAppId)
+				.then((response) => {
+					if (!isCurrentLookup) return;
+					const payload =
+						response &&
+						typeof response === "object" &&
+						"data" in response
+							? response.data
+							: response;
+					setAppProfile(
+						payload && typeof payload === "object"
+							? (payload as AppProfile)
+							: null,
+					);
+					if (!payload || typeof payload !== "object") {
+						setAppLookupError("The server returned an invalid app.");
+					}
+				})
+				.catch((error: unknown) => {
+					if (!isCurrentLookup) return;
+					setAppProfile(null);
+					setAppLookupError(
+						error instanceof Error
+							? error.message
+							: "Unable to fetch the app.",
+					);
+				})
+				.finally(() => {
+					if (isCurrentLookup) setAppLookupLoading(false);
+				});
+		}, 400);
+
+		return () => {
+			isCurrentLookup = false;
+			window.clearTimeout(lookupTimeout);
+		};
+	}, [appId]);
 
 	function isSettingVisible(config: SettingConfig): boolean {
 		// Check login requirement
@@ -85,7 +162,31 @@ export default function SettingsModal() {
 		// Check required scopes
 		if (config.requiredScopes && config.requiredScopes.length > 0) {
 			if (!userData) return false;
-			return userHasAllScopes(userData, config.requiredScopes);
+			if (!userHasAllScopes(userData, config.requiredScopes)) {
+				return false;
+			}
+		}
+
+		if (config.requiresSettings) {
+			const requirementMatches = config.requiresSettings.prerequisites.map(
+				(prerequisite) => {
+					const requiredSetting = settingsConfig.find(
+						(setting) => setting.key === prerequisite.settingKey,
+					);
+
+					return (
+						requiredSetting !== undefined &&
+						getSettingValue(requiredSetting) === prerequisite.value
+					);
+				},
+			);
+			const requirementsMet = config.requiresSettings.requireAll
+				? requirementMatches.every(Boolean)
+				: requirementMatches.some(Boolean);
+
+			if (!requirementsMet) {
+				return false;
+			}
 		}
 
 		return true;
@@ -117,7 +218,7 @@ export default function SettingsModal() {
 		}
 	}
 
-	function SettingItem({
+	function renderSettingItem({
 		config,
 		value,
 		onChange,
@@ -148,6 +249,36 @@ export default function SettingsModal() {
 							)}
 						</Flex>
 						<Switch checked={value} onChange={onChange} />
+					</Flex>
+				);
+			case "input":
+				return (
+					<Flex
+						gap={16}
+						align="center"
+						justify="space-between"
+						style={{ width: "100%" }}
+					>
+						<Flex vertical gap={2} style={{ flex: 1 }}>
+							<Text>
+								{isMobile && config.mobileLabel
+									? config.mobileLabel
+									: config.label}
+							</Text>
+							{!isMobile && config.description && (
+								<Text
+									type="secondary"
+									style={{ fontSize: "12px" }}
+								>
+									{config.description}
+								</Text>
+							)}
+						</Flex>
+						<Input
+							value={value ?? ""}
+							onChange={(event) => onChange(event.target.value)}
+							style={{ width: 200 }}
+						/>
 					</Flex>
 				);
 			case "number":
@@ -266,17 +397,82 @@ export default function SettingsModal() {
 					);
 				}
 				if (config.key === "visit-api-docs") {
-					return ( 
-						<Button
-							type="primary"
-							style={{ width: "100%" }}
-							onClick={() => window.open(import.meta.env.VITE_FORMBAR_API_URL + "/docs")}
-						>
-							<IonIcon icon={IonIcons.documentText} /> {config.label}
-						</Button>
+					return (
+						<Flex gap={10}>
+							<Button
+								type="primary"
+								style={{ width: "100%" }}
+								onClick={() => window.open(import.meta.env.VITE_FORMBAR_API_URL + "/docs")}
+								title={import.meta.env.VITE_FORMBAR_API_URL + "/docs"}
+							>
+								<IonIcon icon={IonIcons.documentText} /> {"API Documentation"}
+							</Button>
+							<Button
+								type="primary"
+								style={{ width: "100%" }}
+								onClick={() => window.open("https://github.com/csmith1188/Formbar.js/wiki")}
+								title="https://github.com/csmith1188/Formbar.js/wiki"
+							>
+								<IonIcon icon={IonIcons.logoGithub} /> {"Backend Wiki"}
+							</Button>
+							<Button
+								type="primary"
+								style={{ width: "100%" }}
+								onClick={() => window.open("https://github.com/csmith1188/Formbar.ts-client/wiki")}
+								title="https://github.com/csmith1188/Formbar.ts-client/wiki"
+							>
+								<IonIcon icon={IonIcons.logoGithub} /> {"Frontend Wiki"}
+							</Button>
+						</Flex>
 					)
 				}
 				return null;
+			case "developer-app-profile":
+				return (
+					<>
+						{appLookupLoading && <Spin size="small" />}
+						{appLookupError && (
+							<Alert
+								type="error"
+								showIcon
+								title={appLookupError}
+							/>
+						)}
+						{appProfile && !appLookupLoading && !appLookupError && (
+							<Flex vertical gap={4}>
+								<Text strong>
+									{appProfile.displayName ||
+										appProfile.name ||
+										`App ${appProfile.id ?? appId}` }
+								</Text>
+								{appProfile.description && (
+									<Text type="secondary">
+										{appProfile.description}
+									</Text>
+								)}
+								{(appProfile.version || appProfile.author) && (
+									<Text type="secondary">
+										{[
+											appProfile.version &&
+												`Version ${appProfile.version}`,
+											appProfile.author &&
+												`Author: ${appProfile.author}`,
+										]
+											.filter(Boolean)
+											.join(" | ")}
+									</Text>
+								)}
+							</Flex>
+						)}
+						{!appProfile && !appLookupLoading && !appLookupError && (
+							<>
+								<Text strong>
+									{ "Please input an App ID"}
+								</Text>
+							</>
+						)}
+					</>
+				)
 			default:
 				return null;
 		}
@@ -415,14 +611,13 @@ export default function SettingsModal() {
 							size="small"
 							styles={{ body: { padding: isMobile ? 14 : 18 } }}
 						>
-							<SettingItem
-								config={config}
-								value={getSettingValue(config)}
-								onChange={(newValue) =>
-									updateSetting(config, newValue)
-								}
-								onAction={handleAction}
-							/>
+							{renderSettingItem({
+								config,
+								value: getSettingValue(config),
+								onChange: (newValue) =>
+									updateSetting(config, newValue),
+								onAction: handleAction,
+							})}
 						</Card>
 					))}
 				</Flex>

@@ -2,7 +2,13 @@ import * as IonIcons from "ionicons/icons";
 import type { ScopeKey } from "@/types";
 import type { ColorVisionMode } from "@utils/accessibilityColors";
 
-export type SettingType = "boolean" | "number" | "select" | "action";
+export type SettingType = 
+	"boolean" |
+	"number" |
+	"select" |
+	"action" |
+	"input" |
+	"developer-app-profile";
 
 export interface SettingConfig {
 	key: string;
@@ -17,6 +23,14 @@ export interface SettingConfig {
 	step?: number;
 	requiresLogin?: boolean;
 	requiredScopes?: ScopeKey[];
+	requiresSettings?: {
+		requireAll?: boolean;
+		disableOnNotMet?: boolean;
+		prerequisites: {
+			settingKey: string;
+			value: any;
+		}[]
+	};
 }
 
 export interface SettingCategory {
@@ -67,8 +81,7 @@ export const settingCategories: SettingCategory[] = [
 	{
 		id: "developer",
 		label: "Developer",
-		description:
-			"Options for Developers",
+		description: "Options for App Developers",
 		icon: IonIcons.codeSlash,
 		selectedIcon: IonIcons.codeSlash,
 		deselectedIcon: IonIcons.code,
@@ -181,11 +194,54 @@ export const settingsConfig: SettingConfig[] = [
 		],
 	},
 	{
+		key: "show-developer-options",
+		label: "Enable Developer Options",
+		description: "Shows options for developers for ease of testing apps.",
+		type: "boolean",
+		category: "developer",
+	},
+	{
 		key: "visit-api-docs",
 		label: "API Documentation",
 		description: "Visit the page for API documentation.",
 		type: "action",
 		category: "developer",
+		requiresSettings: {
+			requireAll: true,
+			prerequisites: [{
+				settingKey: "show-developer-options",
+				value: true,
+			}],
+		},
+	},
+	{
+		key: "testing-app-id",
+		label: "App ID",
+		description: "App testing requires the app ID.",
+		type: "input",
+		category: "developer",
+		requiresSettings: {
+			requireAll: true,
+			disableOnNotMet: false,
+			prerequisites: [{
+				settingKey: "show-developer-options",
+				value: true,
+			}],
+		},
+	},
+	{
+		key: "developer-app-profile",
+		label: '',
+		type: 'developer-app-profile',
+		category: 'developer',
+		requiresSettings: {
+			requireAll: true,
+			disableOnNotMet: false,
+			prerequisites: [{
+				settingKey: "show-developer-options",
+				value: true,
+			}],
+		},
 	},
 	{
 		key: "logout",

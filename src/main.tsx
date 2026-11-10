@@ -84,6 +84,10 @@ export type AppSettings = {
 		colorVisionMode: ColorVisionMode;
 		highContrast: boolean;
 	};
+	developer: {
+		"show-developer-options": boolean;
+		"testing-app-id": string;
+	};
 };
 
 type SettingsContextType = {
@@ -105,6 +109,10 @@ const defaultSettings: AppSettings = {
 		largeText: 100,
 		colorVisionMode: "default",
 		highContrast: false,
+	},
+	developer: {
+		"show-developer-options": false,
+		"testing-app-id": "",
 	},
 };
 
@@ -393,6 +401,10 @@ const SettingsProvider = ({ children }: { children: ReactNode }) => {
 					...defaultSettings.accessibility,
 					...parsed.accessibility,
 					largeText,
+				},
+				developer: {
+					...defaultSettings.developer,
+					...parsed.developer,
 				},
 			};
 		} catch {
